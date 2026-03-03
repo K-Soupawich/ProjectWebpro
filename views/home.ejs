@@ -3,9 +3,242 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Document</title>
+    <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@100..900&family=Noto+Sans+Thai:wght@400;600;700;800;900&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Inter', 'Noto Sans Thai', sans-serif;
+        }
+
+        .scrollbar-hide::-webkit-scrollbar { display: none; }
+        .scrollbar-hide { -ms-overflow-style: none; scrollbar-width: none; }
+    </style>
+    <title>Home</title>
 </head>
-<body>
+<body style="font-family: 'Inter', 'Noto Sans Thai', sans-serif;">
+    <div class="bg-[#F8F8F8] h-[78px] flex items-center border-b border-gray-300">
+        <div class="ml-[60px]">
+            <a href="/">
+                <img src="/img/logo1.png" class="w-[100px] h-[67px]">
+            </a>
+        </div>
+
+        <div class=" ml-[1000px]">
+            <a href="/">
+                <img src="/img/cart.png" class="w-[47px] h-[47px]">
+            </a>
+        </div>
+
+        <div class="flex items-center justify-center mt-6 ml-2">
+            <a href="/login">
+                <img src="/img/btn_login.png" class="w-[170px]">
+            </a>
+        </div>
+    </div>
+
+
+    <div class="bg-gradient-to-tr from-[#F8F7F3] to-[#EFEBE2] flex">
+        <div>
+            <div class="w-[690px]">
+                <h1 class="text-8xl mt-[111px] ml-[90px] font-extrabold text-[#30231D]">ความมั่นใจ</h1>
+                <h1 class="text-7xl mt-[20px] ml-[90px] font-extrabold text-[#A28161]">เริ่มต้นที่การแต่งตัว</h1>
+
+                <p class="text-xl w-[550px] mt-[25px] ml-[90px]">เรานำเสนอเสื้อผ้าแฟชั่นหลากหลายสไตล์ที่คัดสรรอย่างพิถีพิถัน เพื่อให้ทุกลุคของคุณโดดเด่นและมั่นใจในทุกโอกาส พร้อมใส่ใจทั้งคุณภาพ ความสบาย และดีไซน์ เพื่อให้ทุกชิ้นสะท้อนความเป็นตัวคุณอย่างแท้จริง</p>
+                <a href="/login">
+                    <img src="/img/btn_shop.png" class="w-[340px] ml-[45px] mt-[25px]">
+                </a>
+            </div>
+            <div>
+
+            </div>
+        </div>
+
+
+        <div class="mt-6">
+            <img src="/img/model1.png" class="w-[722px]">
+        </div>
+    </div>
+
+
+    <div>
+        <img src="/img/main1.png">
+    </div>
+
+    <div class="flex h-[977px] justify-center items-center">
+        <div>
+            <img src="/img/model2.png" class="w-[621px] mr-[60px] rounded-[10px]">
+        </div>
+
+        <div>
+            <div class="bg-gradient-to-tr from-[#A28161] to-[#65513D] w-[567px] h-[240px] mb-[20px] flex flex-col justify-center items-center text-center rounded-[10px]">
+                <h1 class="text-6xl text-[#F8F7F3] font-bold">เรียบหรู ดูดี ทุกวัน</h1>
+                <p class="text-3xl text-[#FFFFFF] mt-10">วันนี้ใส่อะไรดี? ใส่เราเลย</p>
+            </div>
+
+            <div>
+                <img src="/img/model3.png" class="w-[568px] rounded-[10px]">
+            </div>
+        </div>
+    </div>
+
+
+    <div class="bg-[#EFEBE2] h-[630px]">
+
+        <h1 class="text-6xl font-bold text-[#30231D] flex justify-center">สินค้าตัวอย่าง</h1>
+
+        <div class="relative">
+
+            <!-- ปุ่มซ้าย -->
+            <button onclick="prevSlide()" class="absolute left-0 top-1/2 -translate-y-1/2 z-10">
+                <img src="/img/left_button.png" class="w-[58px]">
+            </button>
+
+            <div id="productContainer" class="flex flex-nowrap gap-6 overflow-x-auto scroll-smooth px-16 scrollbar-hide max-w-[1100px] mx-auto">
+
+                <div class="bg-[#F8F8F8] w-[326px] h-[335px] rounded-[20px] flex-shrink-0">
+                    <div class="flex justify-center items-center">
+                        <div class="bg-[#F8F8F8] w-[284px] h-[230px] rounded-[20px] flex justify-center items-center shadow-lg mt-[18px]">
+                            <img src="/img/shirt1.png" class="w-[212px]">
+                        </div>
+                    </div>
+                    
+                    <div>
+                        <div class="flex flex-col">
+                            <p class="ml-[28px] mt-[19px]">เสื้อยืด Space of loves</p>
+
+                            <div class="flex mt-[10px]">
+                                <h2 class="ml-[28px] mr-[200px]">฿250</h2>
+                                <a href="/login">
+                                    <img src="/img/cart.png" class="w-[26.65px]">
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="bg-[#F8F8F8] w-[326px] h-[335px] rounded-[20px] flex-shrink-0">
+                    <div class="flex justify-center items-center">
+                        <div class="bg-[#F8F8F8] w-[284px] h-[230px] rounded-[20px] flex justify-center items-center shadow-lg mt-[18px]">
+                            <img src="/img/shirt2.png" class="w-[212px]">
+                        </div>
+                    </div>
+                    
+                    <div>
+                        <div class="flex flex-col">
+                            <p class="ml-[28px] mt-[19px]">เสื้อยืด Heart Mind</p>
+
+                            <div class="flex mt-[10px]">
+                                <h2 class="ml-[28px] mr-[200px]">฿270</h2>
+                                <a href="/login">
+                                    <img src="/img/cart.png" class="w-[26.65px]">
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="bg-[#F8F8F8] w-[326px] h-[335px] rounded-[20px] flex-shrink-0">
+                    <div class="flex justify-center items-center">
+                        <div class="bg-[#F8F8F8] w-[284px] h-[230px] rounded-[20px] flex justify-center items-center shadow-lg mt-[18px]">
+                            <img src="/img/shirt3.png" class="w-[212px]">
+                        </div>
+                    </div>
+                    
+                    <div>
+                        <div class="flex flex-col">
+                            <p class="ml-[28px] mt-[19px]">เสื้อยืด ปลาแดกราเมน</p>
+
+                            <div class="flex mt-[10px]">
+                                <h2 class="ml-[28px] mr-[200px]">฿550</h2>
+                                <a href="/login">
+                                    <img src="/img/cart.png" class="w-[26.65px]">
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="bg-[#F8F8F8] w-[326px] h-[335px] rounded-[20px] flex-shrink-0">
+                    <div class="flex justify-center items-center">
+                        <div class="bg-[#F8F8F8] w-[284px] h-[230px] rounded-[20px] flex justify-center items-center shadow-lg mt-[18px]">
+                            <img src="/img/shirt3.png" class="w-[212px]">
+                        </div>
+                    </div>
+                    
+                    <div>
+                        <div class="flex flex-col">
+                            <p class="ml-[28px] mt-[19px]">เสื้อยืด ปลาแดกราเมน</p>
+
+                            <div class="flex mt-[10px]">
+                                <h2 class="ml-[28px] mr-[200px]">฿550</h2>
+                                <a href="/login">
+                                    <img src="/img/cart.png" class="w-[26.65px]">
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="bg-[#F8F8F8] w-[326px] h-[335px] rounded-[20px] flex-shrink-0">
+                    <div class="flex justify-center items-center">
+                        <div class="bg-[#F8F8F8] w-[284px] h-[230px] rounded-[20px] flex justify-center items-center shadow-lg mt-[18px]">
+                            <img src="/img/shirt3.png" class="w-[212px]">
+                        </div>
+                    </div>
+                    
+                    <div>
+                        <div class="flex flex-col">
+                            <p class="ml-[28px] mt-[19px]">เสื้อยืด ปลาแดกราเมน</p>
+
+                            <div class="flex mt-[10px]">
+                                <h2 class="ml-[28px] mr-[200px]">฿550</h2>
+                                <a href="/login">
+                                    <img src="/img/cart.png" class="w-[26.65px]">
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="bg-[#F8F8F8] w-[326px] h-[335px] rounded-[20px] flex-shrink-0">
+                    <div class="flex justify-center items-center">
+                        <div class="bg-[#F8F8F8] w-[284px] h-[230px] rounded-[20px] flex justify-center items-center shadow-lg mt-[18px]">
+                            <img src="/img/shirt3.png" class="w-[212px]">
+                        </div>
+                    </div>
+                    
+                    <div>
+                        <div class="flex flex-col">
+                            <p class="ml-[28px] mt-[19px]">เสื้อยืด ปลาแดกราเมน</p>
+
+                            <div class="flex mt-[10px]">
+                                <h2 class="ml-[28px] mr-[200px]">฿550</h2>
+                                <a href="/login">
+                                    <img src="/img/cart.png" class="w-[26.65px]">
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+        </div>
+
+        <!-- ปุ่มขวา -->
+        <button onclick="nextSlide()" class="absolute right-0 top-1/2 -translate-y-1/2 z-10">
+            <img src="/img/right_button.png" class="w-[58px]">
+        </button>
+
+    </div>
+
+    <script>
+            // card กว้าง 326px + gap 24px = 350px ต่อ 1 card
+            function prevSlide() {
+                document.getElementById('productContainer').scrollBy({ left: -350, behavior: 'smooth' });
+            }
+            function nextSlide() {
+                document.getElementById('productContainer').scrollBy({ left: 350, behavior: 'smooth' });
+            }
+    </script>
     
 </body>
 </html>

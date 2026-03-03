@@ -23,6 +23,9 @@ app.use(session({
     }
 }));
 
+//อนุญาตให้เข้าถึงรูปภาพใน public ได้
+app.use(express.static('public'))
+
 // ===== ส่ง user ไปทุก view =====
 app.use((req, res, next) => {
   res.locals.user = req.session.user || null;
