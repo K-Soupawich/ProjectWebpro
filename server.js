@@ -1,14 +1,16 @@
 const express = require('express');
 const session = require('express-session');
-const authRoutes = require('./routes/auth');
+require('dotenv').config();
+
+const authRoutes = require('./routes/authRoutes');
 const { isLoggedIn, authorize } = require('./middleware/authMiddleware');
 
 const app = express();
-
-app.use(express.urlencoded({ extended: true }));
 app.set('view engine', 'ejs');
 
-require('dotenv').config();
+app.use(express.urlencoded({ extended: true }));
+app.use(express.static('public'));
+
 // ===== Session Config =====
 app.use(session({
     secret: process.env.SESSION_SECRET,
@@ -27,20 +29,29 @@ app.use((req, res, next) => {
   next();
 });
 
-// ===== Routes =====
+// ===== Public Routes =====
 app.use('/', authRoutes);
 
+app.get('/', (req, res) => {
+    res.render('home');
+});
+
 // ===== Protected Routes =====
-app.get('/admin', isLoggedIn, authorize('admin'), (req, res) => {
-    res.send("Admin Dashboard");
+app.get('/admin', isLoggedIn, authorize(['admin']), (req, res) => {
+    res.render('admin', { user: req.session.user });
 });
 
-app.get('/staff', isLoggedIn, authorize('staff'), (req, res) => {
-    res.send("Staff Dashboard");
+app.get('/staff', isLoggedIn, authorize(['staff']), (req, res) => {
+     res.render('staff', { user: req.session.user });
 });
 
-app.get('/customer', isLoggedIn, authorize('customer'), (req, res) => {
-    res.send("Customer Dashboard");
+app.get('/dashboard', isLoggedIn, authorize(['admin','staff']), (req, res) => {
+    res.render('dashboard', { user: req.session.user });
+});
+
+// Customer only
+app.get('/customer', isLoggedIn, authorize(['customer']), (req, res) => {
+        res.render('customer', { user: req.session.user });
 });
 
 app.listen(process.env.PORT, () => {

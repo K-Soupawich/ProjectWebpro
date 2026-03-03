@@ -1,9 +1,28 @@
-<%- include('partials/navbar') %>
+<!DOCTYPE html>
+<html lang="en">
 
-<h2>Register</h2>
-<form action="/register" method="POST">
-    <input type="text" name="name" required placeholder="Name">
-    <input type="email" name="email" required placeholder="Email">
-    <input type="password" name="password" required placeholder="Password">
-    <button type="submit">Register</button>
-</form>
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ลงทะเบียน</title>
+</head>
+
+<body>
+    <div class="left">
+        <img src="">
+    </div>
+    <div class="right">
+        <h2>ลงทะเบียน</h2>
+        <form action="/register" method="POST">
+            <input type="text" name="username" required placeholder="ชื่อบัญชีผู้ใช้">
+            <input type="text" name="phone" required placeholder="เบอร์โทร">
+            <input type="email" name="email" required placeholder="อีเมล">
+            <input type="password" name="password" required placeholder="รหัสผ่าน">
+            <input type="password" name="confirm_password" required placeholder="ยืนยันรหัสผ่าน">
+            <button type="submit">ลงทะเบียน</button>
+        </form>
+        <a href="/login">เข้าสู่ระบบ</a>
+    </div>
+</body>
+
+</html>

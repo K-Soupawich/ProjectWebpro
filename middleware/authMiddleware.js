@@ -5,10 +5,10 @@ function isLoggedIn(req, res, next) {
     next();
 }
 
-function authorize(role) {
+function authorize(roles) {
     return (req, res, next) => {
-        if (!req.session.user || req.session.user.role !== role) {
-            return res.send("Access Denied");
+        if (!req.session.user || !roles.includes(req.session.user.role)) {
+            return res.status(403).send("Access Denied");
         }
         next();
     };
