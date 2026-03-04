@@ -3,6 +3,7 @@ const session = require('express-session');
 require('dotenv').config();
 
 const authRoutes = require('./routes/authRoutes');
+const homeRoutes = require('./routes/home');
 const { isLoggedIn, authorize } = require('./middleware/authMiddleware');
 
 const app = express();
@@ -28,16 +29,13 @@ app.use(express.static('public'))
 
 // ===== ส่ง user ไปทุก view =====
 app.use((req, res, next) => {
-  res.locals.user = req.session.user || null;
-  next();
+    res.locals.user = req.session.user || null;
+    next();
 });
 
 // ===== Public Routes =====
 app.use('/', authRoutes);
-
-app.get('/', (req, res) => {
-    res.render('home');
-});
+app.use('/', homeRoutes);
 
 // ===== Protected Routes =====
 app.get('/admin', isLoggedIn, authorize(['admin']), (req, res) => {
@@ -45,16 +43,16 @@ app.get('/admin', isLoggedIn, authorize(['admin']), (req, res) => {
 });
 
 app.get('/staff', isLoggedIn, authorize(['staff']), (req, res) => {
-     res.render('staff', { user: req.session.user });
+    res.render('staff', { user: req.session.user });
 });
 
-app.get('/dashboard', isLoggedIn, authorize(['admin','staff']), (req, res) => {
+app.get('/dashboard', isLoggedIn, authorize(['admin', 'staff']), (req, res) => {
     res.render('dashboard', { user: req.session.user });
 });
 
 // Customer only
 app.get('/customer', isLoggedIn, authorize(['customer']), (req, res) => {
-        res.render('customer', { user: req.session.user });
+    res.render('customer', { user: req.session.user });
 });
 
 app.listen(process.env.PORT, () => {
