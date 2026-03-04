@@ -4,23 +4,71 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>ลงทะเบียน</title>
+    <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
+    <link
+        href="https://fonts.googleapis.com/css2?family=Inter:wght@100..900&family=Noto+Sans+Thai:wght@400;600;700;800;900&display=swap"
+        rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Inter', 'Noto Sans Thai', sans-serif;
+        }
+
+        .input-style {
+            font-size: 28px;
+            font-weight: 600;
+            color: #7a7777;
+            width: 100%;
+            border: none;
+            border-bottom: 1px solid #D9D9D9;
+            padding: 17px 0;
+            margin: 7px 0;
+        }
+
+        .input-style:focus {
+            outline: none;
+            border-bottom: 1px solid #8B6B4A;
+        }
+    </style>
+    <title>เข้าสู่ระบบ</title>
 </head>
 
-<body>
-    <div class="left">
-        <img src="">
-    </div>
-    <div class="right">
-        <h2>เข้าสู่ระบบ</h2>
-        <form action="/register" method="POST">
+<body class="h-screen w-screen bg-gray-F8F7F3 flex items-center justify-center">
+    <div class="flex h-full w-full">
+        <a href="/" class="absolute top-4 right-6 text-gray-400 text-[25px] hover:text-gray-600">
+            ✕
+        </a>
+
+        <!-- ฝั่งซ้าย -->
+        <div class="w-1/2 relative">
+            <img src="/img/login/login_bg.png" class="w-full h-full object-cover" />
+
+            <div
+                class="absolute inset-0 bg-[linear-gradient(68.66deg,#A28161_4.9%,#6E5742_69.48%,#3C3024_225.09%)] opacity-89">
+            </div>
+
+            <div class="absolute inset-0 flex items-center justify-center">
+                <img src="/img/login/logo.png" class="w-[570px] -translate-y-16">
+            </div>
+        </div>
+
+        <!-- ฝั่งขวา -->
+        <div class="w-1/2 flex flex-col items-center justify-center px-20">
+
+            <h2 class="font-semibold text-[36px] text-center mb-10">เข้าสู่ระบบ</h2>
+
             <form action="/login" method="POST">
-                <input type="text" name="identity" required placeholder="อีเมล/ชื่อบัญชี">
-                <input type="password" name="password" required placeholder="รหัสผ่าน">
-                <button type="submit" id="top-btn">เข้าสู่ระบบ</button>
+                <input type="text" class="input-style" name="identity" required placeholder="ชื่อบัญชีผู้ใช้">
+                <input type="password" class="input-style" name="password" required placeholder="รหัสผ่าน">
+                <div class="mt-16 flex flex-col items-center">
+                    <button type="submit">
+                        <img src="/img/login/login_btn.png" class="w-[500px] pb-0" />
+                    </button>
+
+                    <a href="/register"
+                        class="-mt-6 font-semibold text-[28px] text-[#A28161] underline underline-offset-2">ลงทะเบียน</a>
+                </div>
             </form>
-        </form>
-        <a href="/login">ละทะเบียน</a>
+        </div>
     </div>
 </body>
 
