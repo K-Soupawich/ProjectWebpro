@@ -128,3 +128,21 @@ exports.deleteProduct = (req, res) => {
         res.redirect("/products");
     });
 };
+
+exports.getNextSKU = (req, res) => {
+    const code = req.query.code;  // 'SH', 'PN', ...
+    if (!code) return res.json({ sku: '' });
+
+    // นับจำนวน products ที่อยู่ใน category นี้ แล้ว +1
+    let sql = `
+        SELECT COUNT(*) AS total
+        FROM products
+        WHERE category_id = (SELECT id FROM categories WHERE code = ?)
+    `;
+    
+    db.get(sql, [code], (err, row) => {
+        if (err) return res.status(500).json({ error: err.message });
+        const num = String(row.total + 1).padStart(3, '0');
+        res.json({ sku: code + num });  // { sku: 'SH003' }
+    });
+};

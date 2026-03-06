@@ -181,29 +181,31 @@
 
       const selectedSizes = new Set();
 
+      
       // ============================================================
       // SKU  (ใช้ชื่อหมวดหมู่จาก option text เป็น prefix)
       // ============================================================
       const catSelect = document.getElementById('categorySelect');
-      catSelect.addEventListener('change', updateSKUDisplay);
+      const display = document.getElementById('skuDisplay');
+      const skuBaseInput = document.getElementById('skuBase');
 
-      function getCategoryCode() {
+      catSelect.addEventListener('change', async () => {
         const opt = catSelect.selectedOptions[0];
         const code = opt.dataset.code;
-        return code;
-      }
 
-      function updateSKUDisplay() {
-        const code = getCategoryCode();
-        const display = document.getElementById('skuDisplay');
-        if (!code) { display.textContent = '—'; document.getElementById('skuBase').value = ''; return; }
-        // running number: ในระบบจริงควร fetch จาก server
-        const base = code + '001';
-        display.textContent = base;
-        document.getElementById('skuBase').value = base;
-        // อัปเดต label รูปใน panel ที่กำลังแสดง
-        if (activeColor) renderColorPanel();
-      }
+        if (!code) {
+          display.textContent = '—';
+          skuBaseInput.value = '';
+          return;
+        }
+
+        // fetch จาก server
+        const res = await fetch(`/products/next-sku?code=${code}`);
+        const data = await res.json();
+
+        display.textContent = data.sku; // แสดงผลใน div
+        skuBaseInput.value = data.sku; // เก็บค่าส่งไป server
+      });
 
       // ============================================================
       // SIZE CHIPS

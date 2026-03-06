@@ -30,6 +30,7 @@ const check_auth = [isLoggedIn, authorize(['admin', 'staff'])];
 router.get('/', ...check_auth, productsController.listProducts);
 router.get('/add', ...check_auth, productsController.showAdd);
 router.post('/add', ...check_auth, upload.fields(colorFields), productsController.createProduct);
+router.get('/next-sku', ...check_auth, productsController.getNextSKU);
 router.get('/:id/edit', ...check_auth, productsController.showEdit);
 router.post('/:id/delete', ...check_auth, productsController.deleteProduct);
 
