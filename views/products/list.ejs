@@ -13,6 +13,7 @@
     .row-in {
       animation: fadeSlide 0.22s ease both;
     }
+    
     @keyframes fadeSlide {
       from { opacity: 0; transform: translateY(5px); }
       to   { opacity: 1; transform: translateY(0); }
@@ -45,13 +46,13 @@
 
         <!-- Category filter -->
         <div class="relative">
-          <select id="catFilter"
+          <select id="categoryFilter"
             class="appearance-none pl-3.5 pr-8 py-2 text-[13px] font-medium text-[#6E5742]
                    bg-white border border-[#E8E0D5] rounded-lg outline-none
                    focus:border-[#A28161] focus:ring-2 focus:ring-[#A28161]/10 transition cursor-pointer">
             <option value="">หมวดหมู่</option>
-            <% const cats = [...new Set(products.map(p => p.category_name).filter(Boolean))];
-               cats.forEach(c => { %>
+            <% const categories = [...new Set(products.map(p => p.category_name).filter(Boolean))];
+               categories.forEach(c => { %>
               <option value="<%= c %>"><%= c %></option>
             <% }) %>
           </select>
@@ -111,39 +112,72 @@
         <!-- rows -->
         <div id="productList" class="flex flex-col gap-2">
           <% products.forEach((product, i) => {
-               const stock = product.stock ?? 0;
+               const stock = product.total_stock ?? 0;
                const stockColor = stock === 0 ? '#EF4444' : stock <= 5 ? '#F59E0B' : '#10B981';
           %>
             <div class="product-row row-in flex items-center gap-4 bg-white rounded-2xl border border-[#EDE8E0]
                         px-5 py-3.5 hover:border-[#D4C9BB] hover:shadow-sm transition-all group"
-                 style="animation-delay: <%= i * 25 %>ms"
+                 style="--delay: <%= i * 25 %>ms"
                  data-name="<%= product.name.toLowerCase() %>"
                  data-category="<%= (product.category_name || '').toLowerCase() %>">
 
-              <!-- รูปสินค้า -->
+              <!-- รูปสินค้า: เลือกจาก variant ตามลำดับสี WT > BK > BR > RD > BL > SK > YL > PK > GN > PP > GR -->
+              <%
+                const COLOR_PRIORITY = ['WT','BK','BR','RD','BL','SK','YL','PK','GN','PP','GR'];
+                let displayImage = null;
+
+                if (product.variant_images) {
+                  const imageMap = {};
+
+                  product.variant_images.split(',').forEach(entry => {
+                    const [color, img] = entry.split(':');
+
+                    if (color && img && !imageMap[color]) {
+                      imageMap[color] = img;
+                    }
+
+                  });
+
+                  for (const c of COLOR_PRIORITY) {
+                    if (imageMap[c]) {
+                      displayImage = imageMap[c];
+                      break;
+                    }
+                  }
+                }
+              %>
+
               <div class="w-[52px] h-[52px] rounded-xl overflow-hidden bg-[#F5F3EF] border border-[#EDE8E0]
                           flex items-center justify-center flex-shrink-0">
-                <% if (product.image) { %>
-                  <img src="/uploads/<%= product.image %>" class="w-full h-full object-cover">
+
+                <% if (displayImage) { %>
+                  <img src="/uploads/<%= displayImage %>" class="w-full h-full object-cover">
                 <% } else { %>
+                  
                   <svg class="w-6 h-6 text-[#D4C9BB]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"
                       d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828
                          0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"/>
                   </svg>
+
                 <% } %>
               </div>
 
               <!-- ชื่อสินค้า -->
               <div class="flex-1 min-w-0">
+
                 <p class="text-[15px] font-semibold text-[#30231D] truncate">
                   <%= product.name %>
                 </p>
+
                 <% if (product.description) { %>
+
                   <p class="text-[12px] text-[#B5A99A] truncate mt-0.5">
                     <%= product.description %>
                   </p>
+
                 <% } %>
+
               </div>
 
               <!-- หมวดหมู่ -->
@@ -161,27 +195,23 @@
                 </p>
               </div>
 
-              <!-- สต็อก -->
-              <div class="w-[70px] text-right whitespace-nowrap">
-                <span class="text-[13px] font-bold" style="color: <%= stockColor %>">
-                  <%= stock %>
-                </span>
-                <span class="text-[11px] text-[#C5BAB0]"> ชิ้น</span>
-              </div>
-
               <!-- Action buttons (แสดงตลอด บน mobile, hover บน desktop) -->
               <div class="flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
+
                 <a href="/products/<%= product.id %>/edit"
                   class="action-btn edit w-8 h-8 rounded-lg flex items-center justify-center text-[#C5BAB0]">
+
                   <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8"
                       d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5
                          m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"/>
                   </svg>
+
                 </a>
 
                 <form action="/products/<%= product.id %>/delete" method="POST"
-                      onsubmit="return confirm('ลบสินค้า \\'<%= product.name %>\\' ออกจากระบบ?')">
+                      onsubmit="return confirm('ลบสินค้า <%= product.name %> ออกจากระบบ?')">
+
                   <button type="submit"
                     class="action-btn del w-8 h-8 rounded-lg flex items-center justify-center text-[#C5BAB0]">
                     <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -197,7 +227,6 @@
           <% }) %>
         </div>
 
-        <!-- no results after filter -->
         <div id="emptyMsg" class="hidden text-center py-16 text-[#C5BAB0] text-[14px]">
           ไม่พบสินค้าที่ค้นหา
         </div>
@@ -208,23 +237,30 @@
   </div><!-- /main -->
 
 <script>
-  const search   = document.getElementById('searchInput');
-  const catSel   = document.getElementById('catFilter');
-  const rows     = document.querySelectorAll('.product-row');
+  const search = document.getElementById('searchInput');
+  const catSel = document.getElementById('categoryFilter');
+  const rows = document.querySelectorAll('.product-row');
   const emptyMsg = document.getElementById('emptyMsg');
 
   function filter() {
-    const q   = (search?.value || '').toLowerCase().trim();
+    const q = (search?.value || '').toLowerCase().trim();
     const cat = (catSel?.value || '').toLowerCase();
     let shown = 0;
+
     rows.forEach(row => {
-      const nameMatch = !q   || row.dataset.name.includes(q);
-      const catMatch  = !cat || row.dataset.category === cat;
+      const nameMatch = !q || row.dataset.name.includes(q);
+      const catMatch = !cat || row.dataset.category === cat;
+      
       const show = nameMatch && catMatch;
+
       row.style.display = show ? '' : 'none';
+
       if (show) shown++;
     });
-    if (emptyMsg) emptyMsg.classList.toggle('hidden', shown > 0);
+
+    if (emptyMsg) {
+      emptyMsg.classList.toggle('hidden', shown > 0);
+    }
   }
 
   search?.addEventListener('input',  filter);

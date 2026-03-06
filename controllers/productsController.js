@@ -3,7 +3,16 @@ const db = require('../config/db');
 const path = require('path');
 
 exports.listProducts = (req, res) => {
-    db.all("SELECT * FROM products ORDER BY created_at DESC", (err, products) => {
+    db.all(`
+        SELECT p.*, 
+            c.name AS category_name,
+            GROUP_CONCAT(v.color || ':' || COALESCE(v.image, ''), ',') AS variant_images
+        FROM products p
+        LEFT JOIN categories c ON p.category_id = c.id
+        LEFT JOIN product_variants v ON p.id = v.product_id
+        GROUP BY p.id
+        ORDER BY p.created_at DESC
+    `, (err, products) => {
         if (err) {
             console.error(err);
             return res.status(500).send("Database error");
@@ -40,10 +49,9 @@ exports.createProduct = (req, res) => {
     const colorList = colors ? colors.split(',').filter(Boolean) : [];
     const sizeList = sizes ? sizes.split(',').filter(Boolean) : [];
 
-    let sql = `INSERT INTO products (name, description, price, category_id) VALUES (?, ?, ?, ?)`;
-
-    db.run(sql, [name, description, parseFloat(price), parseInt(category_id)],
-
+    db.run(
+        `INSERT INTO products (name, description, price, category_id) VALUES (?, ?, ?, ?)`,
+        [name, description, parseFloat(price), parseInt(category_id)],
         function (err) {
             if (err) {
                 console.error(err);
