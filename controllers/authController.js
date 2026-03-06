@@ -57,7 +57,7 @@ exports.login = async (req, res) => {
             return res.redirect('/dashboard');
         }
 
-        res.redirect('/'); // customer
+        res.redirect('/customer'); // customer
     });
 }
 
