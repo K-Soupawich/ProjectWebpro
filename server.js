@@ -34,13 +34,13 @@ app.use((req, res, next) => {
 // ===== Public Routes =====
 app.use('/', authRoutes);
 app.use('/', homeRoutes);
+app.use("/products", productsRoutes);
 
 // ===== Protected Routes =====
 app.get('/dashboard', isLoggedIn, authorize(['admin', 'staff']), (req, res) => {
     res.render('dashboard', { user: req.session.user });
 });
 
-app.use("/products", productsRoutes);
 
 // Customer only
 app.get('/customer', isLoggedIn, authorize(['customer']), (req, res) => {

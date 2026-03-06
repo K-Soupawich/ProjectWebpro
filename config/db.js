@@ -20,6 +20,7 @@ db.serialize(() => {
     db.run(`
     CREATE TABLE IF NOT EXISTS categories (
         id INTEGER PRIMARY KEY AUTOINCREMENT,
+        code TEXT NOT NULL UNIQUE,
         name TEXT NOT NULL UNIQUE,
         created_at DATETIME DEFAULT CURRENT_TIMESTAMP
     )`);
@@ -65,8 +66,13 @@ db.serialize(() => {
     })();
 
     db.run(`
-    INSERT OR IGNORE INTO categories (id, name)
-    VALUES (1, 'เสื้อยืด')
+        INSERT OR IGNORE INTO categories (code, name) VALUES
+        ('UW', 'ชุดชั้นใน'),
+        ('SH', 'เสื้อ'),
+        ('SK', 'กระโปรง'),
+        ('PN', 'กางเกง'),
+        ('DR', 'เดรส'),
+        ('CT', 'เสื้อแขนยาว')
     `);
 
     // // format (name ,description, price, category_id, image,)

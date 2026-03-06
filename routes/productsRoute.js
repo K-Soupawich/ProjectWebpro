@@ -3,22 +3,8 @@ const multer = require("multer")
 const router = express.Router();
 const db = require('../config/db');
 const path = require("path")
+const productsController = require('../controllers/productsController');
 const { isLoggedIn, authorize } = require('../middleware/authMiddleware');
-
-router.get("/", isLoggedIn, authorize(['admin', 'staff']), (req, res) => {
-    db.all("SELECT * FROM products", (err, products) => {
-        res.render("products/list", {
-            user: req.session.user,
-            products: products
-        });
-    });
-});
-
-router.get("/add", isLoggedIn, authorize(['admin', 'staff']), (req, res) => {
-    res.render("products/add", {
-        user: req.session.user
-    });
-});
 
 const storage = multer.diskStorage({
     destination: function (req, file, cb) {
@@ -27,26 +13,24 @@ const storage = multer.diskStorage({
 
     filename: function (req, file, cb) {
         const sku = req.body.sku;
-
-        const ext = path.extname(file.originalname);
-
-        cb(null, sku + ext);
+        const colorCode = req.body.color;;
+        const ext = path.extname(file.originalname); // .png นามสกุลไฟล์
+        const name = `${sku}${colorCode}${ext}`;
+        cb(null, name);
     }
 });
 
 const upload = multer({ storage: storage });
 
-router.post("/add", upload.single("image"), (req, res) => {
-    const { name, price, category, sku, description } = req.body;
+const COLORS = ['BK','WT','PK','RD','BL','SK','YL','BR','GN','PP','GR'];
+const colorFields = COLORS.map(c => ({ name: `colorImage_${c}`, maxCount: 1 }));
 
-    const image = req.file.filename;
+const check_auth = [isLoggedIn, authorize(['admin', 'staff'])];
 
-    db.run(`
-        INSERT INTO products (name, price, category, sku, description, image)
-        VALUES (?,?,?,?,?,?)
-    `, [name, price, category, sku, description, image]);
-
-    res.redirect("/products");
-});
+router.get('/', ...check_auth, productsController.listProducts);
+router.get('/add', ...check_auth, productsController.showAdd);
+router.post('/add', ...check_auth, upload.fields(colorFields), productsController.createProduct);
+router.get('/:id/edit', ...check_auth, productsController.showEdit);
+router.post('/:id/delete', ...check_auth, productsController.deleteProduct);
 
 module.exports = router;
