@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <title>จัดการสินค้า</title>
+    <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
+    <link
+        href="https://fonts.googleapis.com/css2?family=Inter:wght@100..900&family=Noto+Sans+Thai:wght@400;600;700;800;900&display=swap"
+        rel="stylesheet">
+</head>
+
+<body>
+
+    <%- include("partials/sidebar") %>
+
+        <div class="content">
+
+            <h2>เพิ่มสินค้า</h2>
+
+            <form action="/products/add" method="POST" enctype="multipart/form-data">
+
+                <input type="text" name="name" placeholder="ชื่อสินค้า">
+
+                <input type="number" name="price" placeholder="ราคา">
+
+                <input type="text" name="category" placeholder="หมวดหมู่">
+
+                <input type="text" name="sku" placeholder="SKU">
+
+                <textarea name="description"></textarea>
+
+                <input type="file" name="image">
+
+                <button type="submit">
+                    เพิ่มสินค้า
+                </button>
+
+            </form>
+
+        </div>
+
+</body>
+
+</html>

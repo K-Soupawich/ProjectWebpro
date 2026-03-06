@@ -1,0 +1,5 @@
+<% if(user.role === "admin"){ %>
+    <%- include("sidebar-admin") %>
+<% } else if(user.role === "staff"){ %>
+    <%- include("sidebar-staff") %>
+<% } %>

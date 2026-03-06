@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>จัดการสินค้า</title>
+    <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
+    <link
+        href="https://fonts.googleapis.com/css2?family=Inter:wght@100..900&family=Noto+Sans+Thai:wght@400;600;700;800;900&display=swap"
+        rel="stylesheet">
+</head>
+
+<body>
+
+    <%- include("../partials/sidebar") %>
+
+        <div class="content">
+
+            <h2>จัดการสินค้า</h2>
+            
+            <div class="top-bar">
+
+                <select>
+                    <option>หมวดหมู่</option>
+                </select>
+
+                <a href="/products/add" class="btn-add">
+                    เพิ่มสินค้า
+                </a>
+
+            </div>
+
+            <div class="product-list">
+
+                <% products.forEach(product=> { %>
+
+                    <div class="product-card">
+
+                        <img src="/uploads/<%= product.image %>" width="60">
+
+                        <span>
+                            <%= product.name %>
+                        </span>
+
+                        <div class="actions">
+
+                            <a href="/products/edit/<%= product.id %>">✏️</a>
+
+                            <a href="/products/delete/<%= product.id %>">🗑</a>
+
+                        </div>
+
+                    </div>
+
+                    <% }) %>
+
+            </div>
+
+        </div>
+
+</body>
