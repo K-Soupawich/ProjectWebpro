@@ -6,7 +6,9 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Customer Page</title>
     <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@100..900&family=Noto+Sans+Thai:wght@400;600;700;800;900&display=swap" rel="stylesheet">
+    <link
+        href="https://fonts.googleapis.com/css2?family=Inter:wght@100..900&family=Noto+Sans+Thai:wght@400;600;700;800;900&display=swap"
+        rel="stylesheet">
     <style>
         body {
             font-family: 'Inter', 'Noto Sans Thai', sans-serif;
@@ -23,7 +25,7 @@
             </a>
         </div>
 
-        <div class=" ml-[1070px]">
+        <div class=" ml-[1000px]">
             <a href="/">
                 <img src="/img/home/cart.png" class="w-[47px] h-[47px]">
             </a>
@@ -40,7 +42,7 @@
                 <input type="text" name="q" placeholder="ค้นหาสินค้า"
                     class="w-[800px] h-[40px] rounded-full border border-gray-300 pl-5 pr-12 outline-none bg-gray-100">
 
-                <button type="submit" class="absolute right-4 top-1/2 -translate-y-1/2">                    
+                <button type="submit" class="absolute right-4 top-1/2 -translate-y-1/2">
                     <img src="/img/customer/search.png" class="w-[20px]">
                 </button>
             </div>
@@ -59,7 +61,8 @@
 
         <div class="category w-[94px] mr-[82px] cursor-pointer">
             <a href="/customer/products?category=CH">
-                <img src="/img/customer/หมวดเสื้อแขนยาว.png" class="rounded-full hover:scale-105 transition duration-200">
+                <img src="/img/customer/หมวดเสื้อแขนยาว.png"
+                    class="rounded-full hover:scale-105 transition duration-200">
             </a>
             <div class="mt-[15px]">
                 <p>เสื้อแขนยาว</p>
@@ -104,29 +107,36 @@
     </div>
 
     <div>
-        //เส้นขั้น
+        <hr class="mx-[200px] mt-[50px] border-gray-300">
     </div>
 
-    <div>
-        <% products.forEach(product => { %>
-            <div>
-                <img src="/uploads/<%= product.image %>">
-                <p>
-                    <%= product.name %>
-                </p>
-                <p>
-                    <%= product.price %>
-                </p>
-                <a href="/login">
-                    <img src="/img/home/cart.png" class="w-[26.65px]">
-                </a>
+    <div class="grid grid-cols-3 gap-[20px] mx-[60px] mt-[40px]">
+        <% products.forEach(product=> { %>
+            <div
+                class="product-card w-[326px] mx-5 flex-shrink-0 bg-white rounded-2xl shadow-[0_8px_20px_rgba(0,0,0,0.08)] p-2">
+                <div class="flex justify-center items-center">
+                    <div
+                        class="bg-white w-[284px] h-[230px] rounded-[12px] flex justify-center items-center shadow-[0_6px_20px_rgba(0,0,0,0.15)] mt-[18px]">
+                        <img src="/uploads/<%= product.image %>" class="w-[212px] object-contain">
+                    </div>
+                </div>
+
+                <div class="flex flex-col">
+                    <p class="ml-[28px] mt-[19px]">
+                        <%= product.name %>
+                    </p>
+                    <div class="flex mt-[10px]">
+                        <h2 class="ml-[28px] mr-[200px]">
+                            ฿<%= product.price %>
+                        </h2>
+                        <a href="/login">
+                            <img src="/img/home/cart.png" class="w-[26.65px]">
+                        </a>
+                    </div>
+                </div>
             </div>
-        <% }) %>
+            <% }) %>
     </div>
-
-    
-
-
 
 
 </body>
