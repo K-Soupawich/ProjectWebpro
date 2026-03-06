@@ -12,10 +12,9 @@ const storage = multer.diskStorage({
     },
 
     filename: function (req, file, cb) {
-        const sku = req.body.sku;
-        const colorCode = req.body.color;;
+        const colorCode = file.fieldname.replace('colorImage_', '');
         const ext = path.extname(file.originalname); // .png นามสกุลไฟล์
-        const name = `${sku}${colorCode}${ext}`;
+        const name = `tmp_${colorCode}_${Date.now()}${ext}`;
         cb(null, name);
     }
 });

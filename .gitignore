@@ -1,2 +1,4 @@
 node_modules
+wms.db
+/uploads
 # .env

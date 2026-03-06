@@ -1,3 +1,4 @@
+const fs = require('fs');
 const db = require('../config/db');
 const path = require('path');
 
@@ -17,7 +18,7 @@ exports.listProducts = (req, res) => {
 
 exports.showAdd = (req, res) => {
     db.all("SELECT * FROM categories ORDER BY name", (err, categories) => {
-        if (err) { 
+        if (err) {
             console.error(err);
             return res.status(500).send("Database error");
         }
@@ -60,13 +61,33 @@ exports.createProduct = (req, res) => {
                 `INSERT INTO product_variants (product_id, size, color, stock, sku, image)
                  VALUES (?, ?, ?, ?, ?, ?)`
             );
-
+            console.log('req.files:', req.files);
+            console.log('colors:', colors);
+            console.log('colorList:', colorList);
             colorList.forEach(colorCode => {
                 // รูปภาพผูกกับ color (1 รูป/สี)
                 const fileField = req.files && req.files[`colorImage_${colorCode}`];
-                const imageFilename = fileField[0].filename;
-                const stock = 0;
+                let imageFilename = null;
 
+                console.log('skuBase:', skuBase);
+                console.log('colorCode:', colorCode);
+                console.log('fileField:', fileField ? fileField[0].filename : 'no file');
+
+                console.log('กำลังหา:', `colorImage_${colorCode}`);
+                console.log('keys ใน req.files:', Object.keys(req.files));
+                console.log('ตรงกันมั้ย:', Object.keys(req.files).includes(`colorImage_${colorCode}`));
+
+                if (fileField) {
+                    const tmpName = fileField[0].filename; // tmp_BK_1234567890.jpg
+                    const ext = path.extname(tmpName);
+                    const newName = `${skuBase}${colorCode}${ext}` // SH001-BK.jpg
+                    const oldPath = `public/uploads/${tmpName}`;
+                    const newPath = `public/uploads/${newName}`;
+                    fs.renameSync(oldPath, newPath);
+                    imageFilename = newName;
+                }
+
+                const stock = parseInt(req.body[`stock_${colorCode}`] || 0);
                 sizeList.forEach(size => {
                     // SKU format: SH001BKS
                     const sku = `${skuBase}${colorCode}${size}`;
@@ -74,10 +95,10 @@ exports.createProduct = (req, res) => {
                 });
             });
 
-            stmt.finalize(finalErr => {
-                if (finalErr) {
-                    console.error(finalErr);
-                    return res.status(500).send(finalErr.message);
+            stmt.finalize(err2 => {
+                if (err2) {
+                    console.error(err2);
+                    return res.status(500).send(err2.message);
                 }
 
                 res.redirect('/products');
@@ -139,7 +160,7 @@ exports.getNextSKU = (req, res) => {
         FROM products
         WHERE category_id = (SELECT id FROM categories WHERE code = ?)
     `;
-    
+
     db.get(sql, [code], (err, row) => {
         if (err) return res.status(500).json({ error: err.message });
         const num = String(row.total + 1).padStart(3, '0');
