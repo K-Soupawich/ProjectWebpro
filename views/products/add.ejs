@@ -1,0 +1,482 @@
+<!DOCTYPE html>
+<html lang="th">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
+  <link
+    href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+Thai:wght@400;500;600;700&family=IBM+Plex+Mono:wght@500&display=swap"
+    rel="stylesheet">
+  <style>
+    body {
+      font-family: 'IBM Plex Sans Thai', sans-serif;
+    }
+
+    .mono {
+      font-family: 'IBM Plex Mono', monospace;
+    }
+
+    input,
+    select,
+    textarea {
+      font-family: 'IBM Plex Sans Thai', sans-serif;
+    }
+
+    input[type=file] {
+      display: none;
+    }
+  </style>
+  <title>เพิ่มสินค้า – KOFY</title>
+</head>
+
+<body class="flex bg-[#F5F3EF] min-w-[1440px]">
+
+  <%- include('../partials/sidebar', { currentPage: 'products' }) %>
+
+    <div class="ml-[200px] min-h-screen px-10 py-8">
+
+      <h1 class="text-[22px] font-bold text-[#30231D] mb-6">เพิ่มสินค้าใหม่</h1>
+
+      <form id="productForm" action="/products/add" method="POST" enctype="multipart/form-data">
+
+        <!-- Hidden: comma-separated values ที่ JS จะเซ็ตก่อน submit -->
+        <input type="hidden" name="skuBase" id="skuBase">
+        <input type="hidden" name="sizes" id="sizesInput">
+        <input type="hidden" name="colors" id="colorsInput">
+
+        <!-- ===== Card 1: ข้อมูลหลัก ===== -->
+        <div class="bg-white rounded-2xl border border-[#E8E0D5] p-7 mb-5 shadow-sm">
+          <p class="text-[11px] font-semibold text-[#A28161] tracking-widest uppercase mb-5">รายละเอียดสินค้า</p>
+
+          <div class="grid grid-cols-2 gap-5 mb-5">
+            <div class="flex flex-col gap-1.5">
+              <label class="text-[11px] font-semibold text-[#999] tracking-wide uppercase">ชื่อสินค้า</label>
+              <input type="text" name="name" required placeholder="เช่น เสื้อยืด Space of Loves" class="border border-[#E8E0D5] rounded-lg px-4 py-2.5 text-[14px] text-[#30231D] bg-[#FDFCF9] outline-none
+                     focus:border-[#A28161] focus:ring-2 focus:ring-[#A28161]/10 transition">
+            </div>
+            <div class="flex flex-col gap-1.5">
+              <label class="text-[11px] font-semibold text-[#999] tracking-wide uppercase">ราคา (บาท)</label>
+              <input type="number" name="price" required placeholder="0.00" min="0" step="0.01" class="border border-[#E8E0D5] rounded-lg px-4 py-2.5 text-[14px] text-[#30231D] bg-[#FDFCF9] outline-none
+                     focus:border-[#A28161] focus:ring-2 focus:ring-[#A28161]/10 transition">
+            </div>
+          </div>
+
+          <div class="grid grid-cols-3 gap-5">
+            <!-- หมวดหมู่ จาก DB -->
+            <div class="flex flex-col gap-1.5">
+              <label class="text-[11px] font-semibold text-[#999] tracking-wide uppercase">หมวดหมู่</label>
+              <select name="category_id" id="categorySelect" required class="border border-[#E8E0D5] rounded-lg px-4 py-2.5 text-[14px] text-[#30231D] bg-[#FDFCF9] outline-none
+                     focus:border-[#A28161] focus:ring-2 focus:ring-[#A28161]/10 transition">
+                <option value="">-- เลือก --</option>
+                <% categories.forEach(cat=> { %>
+                  <option value="<%= cat.id %>" data-code="<%= cat.code %>">
+                    <%= cat.name %> (<%= cat.code %>)
+                  </option>
+                  <% }) %>
+              </select>
+            </div>
+
+            <!-- SKU preview -->
+            <div class="flex flex-col gap-1.5">
+              <label class="text-[11px] font-semibold text-[#999] tracking-wide uppercase">SKU (ตัวอย่าง)</label>
+              <div id="skuDisplay" class="mono border border-[#E8E0D5] rounded-lg px-4 py-2.5 text-[14px] font-semibold
+                     text-[#6E5742] bg-[#F5F3EF] tracking-widest">—</div>
+            </div>
+
+            <!-- ขนาด -->
+            <div class="flex flex-col gap-1.5">
+              <label class="text-[11px] font-semibold text-[#999] tracking-wide uppercase">ขนาด</label>
+              <div class="flex flex-wrap gap-2 mt-0.5" id="sizeChips">
+                <% ['S','M','L','XL'].forEach(s=> { %>
+                  <button type="button" data-size="<%= s %>" class="size-chip w-[40px] h-[38px] rounded-lg border border-[#E8E0D5] text-[12px] font-semibold
+                         text-[#aaa] hover:border-[#A28161] hover:text-[#A28161] transition select-none">
+                    <%= s %>
+                  </button>
+                  <% }) %>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- ===== Card 2: คำอธิบาย ===== -->
+        <div class="bg-white rounded-2xl border border-[#E8E0D5] p-7 mb-5 shadow-sm">
+          <p class="text-[11px] font-semibold text-[#A28161] tracking-widest uppercase mb-4">คำอธิบายสินค้า</p>
+          <textarea name="description" rows="4" placeholder="อธิบายสินค้า วัสดุ การดูแลรักษา หรือคุณสมบัติพิเศษ..."
+            class="w-full border border-[#E8E0D5] rounded-lg px-4 py-3 text-[14px] text-[#30231D] bg-[#FDFCF9] outline-none
+                 focus:border-[#A28161] focus:ring-2 focus:ring-[#A28161]/10 transition resize-none"></textarea>
+        </div>
+
+        <!-- ===== Card 3: สี + รูป + stock ===== -->
+        <div class="bg-white rounded-2xl border border-[#E8E0D5] p-7 mb-6 shadow-sm">
+          <div class="flex items-center justify-between mb-1">
+            <p class="text-[11px] font-semibold text-[#A28161] tracking-widest uppercase">รูปภาพ & สี & สต็อก</p>
+            <span class="text-[11px] text-[#ccc] mono">ชื่อไฟล์: skuBase-รหัสสี.jpg เช่น SH001-BK.jpg</span>
+          </div>
+          <p class="text-[12px] text-[#bbb] mb-5">แต่ละสีมี 1 รูป และ 1 จำนวนสต็อก (แชร์กันทุก size)</p>
+
+          <!-- Color tab row -->
+          <div id="colorTabRow" class="flex flex-wrap gap-2 mb-5"></div>
+          <div class="h-px bg-[#E8E0D5] mb-5"></div>
+
+          <!-- Per-color panel -->
+          <div id="colorPanel">
+            <p class="text-[13px] text-[#ccc] text-center py-6">กดเพิ่มสีก่อน</p>
+          </div>
+        </div>
+
+        <!-- Submit row -->
+        <div class="flex items-center justify-between">
+          <a href="/products" class="text-[13px] text-[#999] hover:text-[#30231D] transition flex items-center gap-1.5">
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18" />
+            </svg>
+            ยกเลิก
+          </a>
+          <button type="submit" class="bg-gradient-to-r from-[#A28161] to-[#6E5742] text-white px-8 py-3 rounded-xl
+                 text-[14px] font-semibold hover:opacity-90 active:scale-[.98] transition-all shadow-sm">
+            + เพิ่มสินค้า
+          </button>
+        </div>
+
+      </form>
+    </div><!-- /main -->
+
+
+    <!-- ===== COLOR PICKER MODAL ===== -->
+    <div id="colorPickerOverlay"
+      class="hidden fixed inset-0 bg-black/30 z-50 flex items-center justify-center backdrop-blur-sm">
+      <div class="bg-white rounded-2xl p-6 w-[360px] shadow-2xl">
+        <h3 class="text-[15px] font-bold text-[#30231D] mb-4">เลือกสี</h3>
+        <div class="grid grid-cols-4 gap-2.5" id="colorGrid"></div>
+        <div class="mt-5 text-right">
+          <button type="button" onclick="closeColorPicker()"
+            class="text-[13px] text-[#999] hover:text-[#30231D] transition px-4 py-1.5">ยกเลิก</button>
+        </div>
+      </div>
+    </div>
+
+
+    <script>
+      // ============================================================
+      // DATA
+      // ============================================================
+      const COLORS = [
+        { code: 'BK', label: 'Black', hex: '#1a1a1a' },
+        { code: 'WT', label: 'White', hex: '#f0f0f0' },
+        { code: 'PK', label: 'Pink', hex: '#f4a0b5' },
+        { code: 'RD', label: 'Red', hex: '#e03030' },
+        { code: 'BL', label: 'Blue', hex: '#2560e0' },
+        { code: 'SK', label: 'Sky', hex: '#7ec8e3' },
+        { code: 'YL', label: 'Yellow', hex: '#f5d800' },
+        { code: 'BR', label: 'Brown', hex: '#8B6340' },
+        { code: 'GN', label: 'Green', hex: '#22c55e' },
+        { code: 'PP', label: 'Purple', hex: '#a855f7' },
+        { code: 'GR', label: 'Gray', hex: '#9ca3af' },
+      ];
+
+      // colorStore[code] = { file: File|null, preview: string|null, stock: number }
+      let colorStore = {};
+      let activeColor = null;
+
+      const selectedSizes = new Set();
+
+      
+      // ============================================================
+      // SKU  (ใช้ชื่อหมวดหมู่จาก option text เป็น prefix)
+      // ============================================================
+      const catSelect = document.getElementById('categorySelect');
+      const display = document.getElementById('skuDisplay');
+      const skuBaseInput = document.getElementById('skuBase');
+
+      catSelect.addEventListener('change', async () => {
+        const opt = catSelect.selectedOptions[0];
+        const code = opt.dataset.code;
+
+        if (!code) {
+          display.textContent = '—';
+          skuBaseInput.value = '';
+          return;
+        }
+
+        // fetch จาก server
+        const res = await fetch(`/products/next-sku?code=${code}`);
+        const data = await res.json();
+
+        display.textContent = data.sku; // แสดงผลใน div
+        skuBaseInput.value = data.sku; // เก็บค่าส่งไป server
+      });
+
+      // ============================================================
+      // SIZE CHIPS
+      // ============================================================
+      document.getElementById('sizeChips').addEventListener('click', e => {
+        const chip = e.target.closest('.size-chip');
+        if (!chip) return;
+        const s = chip.dataset.size;
+        if (selectedSizes.has(s)) {
+          selectedSizes.delete(s);
+          chip.className = chip.className
+            .replace('bg-[#30231D] text-white border-[#30231D]', '')
+            + ' text-[#aaa] border-[#E8E0D5]';
+        } else {
+          selectedSizes.add(s);
+          chip.classList.add('bg-[#30231D]', 'text-white', 'border-[#30231D]');
+          chip.classList.remove('text-[#aaa]', 'border-[#E8E0D5]');
+        }
+      });
+
+      // ============================================================
+      // COLOR PICKER
+      // ============================================================
+      document.getElementById('colorPickerOverlay').addEventListener('click', e => {
+        if (e.target === document.getElementById('colorPickerOverlay')) closeColorPicker();
+      });
+
+      function openColorPicker() {
+        const grid = document.getElementById('colorGrid');
+        grid.innerHTML = '';
+        COLORS.forEach(c => {
+          const used = !!colorStore[c.code];
+          const div = document.createElement('div');
+          div.className = `flex flex-col items-center gap-1.5 p-2 rounded-xl cursor-pointer border border-transparent
+                     transition hover:bg-[#F5F3EF] hover:border-[#E8E0D5]
+                     ${used ? 'opacity-30 pointer-events-none' : ''}`;
+          div.innerHTML = `
+      <div class="w-8 h-8 rounded-full border border-black/10 shadow-sm" style="background:${c.hex}"></div>
+      <span class="text-[10px] font-semibold text-[#666]">${c.label}</span>
+    `;
+          if (!used) div.addEventListener('click', () => { addColor(c.code); closeColorPicker(); });
+          grid.appendChild(div);
+        });
+        document.getElementById('colorPickerOverlay').classList.remove('hidden');
+      }
+
+      function closeColorPicker() {
+        document.getElementById('colorPickerOverlay').classList.add('hidden');
+      }
+
+      // ============================================================
+      // COLOR MANAGEMENT
+      // ============================================================
+      function addColor(code) {
+        colorStore[code] = { file: null, preview: null, stock: 0 };
+        setActiveColor(code);
+      }
+
+      function removeColor(code) {
+        delete colorStore[code];
+        const remaining = Object.keys(colorStore);
+        activeColor = remaining.length ? remaining[0] : null;
+        renderColorTabs();
+        renderColorPanel();
+      }
+
+      function setActiveColor(code) {
+        activeColor = code;
+        renderColorTabs();
+        renderColorPanel();
+      }
+
+      // ============================================================
+      // RENDER TABS
+      // ============================================================
+      function renderColorTabs() {
+        const row = document.getElementById('colorTabRow');
+        row.innerHTML = '';
+
+        Object.keys(colorStore).forEach(code => {
+          const c = COLORS.find(x => x.code === code);
+          const isActive = activeColor === code;
+          const hasImg = !!colorStore[code].preview;
+
+          const tab = document.createElement('div');
+          tab.className = `flex items-center gap-2 px-3.5 py-1.5 rounded-full cursor-pointer border transition select-none
+      ${isActive ? 'bg-[#30231D] border-[#30231D] text-white' : 'bg-white border-[#E8E0D5] text-[#555] hover:border-[#A28161]'}`;
+          tab.innerHTML = `
+      <div class="w-3.5 h-3.5 rounded-full border border-black/10 flex-shrink-0" style="background:${c.hex}"></div>
+      <span class="text-[12px] font-semibold">${c.label}</span>
+      ${hasImg ? '<span class="w-1.5 h-1.5 rounded-full bg-[#A28161] flex-shrink-0"></span>' : ''}
+      <span class="remove-color ml-0.5 text-[14px] leading-none
+             ${isActive ? 'text-white/50 hover:text-white' : 'text-[#ccc] hover:text-red-400'} transition">×</span>
+    `;
+          tab.addEventListener('click', e => {
+            if (e.target.classList.contains('remove-color')) { removeColor(code); return; }
+            setActiveColor(code);
+          });
+          row.appendChild(tab);
+        });
+
+        // + เพิ่มสี button
+        const addBtn = document.createElement('button');
+        addBtn.type = 'button';
+        addBtn.className = `flex items-center gap-1.5 px-3.5 py-1.5 rounded-full border border-dashed
+                      border-[#C8B99A] text-[12px] font-semibold text-[#A28161]
+                      hover:bg-[#F5F3EF] transition`;
+        addBtn.innerHTML = `<span class="text-[16px] leading-none">+</span> เพิ่มสี`;
+        addBtn.addEventListener('click', openColorPicker);
+        row.appendChild(addBtn);
+      }
+
+      // ============================================================
+      // RENDER PER-COLOR PANEL  (รูป + stock)
+      // ============================================================
+      function renderColorPanel() {
+        const panel = document.getElementById('colorPanel');
+
+        if (!activeColor) {
+          panel.innerHTML = `<p class="text-[13px] text-[#ccc] text-center py-6">กดเพิ่มสีก่อน</p>`;
+          return;
+        }
+
+        const c = COLORS.find(x => x.code === activeColor);
+        const data = colorStore[activeColor];
+        const skuBase = document.getElementById('skuBase').value || 'SKU';
+        const filename = `${skuBase}-${c.code}`;
+
+        panel.innerHTML = `
+    <div class="flex gap-8 items-start">
+
+      <!-- รูปภาพ -->
+      <div>
+        <p class="text-[11px] font-semibold text-[#999] tracking-wide uppercase mb-3">รูปภาพ</p>
+        <div id="imgArea_${activeColor}" class="flex gap-3 items-start"></div>
+        <p class="mt-2 mono text-[10px] text-[#bbb]">→ ${filename}.jpg</p>
+      </div>
+
+      <!-- Stock -->
+      <div class="flex flex-col gap-1.5 min-w-[160px]">
+        <label class="text-[11px] font-semibold text-[#999] tracking-wide uppercase">
+          สต็อก (สี ${c.label})
+        </label>
+        <input
+          type="number"
+          name="stock_${c.code}"
+          min="0"
+          value="${data.stock}"
+          id="stock_${c.code}"
+          class="border border-[#E8E0D5] rounded-lg px-4 py-2.5 text-[14px] text-[#30231D] bg-[#FDFCF9] outline-none
+                 focus:border-[#A28161] focus:ring-2 focus:ring-[#A28161]/10 transition w-full"
+        >
+        <p class="text-[11px] text-[#bbb]">แชร์กันทุก size</p>
+      </div>
+
+    </div>
+  `;
+
+        // บันทึก stock เมื่อ user พิมพ์
+        document.getElementById(`stock_${c.code}`).addEventListener('input', e => {
+          colorStore[activeColor].stock = parseInt(e.target.value) || 0;
+        });
+
+        renderImgArea(activeColor);
+      }
+
+      function renderImgArea(colorCode) {
+        const c = COLORS.find(x => x.code === colorCode);
+        const data = colorStore[colorCode];
+        const area = document.getElementById(`imgArea_${colorCode}`);
+        if (!area) return;
+        area.innerHTML = '';
+
+        if (data.preview) {
+          // รูปที่อัปโหลดแล้ว
+          const filled = document.createElement('div');
+          filled.className = `relative w-[160px] h-[160px] rounded-xl border border-[#E8E0D5] overflow-hidden group shadow-sm`;
+          filled.innerHTML = `
+      <img src="${data.preview}" class="w-full h-full object-cover">
+      <div class="absolute inset-0 flex items-center justify-center
+                  bg-black/0 group-hover:bg-black/25 transition">
+        <button type="button"
+          class="remove-img hidden group-hover:flex items-center justify-center
+                 w-8 h-8 rounded-full bg-white/90 text-red-500 text-[13px] shadow
+                 hover:bg-red-500 hover:text-white transition">✕</button>
+      </div>
+    `;
+          filled.querySelector('.remove-img').addEventListener('click', () => {
+            colorStore[colorCode].file = null;
+            colorStore[colorCode].preview = null;
+            clearFileInput(colorCode);
+            renderColorTabs();
+            renderImgArea(colorCode);
+          });
+          area.appendChild(filled);
+
+          // ปุ่มเปลี่ยนรูป
+          const changeLabel = makeFileLabel(colorCode, 'เปลี่ยนรูป', 'w-[100px] h-[160px]');
+          area.appendChild(changeLabel);
+        } else {
+          // slot ว่าง
+          const emptyLabel = makeFileLabel(colorCode, null, 'w-[160px] h-[160px]');
+          area.appendChild(emptyLabel);
+        }
+      }
+
+      function makeFileLabel(colorCode, text, sizeClass) {
+        const label = document.createElement('label');
+        label.className = `flex flex-col items-center justify-center ${sizeClass} rounded-xl
+                     border-2 border-dashed border-[#D8CEBD] text-[#ccc] cursor-pointer
+                     hover:border-[#A28161] hover:text-[#A28161] hover:bg-[#F5F3EF] transition gap-2`;
+        label.innerHTML = `
+    <svg class="w-8 h-8 opacity-70" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"
+        d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14
+           m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"/>
+    </svg>
+    <span class="text-[11px] font-medium text-center leading-tight px-2">
+      ${text || 'อัปโหลดรูปภาพ<br><span class="text-[10px]">PNG, JPG, WEBP</span>'}
+    </span>
+    <input type="file" name="colorImage_${colorCode}" accept="image/*"
+           id="fileInput_${colorCode}" class="hidden">
+  `;
+        label.querySelector('input').addEventListener('change', e => handleFile(e, colorCode));
+        return label;
+      }
+
+      function handleFile(e, colorCode) {
+        const file = e.target.files[0];
+        if (!file) return;
+        const reader = new FileReader();
+        reader.onload = ev => {
+          colorStore[colorCode].file = file;
+          colorStore[colorCode].preview = ev.target.result;
+          renderColorTabs();
+          renderImgArea(colorCode);
+        };
+        reader.readAsDataURL(file);
+      }
+
+      function clearFileInput(colorCode) {
+        const inp = document.getElementById(`fileInput_${colorCode}`);
+        if (inp) inp.value = '';
+      }
+
+      // ============================================================
+      // FORM SUBMIT
+      // ============================================================
+      document.getElementById('productForm').addEventListener('submit', e => {
+        // ตรวจ skuBase
+        if (!document.getElementById('skuBase').value) {
+          e.preventDefault(); alert('กรุณาเลือกหมวดหมู่'); return;
+        }
+        // ตรวจ size
+        if (selectedSizes.size === 0) {
+          e.preventDefault(); alert('กรุณาเลือกขนาดอย่างน้อย 1 ขนาด'); return;
+        }
+        // ตรวจสี
+        const colorList = Object.keys(colorStore);
+        if (colorList.length === 0) {
+          e.preventDefault(); alert('กรุณาเพิ่มสีอย่างน้อย 1 สี'); return;
+        }
+
+        // เซ็ต hidden fields ก่อน submit
+        document.getElementById('sizesInput').value = [...selectedSizes].join(',');
+        document.getElementById('colorsInput').value = colorList.join(',');
+      });
+
+      // init
+      renderColorTabs();
+    </script>
+</body>
+
+</html>

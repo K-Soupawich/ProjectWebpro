@@ -1,0 +1,549 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
+    <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+Thai:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
+    <title>เพิ่มสินค้า – KOFY</title>
+    <style>
+        * { font-family: 'IBM Plex Sans Thai', sans-serif; }
+        code, .mono { font-family: 'IBM Plex Mono', monospace; }
+
+        :root {
+            --brown-dark: #30231D;
+            --brown-mid: #6E5742;
+            --brown-light: #A28161;
+            --cream: #F8F7F3;
+            --cream-2: #EFEBE2;
+            --border: #E0D8CE;
+        }
+
+        body { background: var(--cream); }
+
+        /* Sidebar */
+        .sidebar {
+            width: 160px;
+            background: var(--cream);
+            border-right: 1px solid var(--border);
+            height: 100vh;
+            position: fixed;
+            left: 0; top: 0;
+            display: flex;
+            flex-direction: column;
+            padding: 24px 0;
+        }
+        .sidebar-logo {
+            display: flex; flex-direction: column; align-items: center;
+            margin-bottom: 32px; padding: 0 20px;
+        }
+        .sidebar-logo img { width: 48px; }
+        .sidebar-logo span { font-size: 18px; font-weight: 700; color: var(--brown-dark); letter-spacing: 3px; }
+        .sidebar-nav a {
+            display: flex; align-items: center; gap: 10px;
+            padding: 11px 20px;
+            font-size: 13px; font-weight: 500; color: #7a6a5a;
+            text-decoration: none; border-radius: 0;
+            transition: all 0.15s;
+        }
+        .sidebar-nav a:hover { background: var(--cream-2); color: var(--brown-dark); }
+        .sidebar-nav a.active { background: var(--cream-2); color: var(--brown-dark); font-weight: 600; border-left: 3px solid var(--brown-light); }
+        .sidebar-nav .icon { font-size: 15px; width: 20px; text-align: center; }
+        .sidebar-footer {
+            margin-top: auto; padding: 16px 20px;
+            display: flex; align-items: center; gap: 10px;
+            font-size: 13px; color: #7a6a5a;
+        }
+        .avatar {
+            width: 30px; height: 30px; border-radius: 50%;
+            background: var(--brown-light); display: flex; align-items: center;
+            justify-content: center; color: white; font-size: 12px; font-weight: 600;
+        }
+
+        /* Main content */
+        .main { margin-left: 160px; min-height: 100vh; padding: 0 40px 60px; }
+
+        /* Top breadcrumb bar */
+        .topbar {
+            height: 52px; display: flex; align-items: center; gap: 12px;
+            border-bottom: 1px solid var(--border); margin-bottom: 32px;
+        }
+        .topbar a { color: #aaa; font-size: 13px; text-decoration: none; }
+        .topbar span { color: #aaa; font-size: 13px; }
+        .topbar .current { color: var(--brown-dark); font-weight: 600; font-size: 13px; }
+
+        /* Page heading */
+        .page-title { font-size: 22px; font-weight: 700; color: var(--brown-dark); margin-bottom: 28px; }
+
+        /* Cards */
+        .card {
+            background: white;
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            padding: 28px 32px;
+            margin-bottom: 20px;
+        }
+        .card-title {
+            font-size: 13px; font-weight: 600; color: #888;
+            text-transform: uppercase; letter-spacing: 1px;
+            margin-bottom: 20px;
+        }
+
+        /* Form inputs */
+        .form-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
+        .form-grid-3 { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 20px; }
+        .form-field { display: flex; flex-direction: column; gap: 6px; }
+        .form-field label { font-size: 12px; font-weight: 600; color: #888; letter-spacing: 0.5px; }
+        .form-field input, .form-field select, .form-field textarea {
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            padding: 10px 14px;
+            font-size: 14px; color: var(--brown-dark);
+            background: #fdfcfa;
+            outline: none;
+            transition: border-color 0.15s, box-shadow 0.15s;
+            font-family: inherit;
+        }
+        .form-field input:focus, .form-field select:focus, .form-field textarea:focus {
+            border-color: var(--brown-light);
+            box-shadow: 0 0 0 3px rgba(162,129,97,0.12);
+        }
+        .form-field .sku-display {
+            padding: 10px 14px;
+            border-radius: 8px; border: 1px solid var(--border);
+            background: #f5f3ef;
+            font-size: 14px; font-weight: 600; color: var(--brown-mid);
+            font-family: 'IBM Plex Mono', monospace;
+            letter-spacing: 1px;
+        }
+
+        /* Size selector */
+        .size-chips { display: flex; gap: 8px; flex-wrap: wrap; margin-top: 2px; }
+        .size-chip {
+            width: 38px; height: 38px; border-radius: 8px;
+            border: 1.5px solid var(--border);
+            display: flex; align-items: center; justify-content: center;
+            font-size: 13px; font-weight: 600; color: #999;
+            cursor: pointer; transition: all 0.15s; user-select: none;
+        }
+        .size-chip:hover { border-color: var(--brown-light); color: var(--brown-light); }
+        .size-chip.selected {
+            background: var(--brown-dark); border-color: var(--brown-dark);
+            color: white;
+        }
+
+        /* Color + image section */
+        .color-tab-row {
+            display: flex; gap: 8px; flex-wrap: wrap;
+            margin-bottom: 20px;
+        }
+        .color-tab {
+            display: flex; align-items: center; gap: 7px;
+            padding: 7px 14px 7px 10px;
+            border-radius: 20px;
+            border: 1.5px solid var(--border);
+            font-size: 13px; font-weight: 500; color: #888;
+            cursor: pointer; transition: all 0.15s; user-select: none;
+            background: white;
+        }
+        .color-dot { width: 14px; height: 14px; border-radius: 50%; border: 1px solid rgba(0,0,0,0.1); flex-shrink: 0; }
+        .color-tab:hover { border-color: var(--brown-light); color: var(--brown-dark); }
+        .color-tab.active { border-color: var(--brown-mid); background: var(--cream-2); color: var(--brown-dark); font-weight: 600; }
+        .color-tab .remove-color {
+            margin-left: 4px; color: #bbb; font-size: 14px; line-height: 1;
+            transition: color 0.15s;
+        }
+        .color-tab .remove-color:hover { color: #e05; }
+        .add-color-btn {
+            display: flex; align-items: center; gap: 6px;
+            padding: 7px 14px; border-radius: 20px;
+            border: 1.5px dashed var(--border);
+            font-size: 13px; font-weight: 500; color: var(--brown-light);
+            cursor: pointer; transition: all 0.15s; user-select: none;
+            background: transparent;
+        }
+        .add-color-btn:hover { border-color: var(--brown-light); background: var(--cream-2); }
+
+        /* Image upload zone */
+        .image-zone {
+            display: grid; grid-template-columns: repeat(auto-fill, minmax(120px, 1fr)); gap: 12px;
+        }
+        .img-slot {
+            aspect-ratio: 1;
+            border-radius: 10px; border: 1.5px dashed var(--border);
+            display: flex; flex-direction: column; align-items: center; justify-content: center;
+            cursor: pointer; transition: all 0.2s;
+            background: #fafaf8; overflow: hidden; position: relative;
+        }
+        .img-slot:hover { border-color: var(--brown-light); background: var(--cream-2); }
+        .img-slot.filled { border-style: solid; border-color: var(--border); }
+        .img-slot img.preview { width: 100%; height: 100%; object-fit: cover; }
+        .img-slot .plus-icon { font-size: 28px; color: #ccc; line-height: 1; }
+        .img-slot .plus-label { font-size: 11px; color: #bbb; margin-top: 4px; }
+        .img-slot .remove-img {
+            position: absolute; top: 4px; right: 4px;
+            background: rgba(0,0,0,0.55); color: white; border-radius: 50%;
+            width: 20px; height: 20px; display: none;
+            align-items: center; justify-content: center;
+            font-size: 11px; cursor: pointer;
+        }
+        .img-slot.filled:hover .remove-img { display: flex; }
+
+        /* Color picker modal */
+        .color-picker-overlay {
+            display: none; position: fixed; inset: 0;
+            background: rgba(0,0,0,0.3); z-index: 100;
+            align-items: center; justify-content: center;
+        }
+        .color-picker-overlay.open { display: flex; }
+        .color-picker-modal {
+            background: white; border-radius: 14px;
+            padding: 24px; width: 340px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.15);
+        }
+        .color-picker-modal h3 { font-size: 15px; font-weight: 700; color: var(--brown-dark); margin-bottom: 16px; }
+        .color-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px; }
+        .color-option {
+            display: flex; flex-direction: column; align-items: center; gap: 5px;
+            padding: 8px; border-radius: 8px; cursor: pointer;
+            border: 1.5px solid transparent; transition: all 0.15s;
+        }
+        .color-option:hover { background: var(--cream-2); border-color: var(--border); }
+        .color-option.used { opacity: 0.35; cursor: default; pointer-events: none; }
+        .color-option .dot { width: 28px; height: 28px; border-radius: 50%; border: 1px solid rgba(0,0,0,0.1); }
+        .color-option span { font-size: 11px; font-weight: 500; color: #666; }
+
+        /* Submit button */
+        .btn-primary {
+            background: linear-gradient(135deg, #A28161, #6E5742);
+            color: white; border: none;
+            padding: 12px 36px; border-radius: 10px;
+            font-size: 14px; font-weight: 600; cursor: pointer;
+            transition: opacity 0.15s, transform 0.1s;
+        }
+        .btn-primary:hover { opacity: 0.9; transform: translateY(-1px); }
+        .btn-primary:active { transform: translateY(0); }
+
+        .divider { height: 1px; background: var(--border); margin: 4px 0 20px; }
+    </style>
+</head>
+<body>
+
+<div class="main">
+    <div class="topbar">
+        <a href="#">จัดการสินค้า</a>
+        <span>›</span>
+        <span class="current">เพิ่มสินค้าใหม่</span>
+    </div>
+
+    <div class="page-title">เพิ่มสินค้าใหม่</div>
+
+    <form id="productForm" action="products/add" method="POST" enctype="multipart/form-data">
+
+        <!-- ===== Card 1: ข้อมูลหลัก ===== -->
+        <div class="card">
+            <div class="card-title">รายละเอียดสินค้า</div>
+            <div class="form-grid" style="margin-bottom:20px">
+                <div class="form-field">
+                    <label>ชื่อสินค้า</label>
+                    <input type="text" name="name" id="productName" placeholder="เช่น เสื้อยืด Space of Loves" required>
+                </div>
+                <div class="form-field">
+                    <label>ราคา (บาท)</label>
+                    <input type="number" name="price" placeholder="0.00" min="0" step="0.01" required>
+                </div>
+            </div>
+            <div class="form-grid-3">
+                <div class="form-field">
+                    <label>หมวดหมู่</label>
+                    <select name="category_code" id="categorySelect" required>
+                        <option value="">-- เลือกหมวดหมู่ --</option>
+                        <option value="UW">ชุดชั้นใน (UW)</option>
+                        <option value="SH">เสื้อ (SH)</option>
+                        <option value="SK">กระโปรง (SK)</option>
+                        <option value="PN">กางเกง (PN)</option>
+                        <option value="DR">เดรส (DR)</option>
+                        <option value="CT">เสื้อแขนยาว (CT)</option>
+                    </select>
+                </div>
+                <div class="form-field">
+                    <label>SKU (สร้างอัตโนมัติ)</label>
+                    <div class="sku-display" id="skuDisplay">—</div>
+                    <input type="hidden" name="sku" id="skuInput">
+                </div>
+                <div class="form-field">
+                    <label>ขนาด</label>
+                    <div class="size-chips" id="sizeChips">
+                        <div class="size-chip" data-size="S">S</div>
+                        <div class="size-chip" data-size="M">M</div>
+                        <div class="size-chip" data-size="L">L</div>
+                        <div class="size-chip" data-size="XL">XL</div>
+                    </div>
+                    <input type="hidden" name="sizes" id="sizesInput">
+                </div>
+            </div>
+        </div>
+
+        <!-- ===== Card 2: คำอธิบาย ===== -->
+        <div class="card">
+            <div class="card-title">คำอธิบายสินค้า</div>
+            <div class="form-field">
+                <textarea name="description" rows="4" placeholder="อธิบายสินค้า วัสดุ การดูแลรักษา หรือคุณสมบัติพิเศษ..."></textarea>
+            </div>
+        </div>
+
+        <!-- ===== Card 3: รูปภาพ + สี ===== -->
+        <div class="card">
+            <div class="card-title">รูปภาพสินค้า</div>
+            <p style="font-size:13px;color:#999;margin-bottom:16px">เพิ่มได้หลายสีต่อสินค้า แต่ละสีมีรูปของตัวเอง ชื่อไฟล์จะถูกบันทึกเป็น <span class="mono" style="color:var(--brown-mid)">SKU + รหัสสี</span> เช่น <span class="mono" style="color:var(--brown-mid)">SH001-BK.jpg</span></p>
+
+            <!-- Color tabs -->
+            <div id="colorTabRow" class="color-tab-row">
+                <button type="button" class="add-color-btn" id="addColorBtn">
+                    <span style="font-size:16px;line-height:1">+</span> เพิ่มสี
+                </button>
+            </div>
+
+            <div class="divider"></div>
+
+            <!-- Image slots for active color -->
+            <div id="imagePanel">
+                <p style="font-size:13px;color:#bbb;text-align:center;padding:20px 0">
+                    เพิ่มสีก่อนเพื่ออัปโหลดรูปภาพ
+                </p>
+            </div>
+        </div>
+
+        <!-- ===== Submit ===== -->
+        <div style="display:flex;justify-content:flex-end;margin-top:8px">
+            <button type="submit" class="btn-primary">+ เพิ่มสินค้า</button>
+        </div>
+
+        <!-- hidden inputs for image data -->
+        <div id="hiddenInputs"></div>
+
+    </form>
+</div>
+
+<!-- ===== COLOR PICKER MODAL ===== -->
+<div class="color-picker-overlay" id="colorPickerOverlay">
+    <div class="color-picker-modal">
+        <h3>เลือกสี</h3>
+        <div class="color-grid" id="colorGrid"></div>
+        <div style="margin-top:16px;text-align:right">
+            <button type="button" onclick="closeColorPicker()"
+                style="font-size:13px;color:#999;background:none;border:none;cursor:pointer;padding:4px 12px">ยกเลิก</button>
+        </div>
+    </div>
+</div>
+
+<script>
+// ===== DATA =====
+const COLORS = [
+    { code: 'BK', label: 'Black',  hex: '#1a1a1a' },
+    { code: 'WT', label: 'White',  hex: '#f5f5f5' },
+    { code: 'PK', label: 'Pink',   hex: '#FFCCF6' },
+    { code: 'RD', label: 'Red',    hex: '#e03030' },
+    { code: 'BL', label: 'Blue',   hex: '#2560e0' },
+    { code: 'SK', label: 'Sky',    hex: '#69E3FF' },
+    { code: 'YL', label: 'Yellow', hex: '#f5d800' },
+    { code: 'BR', label: 'Brown',  hex: '#573529' },
+    { code: 'GN', label: 'Green',  hex: '#22c55e' },
+    { code: 'PP', label: 'Purple', hex: '#a855f7' },
+    { code: 'GR', label: 'Gray',   hex: '#C3C3C3' },
+];
+
+// colorData[colorCode] = { files: [File|null, ...], previews: [dataURL|null, ...] }
+let colorData = {};
+let activeColor = null;
+let skuBase = '';
+let skuCounter = 1;
+
+// ===== SKU logic =====
+function updateSKU() {
+    const cat = document.getElementById('categorySelect').value;
+    if (!cat) { document.getElementById('skuDisplay').textContent = '—'; skuBase = ''; return; }
+    const num = String(skuCounter).padStart(3, '0');
+    skuBase = cat + num;
+    document.getElementById('skuDisplay').textContent = skuBase;
+    document.getElementById('skuInput').value = skuBase;
+}
+document.getElementById('categorySelect').addEventListener('change', updateSKU);
+
+// Optionally increment based on product name blur (demo: keep at 1)
+document.getElementById('productName').addEventListener('blur', () => {
+    // In production, fetch next SKU number from server
+    updateSKU();
+});
+
+// ===== Size chips =====
+const selectedSizes = new Set();
+document.querySelectorAll('.size-chip').forEach(chip => {
+    chip.addEventListener('click', () => {
+        const s = chip.dataset.size;
+        if (selectedSizes.has(s)) { selectedSizes.delete(s); chip.classList.remove('selected'); }
+        else { selectedSizes.add(s); chip.classList.add('selected'); }
+        document.getElementById('sizesInput').value = [...selectedSizes].join(',');
+    });
+});
+
+// ===== Color picker =====
+function openColorPicker() {
+    const usedCodes = Object.keys(colorData);
+    const grid = document.getElementById('colorGrid');
+    grid.innerHTML = '';
+    COLORS.forEach(c => {
+        const div = document.createElement('div');
+        div.className = 'color-option' + (usedCodes.includes(c.code) ? ' used' : '');
+        div.innerHTML = `<div class="dot" style="background:${c.hex}"></div><span>${c.label}</span>`;
+        div.addEventListener('click', () => { addColor(c.code); closeColorPicker(); });
+        grid.appendChild(div);
+    });
+    document.getElementById('colorPickerOverlay').classList.add('open');
+}
+function closeColorPicker() {
+    document.getElementById('colorPickerOverlay').classList.remove('open');
+}
+document.getElementById('colorPickerOverlay').addEventListener('click', e => {
+    if (e.target === document.getElementById('colorPickerOverlay')) closeColorPicker();
+});
+document.getElementById('addColorBtn').addEventListener('click', openColorPicker);
+
+function addColor(code) {
+    if (colorData[code]) return;
+    colorData[code] = { files: [null, null, null, null], previews: [null, null, null, null] };
+    renderColorTabs();
+    setActiveColor(code);
+}
+
+function removeColor(code) {
+    delete colorData[code];
+    if (activeColor === code) {
+        const remaining = Object.keys(colorData);
+        activeColor = remaining.length ? remaining[0] : null;
+    }
+    renderColorTabs();
+    renderImagePanel();
+}
+
+function renderColorTabs() {
+    const row = document.getElementById('colorTabRow');
+    row.innerHTML = '';
+    Object.keys(colorData).forEach(code => {
+        const c = COLORS.find(x => x.code === code);
+        const tab = document.createElement('div');
+        tab.className = 'color-tab' + (activeColor === code ? ' active' : '');
+        tab.innerHTML = `
+            <div class="color-dot" style="background:${c.hex}"></div>
+            <span>${c.label}</span>
+            <span class="remove-color" title="ลบสีนี้">×</span>
+        `;
+        tab.addEventListener('click', e => {
+            if (e.target.classList.contains('remove-color')) { removeColor(code); return; }
+            setActiveColor(code);
+        });
+        row.appendChild(tab);
+    });
+    // add button always last
+    const addBtn = document.createElement('button');
+    addBtn.type = 'button';
+    addBtn.className = 'add-color-btn';
+    addBtn.id = 'addColorBtn';
+    addBtn.innerHTML = '<span style="font-size:16px;line-height:1">+</span> เพิ่มสี';
+    addBtn.addEventListener('click', openColorPicker);
+    row.appendChild(addBtn);
+}
+
+function setActiveColor(code) {
+    activeColor = code;
+    renderColorTabs();
+    renderImagePanel();
+}
+
+function renderImagePanel() {
+    const panel = document.getElementById('imagePanel');
+    if (!activeColor) {
+        panel.innerHTML = '<p style="font-size:13px;color:#bbb;text-align:center;padding:20px 0">เพิ่มสีก่อนเพื่ออัปโหลดรูปภาพ</p>';
+        return;
+    }
+    const c = COLORS.find(x => x.code === activeColor);
+    const data = colorData[activeColor];
+
+    panel.innerHTML = `
+        <p style="font-size:13px;font-weight:600;color:var(--brown-mid);margin-bottom:14px;display:flex;align-items:center;gap:8px">
+            <span style="width:14px;height:14px;border-radius:50%;background:${c.hex};border:1px solid rgba(0,0,0,0.1);display:inline-block"></span>
+            ${c.label} — อัปโหลดได้สูงสุด 4 รูป
+        </p>
+        <div class="image-zone" id="imageZone"></div>
+    `;
+
+    const zone = document.getElementById('imageZone');
+    for (let i = 0; i < 4; i++) {
+        const slot = document.createElement('div');
+        slot.className = 'img-slot' + (data.previews[i] ? ' filled' : '');
+        slot.dataset.index = i;
+
+        if (data.previews[i]) {
+            slot.innerHTML = `
+                <img class="preview" src="${data.previews[i]}">
+                <div class="remove-img" data-idx="${i}">✕</div>
+            `;
+            slot.querySelector('.remove-img').addEventListener('click', e => {
+                e.stopPropagation();
+                data.files[i] = null; data.previews[i] = null;
+                renderImagePanel(); updateHiddenInputs();
+            });
+        } else {
+            slot.innerHTML = `
+                <div class="plus-icon">+</div>
+                <div class="plus-label">${i === 0 ? 'หลัก' : 'รูปที่ ' + (i+1)}</div>
+                <input type="file" accept="image/*" style="display:none" data-idx="${i}">
+            `;
+            const fileInput = slot.querySelector('input[type=file]');
+            fileInput.addEventListener('change', e => {
+                const file = e.target.files[0];
+                if (!file) return;
+                const reader = new FileReader();
+                reader.onload = ev => {
+                    data.files[i] = file;
+                    data.previews[i] = ev.target.result;
+                    renderImagePanel(); updateHiddenInputs();
+                };
+                reader.readAsDataURL(file);
+            });
+            slot.addEventListener('click', () => fileInput.click());
+        }
+        zone.appendChild(slot);
+    }
+}
+
+function updateHiddenInputs() {
+    // Build summary of what will be submitted
+    // Actual file upload would need real multipart handling
+    const container = document.getElementById('hiddenInputs');
+    container.innerHTML = '';
+    Object.entries(colorData).forEach(([code, data]) => {
+        data.files.forEach((file, i) => {
+            if (file) {
+                // name pattern: SKU-COLORCODE-INDEX
+                const inp = document.createElement('input');
+                inp.type = 'hidden';
+                inp.name = `colorImages[${code}][${i}]`;
+                inp.value = file.name;
+                container.appendChild(inp);
+            }
+        });
+    });
+}
+
+// ===== Form submit =====
+document.getElementById('productForm').addEventListener('submit', e => {
+    if (!document.getElementById('skuInput').value) {
+        e.preventDefault(); alert('กรุณาเลือกหมวดหมู่เพื่อสร้าง SKU'); return;
+    }
+    // Real implementation: use FormData to append actual files
+    // For now the form submits text fields + hidden metadata
+});
+</script>
+</body>
+</html>
