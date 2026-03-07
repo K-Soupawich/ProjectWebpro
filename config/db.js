@@ -32,6 +32,7 @@ db.serialize(() => {
         name TEXT NOT NULL,
         description TEXT,
         price REAL NOT NULL,
+        is_active INTEGER DEFAULT 1,
         category_id INTEGER,
         created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
         FOREIGN KEY (category_id) REFERENCES categories(id)
@@ -74,22 +75,6 @@ db.serialize(() => {
         ('DR', 'เดรส'),
         ('CT', 'เสื้อแขนยาว')
     `);
-
-    // // format (name ,description, price, category_id, image,)
-    // db.run(`
-    // INSERT OR IGNORE INTO products 
-    // (name, description, price, category_id, image)
-    // VALUES
-    // ('เสื้อยืด Space of Loves', 'เสื้อผ้าคุณภาพดี ใส่สบาย', 250, 1, 'spaceofloves.png'),
-    // ('เสื้อยืด Heart Mind', 'ดีไซน์เรียบหรู ใส่ได้ทุกวัน', 270, 1, 'heartmind.png'),
-    // ('เสื้อยืด ปลาแดกราเมน', 'ลายสุดฮิต ขายดี', 550, 1, 'fishramen.png'),
-    // ('เสื้อยืด ปลาแดกราเมน', 'ลายสุดฮิต ขายดี', 550, 1, 'fishramen.png'),
-    // ('เสื้อยืด ปลาแดกราเมน', 'ลายสุดฮิต ขายดี', 550, 1, 'fishramen.png'),
-    // ('เสื้อยืด Heart Mind', 'ดีไซน์เรียบหรู ใส่ได้ทุกวัน', 270, 1, 'heartmind.png'),
-    // ('เสื้อยืด Space of Loves', 'เสื้อผ้าคุณภาพดี ใส่สบาย', 250, 1, 'spaceofloves.png'),
-    // ('เสื้อยืด Space of Loves', 'เสื้อผ้าคุณภาพดี ใส่สบาย', 250, 1, 'spaceofloves.png')
-    // `);
-
 });
 
 module.exports = db;

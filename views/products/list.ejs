@@ -1,270 +1,318 @@
 <!DOCTYPE html>
 <html lang="th">
+
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
-  <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+Thai:wght@400;500;600;700&family=IBM+Plex+Mono:wght@500&display=swap" rel="stylesheet">
-  <style>
-    body { font-family: 'IBM Plex Sans Thai', sans-serif; }
-    .mono { font-family: 'IBM Plex Mono', monospace; }
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
+    <link
+        href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+Thai:wght@400;500;600;700&family=IBM+Plex+Mono:wght@500&display=swap"
+        rel="stylesheet">
+    <style>
+        body {
+            font-family: 'IBM Plex Sans Thai', sans-serif;
+        }
 
-    /* stagger animation */
-    .row-in {
-      animation: fadeSlide 0.22s ease both;
-    }
-    
-    @keyframes fadeSlide {
-      from { opacity: 0; transform: translateY(5px); }
-      to   { opacity: 1; transform: translateY(0); }
-    }
+        .mono {
+            font-family: 'IBM Plex Mono', monospace;
+        }
 
-    /* icon button hover */
-    .action-btn { transition: background 0.12s, color 0.12s; }
-    .action-btn.edit:hover  { background: #F0EBE3; color: #6E5742; }
-    .action-btn.del:hover   { background: #FEE2E2; color: #EF4444; }
-  </style>
-  <title>จัดการสินค้า – KOFY</title>
+        /* stagger animation */
+        .row-in {
+            animation: fadeSlide 0.22s ease both;
+        }
+
+        @keyframes fadeSlide {
+            from {
+                opacity: 0;
+                transform: translateY(5px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        /* icon button hover */
+        .action-btn {
+            transition: background 0.12s, color 0.12s;
+        }
+
+        .action-btn.edit:hover {
+            background: #F0EBE3;
+            color: #6E5742;
+        }
+
+        .action-btn.del:hover {
+            background: #FEE2E2;
+            color: #EF4444;
+        }
+    </style>
+    <title>จัดการสินค้า – KOFY</title>
 </head>
 
 <body class="flex bg-[#F5F3EF] min-h-screen min-w-[1100px]">
 
-  <%- include('../partials/sidebar', { currentPage: 'products' }) %>
+    <%- include('../partials/sidebar', { currentPage: 'products' }) %>
 
-  <!-- ===== MAIN ===== -->
-  <div class="flex-1 flex flex-col">
+    <!-- ===== MAIN ===== -->
+    <div class="flex-1 flex flex-col">
 
-    <!-- ── Header bar ── -->
-    <div class="sticky top-0 z-20 bg-[#F5F3EF]/95 backdrop-blur border-b border-[#E8E0D5]
-                px-10 h-[62px] flex items-center justify-between gap-4">
+        <!-- ── Header bar ── -->
+        <div class="sticky top-0 z-20 bg-[#F5F3EF]/95 backdrop-blur border-b border-[#E8E0D5]
+            px-10 h-[62px] flex items-center justify-between gap-4">
 
-      <h1 class="text-[18px] font-bold text-[#30231D] tracking-tight whitespace-nowrap">
-        จัดการสินค้า
-      </h1>
+            <h1 class="text-[18px] font-bold text-[#30231D] tracking-tight whitespace-nowrap">
+                จัดการสินค้า
+            </h1>
 
-      <div class="flex items-center gap-2.5">
+            <div class="flex items-center gap-2.5">
 
-        <!-- Category filter -->
-        <div class="relative">
-          <select id="categoryFilter"
-            class="appearance-none pl-3.5 pr-8 py-2 text-[13px] font-medium text-[#6E5742]
-                   bg-white border border-[#E8E0D5] rounded-lg outline-none
-                   focus:border-[#A28161] focus:ring-2 focus:ring-[#A28161]/10 transition cursor-pointer">
-            <option value="">หมวดหมู่</option>
-            <% const categories = [...new Set(products.map(p => p.category_name).filter(Boolean))];
-               categories.forEach(c => { %>
-              <option value="<%= c %>"><%= c %></option>
-            <% }) %>
-          </select>
-          <!-- chevron -->
-          <svg class="pointer-events-none absolute right-2.5 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-[#A28161]"
-               fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M19 9l-7 7-7-7"/>
-          </svg>
-        </div>
-
-        <!-- Search -->
-        <div class="relative">
-          <svg class="absolute left-3 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-[#C5BAB0] pointer-events-none"
-               fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-              d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0"/>
-          </svg>
-          <input id="searchInput" type="text" placeholder="ค้นหาสินค้า..."
-            class="pl-9 pr-4 py-2 text-[13px] bg-white border border-[#E8E0D5] rounded-lg w-[200px]
-                   outline-none focus:border-[#A28161] focus:ring-2 focus:ring-[#A28161]/10 transition">
-        </div>
-
-        <!-- Add button -->
-        <a href="/products/add"
-          class="flex items-center gap-2 bg-[#6E5742] hover:bg-[#5a4535] active:scale-[.98]
-                 text-white text-[13px] font-semibold px-4 py-2 rounded-lg transition-all whitespace-nowrap">
-          <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M12 4v16m8-8H4"/>
-          </svg>
-          เพิ่มสินค้า
-        </a>
-      </div>
-    </div>
-
-    <!-- ── List ── -->
-    <div class="flex-1 px-10 py-6">
-
-      <!-- empty state -->
-      <% if (!products || products.length === 0) { %>
-        <div class="flex flex-col items-center justify-center h-[60vh] text-center">
-          <div class="w-16 h-16 rounded-2xl bg-[#EDE8E0] flex items-center justify-center mb-4">
-            <svg class="w-8 h-8 text-[#C5BAB0]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"
-                d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4"/>
-            </svg>
-          </div>
-          <p class="text-[15px] font-semibold text-[#30231D]">ยังไม่มีสินค้า</p>
-          <p class="text-[13px] text-[#aaa] mt-1 mb-5">เริ่มต้นด้วยการเพิ่มสินค้าชิ้นแรก</p>
-          <a href="/products/add"
-            class="bg-[#6E5742] text-white text-[13px] font-semibold px-5 py-2.5 rounded-lg hover:bg-[#5a4535] transition">
-            + เพิ่มสินค้า
-          </a>
-        </div>
-
-      <% } else { %>
-
-        <!-- rows -->
-        <div id="productList" class="flex flex-col gap-2">
-          <% products.forEach((product, i) => {
-               const stock = product.total_stock ?? 0;
-               const stockColor = stock === 0 ? '#EF4444' : stock <= 5 ? '#F59E0B' : '#10B981';
-          %>
-            <div class="product-row row-in flex items-center gap-4 bg-white rounded-2xl border border-[#EDE8E0]
-                        px-5 py-3.5 hover:border-[#D4C9BB] hover:shadow-sm transition-all group"
-                 style="--delay: <%= i * 25 %>ms"
-                 data-name="<%= product.name.toLowerCase() %>"
-                 data-category="<%= (product.category_name || '').toLowerCase() %>">
-
-              <!-- รูปสินค้า: เลือกจาก variant ตามลำดับสี WT > BK > BR > RD > BL > SK > YL > PK > GN > PP > GR -->
-              <%
-                const COLOR_PRIORITY = ['WT','BK','BR','RD','BL','SK','YL','PK','GN','PP','GR'];
-                let displayImage = null;
-
-                if (product.variant_images) {
-                  const imageMap = {};
-
-                  product.variant_images.split(',').forEach(entry => {
-                    const [color, img] = entry.split(':');
-
-                    if (color && img && !imageMap[color]) {
-                      imageMap[color] = img;
-                    }
-
-                  });
-
-                  for (const c of COLOR_PRIORITY) {
-                    if (imageMap[c]) {
-                      displayImage = imageMap[c];
-                      break;
-                    }
-                  }
-                }
-              %>
-
-              <div class="w-[52px] h-[52px] rounded-xl overflow-hidden bg-[#F5F3EF] border border-[#EDE8E0]
-                          flex items-center justify-center flex-shrink-0">
-
-                <% if (displayImage) { %>
-                  <img src="/uploads/<%= displayImage %>" class="w-full h-full object-cover">
-                <% } else { %>
-                  
-                  <svg class="w-6 h-6 text-[#D4C9BB]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"
-                      d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828
-                         0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"/>
-                  </svg>
-
-                <% } %>
-              </div>
-
-              <!-- ชื่อสินค้า -->
-              <div class="flex-1 min-w-0">
-
-                <p class="text-[15px] font-semibold text-[#30231D] truncate">
-                  <%= product.name %>
-                </p>
-
-                <% if (product.description) { %>
-
-                  <p class="text-[12px] text-[#B5A99A] truncate mt-0.5">
-                    <%= product.description %>
-                  </p>
-
-                <% } %>
-
-              </div>
-
-              <!-- หมวดหมู่ -->
-              <% if (product.category_name) { %>
-                <span class="hidden sm:inline-block bg-[#F0EBE3] text-[#8B6B4A] text-[11px]
-                             font-semibold px-3 py-1 rounded-full whitespace-nowrap">
-                  <%= product.category_name %>
-                </span>
-              <% } %>
-
-              <!-- ราคา -->
-              <div class="text-right whitespace-nowrap">
-                <p class="text-[15px] font-bold text-[#30231D]">
-                  ฿<%= Number(product.price).toLocaleString() %>
-                </p>
-              </div>
-
-              <!-- Action buttons (แสดงตลอด บน mobile, hover บน desktop) -->
-              <div class="flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
-
-                <a href="/products/<%= product.id %>/edit"
-                  class="action-btn edit w-8 h-8 rounded-lg flex items-center justify-center text-[#C5BAB0]">
-
-                  <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8"
-                      d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5
-                         m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"/>
-                  </svg>
-
-                </a>
-
-                <form action="/products/<%= product.id %>/delete" method="POST"
-                      onsubmit="return confirm('ลบสินค้า <%= product.name %> ออกจากระบบ?')">
-
-                  <button type="submit"
-                    class="action-btn del w-8 h-8 rounded-lg flex items-center justify-center text-[#C5BAB0]">
-                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8"
-                        d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7
-                           m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/>
+                <!-- Category filter -->
+                <div class="relative">
+                    <select id="categoryFilter" class="appearance-none pl-3.5 pr-8 py-2 text-[13px] font-medium text-[#6E5742]
+                bg-white border border-[#E8E0D5] rounded-lg outline-none
+                focus:border-[#A28161] focus:ring-2 focus:ring-[#A28161]/10 transition cursor-pointer">
+                        <option value="">หมวดหมู่</option>
+                        <% const categories=[...new Set(products.map(p=> p.category_name).filter(Boolean))];
+                            categories.forEach(c => { %>
+                            <option value="<%= c %>">
+                                <%= c %>
+                            </option>
+                            <% }) %>
+                    </select>
+                    <!-- chevron -->
+                    <svg class="pointer-events-none absolute right-2.5 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-[#A28161]"
+                        fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5"
+                            d="M19 9l-7 7-7-7" />
                     </svg>
-                  </button>
-                </form>
-              </div>
+                </div>
 
+                <!-- Search -->
+                <div class="relative">
+                    <svg class="absolute left-3 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-[#C5BAB0] pointer-events-none"
+                        fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                            d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0" />
+                    </svg>
+                    
+                    <input id="searchInput" type="text" placeholder="ค้นหาสินค้า..." class="pl-9 pr-4 py-2 text-[13px] bg-white border border-[#E8E0D5] rounded-lg w-[200px]
+                    outline-none focus:border-[#A28161] focus:ring-2 focus:ring-[#A28161]/10 transition">
+
+                </div>
+
+                <!-- Add button -->
+                <a href="/products/add" class="flex items-center gap-2 bg-[#6E5742] hover:bg-[#5a4535] active:scale-[.98]
+                text-white text-[13px] font-semibold px-4 py-2 rounded-lg transition-all whitespace-nowrap">
+
+                    <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5"
+                            d="M12 4v16m8-8H4" />
+                    </svg>
+                    เพิ่มสินค้า
+                </a>
+                
             </div>
-          <% }) %>
         </div>
 
-        <div id="emptyMsg" class="hidden text-center py-16 text-[#C5BAB0] text-[14px]">
-          ไม่พบสินค้าที่ค้นหา
-        </div>
+        <!-- ── List ── -->
+        <div class="flex-1 px-10 py-6">
 
-      <% } %>
+            <!-- empty state -->
+            <% if (!products || products.length===0) { %>
+                <div class="flex flex-col items-center justify-center h-[60vh] text-center">
+
+                    <div class="w-16 h-16 rounded-2xl bg-[#EDE8E0] flex items-center justify-center mb-4">
+
+                        <svg class="w-8 h-8 text-[#C5BAB0]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"
+                                d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4" />
+                        </svg>
+
+                    </div>
+                    <p class="text-[15px] font-semibold text-[#30231D]">
+                        ยังไม่มีสินค้า
+                    </p>
+
+                    <p class="text-[13px] text-[#aaa] mt-1 mb-5">
+                        เริ่มต้นด้วยการเพิ่มสินค้าชิ้นแรก
+                    </p>
+
+                    <a href="/products/add"
+                        class="bg-[#6E5742] text-white text-[13px] font-semibold px-5 py-2.5 rounded-lg hover:bg-[#5a4535] transition">
+                        + เพิ่มสินค้า
+                    </a>
+
+                </div>
+
+            <% } else { %>
+
+                <!-- rows -->
+                <div id="productList" class="flex flex-col gap-2">
+                    <% products.forEach((product, i)=> {
+                        const stock = product.total_stock ?? 0;
+                        const stockColor = stock === 0 ? '#EF4444' : stock <= 5 ? '#F59E0B' : '#10B981' ; %>
+
+                            <div class="product-row row-in flex items-center gap-4 bg-white rounded-2xl border border-[#EDE8E0]
+                                px-5 py-3.5 hover:border-[#D4C9BB] hover:shadow-sm transition-all group"
+                                style="--delay: <%= i * 25 %>ms" data-name="<%= product.name.toLowerCase() %>"
+                                data-category="<%= (product.category_name || '').toLowerCase() %>">
+
+                                <!-- รูปสินค้า: เลือกจาก variant ตามลำดับสี WT > BK > BR > RD > BL > SK > YL > PK > GN > PP > GR -->
+                                <% const
+                                    COLOR_PRIORITY=['WT','BK','BR','RD','BL','SK','YL','PK','GN','PP','GR']; 
+                                    let displayImage=null;
+                                    if (product.variant_images) { const imageMap={};
+
+                                        product.variant_images.split(',').forEach(entry=> {
+                                            const [color, img] = entry.split(':');
+
+                                            if (color && img && !imageMap[color]) {
+                                                imageMap[color] = img;
+                                            }
+
+                                        });
+
+                                        for (const c of COLOR_PRIORITY) {
+                                            if (imageMap[c]) {
+                                                displayImage = imageMap[c];
+                                                break;
+                                            }
+                                        }
+                                    }
+                                %>
+
+                                <div class="w-[52px] h-[52px] rounded-xl overflow-hidden bg-[#F5F3EF] border border-[#EDE8E0]
+                                    flex items-center justify-center flex-shrink-0">
+
+                                    <% if (displayImage) { %>
+
+                                        <img src="/uploads/<%= displayImage %>"
+                                            class="w-full h-full object-cover">
+
+                                    <% } else { %>
+
+                                        <svg class="w-6 h-6 text-[#D4C9BB]" fill="none"
+                                            stroke="currentColor" viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round"
+                                                stroke-width="1.5" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828
+                                                0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                                        </svg>
+
+                                    <% } %>
+                                </div>
+
+                                <!-- ชื่อสินค้า -->
+                                <div class="flex-1 min-w-0">
+
+                                    <p class="text-[15px] font-semibold text-[#30231D] truncate">
+                                        <%= product.name %>
+                                    </p>
+
+                                    <% if (product.description) { %>
+
+                                        <p class="text-[12px] text-[#B5A99A] truncate mt-0.5">
+                                            <%= product.description %>
+                                        </p>
+
+                                    <% } %>
+
+                                </div>
+
+                                <!-- หมวดหมู่ -->
+                                <% if (product.category_name) { %>
+
+                                    <span class="hidden sm:inline-block bg-[#F0EBE3] text-[#8B6B4A] text-[11px]
+                                        font-semibold px-3 py-1 rounded-full whitespace-nowrap">
+                                        <%= product.category_name %>
+                                    </span>
+
+                                <% } %>
+
+                                <!-- ราคา -->
+                                <div class="text-right whitespace-nowrap">
+                                    <p class="text-[15px] font-bold text-[#30231D]">
+                                        ฿<%= Number(product.price).toLocaleString() %>
+                                    </p>
+                                </div>
+
+                                <!-- Action buttons -->
+                                <div
+                                    class="flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
+
+                                    <a href="/products/<%= product.id %>/edit"
+                                        class="action-btn edit w-8 h-8 rounded-lg flex items-center justify-center text-[#C5BAB0]">
+
+                                        <svg class="w-4 h-4" fill="none" stroke="currentColor"
+                                            viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round"
+                                                stroke-width="1.8" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5
+                                                m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
+                                        </svg>
+
+                                    </a>
+
+                                    <form action="/products/<%= product.id %>/delete" method="POST"
+                                        onsubmit="return confirm('ลบสินค้า <%= product.name %> ออกจากระบบ?')">
+
+                                        <button type="submit"
+                                            class="action-btn del w-8 h-8 rounded-lg flex items-center justify-center text-[#C5BAB0]">
+
+                                            <svg class="w-4 h-4" fill="none" stroke="currentColor"
+                                                viewBox="0 0 24 24">
+                                                <path stroke-linecap="round" stroke-linejoin="round"
+                                                    stroke-width="1.8" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7
+                                                    m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                                            </svg>
+
+                                        </button>
+                                    </form>
+                                </div>
+
+                            </div>
+                            <% }) %>
+                    </div>
+
+                <div id="emptyMsg" class="hidden text-center py-16 text-[#C5BAB0] text-[14px]">
+                    ไม่พบสินค้าที่ค้นหา
+                </div>
+
+                <% } %>
+        </div>
     </div>
 
-  </div><!-- /main -->
+    <script>
+        const search = document.getElementById('searchInput');
+        const catSel = document.getElementById('categoryFilter');
+        const rows = document.querySelectorAll('.product-row');
+        const emptyMsg = document.getElementById('emptyMsg');
 
-<script>
-  const search = document.getElementById('searchInput');
-  const catSel = document.getElementById('categoryFilter');
-  const rows = document.querySelectorAll('.product-row');
-  const emptyMsg = document.getElementById('emptyMsg');
+        function filter() {
+            const q = (search?.value || '').toLowerCase().trim();
+            const cat = (catSel?.value || '').toLowerCase();
+            let shown = 0;
 
-  function filter() {
-    const q = (search?.value || '').toLowerCase().trim();
-    const cat = (catSel?.value || '').toLowerCase();
-    let shown = 0;
+            rows.forEach(row => {
+                const nameMatch = !q || row.dataset.name.includes(q);
+                const catMatch = !cat || row.dataset.category === cat;
 
-    rows.forEach(row => {
-      const nameMatch = !q || row.dataset.name.includes(q);
-      const catMatch = !cat || row.dataset.category === cat;
-      
-      const show = nameMatch && catMatch;
+                const show = nameMatch && catMatch;
 
-      row.style.display = show ? '' : 'none';
+                row.style.display = show ? '' : 'none';
 
-      if (show) shown++;
-    });
+                if (show) shown++;
+            });
 
-    if (emptyMsg) {
-      emptyMsg.classList.toggle('hidden', shown > 0);
-    }
-  }
+            if (emptyMsg) {
+                emptyMsg.classList.toggle('hidden', shown > 0);
+            }
+        }
 
-  search?.addEventListener('input',  filter);
-  catSel?.addEventListener('change', filter);
-</script>
+        search?.addEventListener('input', filter);
+        catSel?.addEventListener('change', filter);
+    </script>
 </body>
+
 </html>
