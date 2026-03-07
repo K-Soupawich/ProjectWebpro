@@ -1,14 +1,109 @@
+<%- include("head") %>
 
-<%- include("head") %> 
+    <body style="font-family: 'Inter', 'Noto Sans Thai', sans-serif;">
+        <div>
+            <%- include("navbar") %>
+        </div>
 
-<body style="font-family: 'Inter', 'Noto Sans Thai', sans-serif;">
-    <div>
-       <%- include("navbar") %> 
-    </div>
+        <div class="flex mt-[108px] items-center">
+            <a href="/customer" class="mr-[64px]">
+                <img src="/img/customer/back_button.png" class="w-[13px]">
+            </a>
+            <p>
+                <%= product.name %>
+            </p>
+        </div>
+
+        <div class="mt-[50px] flex">
+            <div>
+                <div
+                    class="bg-white w-[493px] h-[530px] rounded-[12px] flex justify-center items-center shadow-[0_6px_20px_rgba(0,0,0,0.15)] mt-[18px]">
+                    <img src="/uploads/<%= product.image %>" class="w-[450px] object-contain">
+                </div>
+            </div>
+
+            <div>
+                <div>
+                    <p>เลือกขนาด</p>
+
+                    <% const sizes = ['S','M','L','XL']; %>
+
+                    <div class="flex gap-2">
+
+                        <% sizes.forEach( s => { %>
+
+                            <% const variant = variants.find(item => item.size === s); %>
+
+                            <button type="button" 
+                                <% if (!variant) { %>
+                                    disabled
+                                <% } %>
+                                onclick='selectSize(this, "<%= s %>")' class="size-btn w-[45px] h-[45px] bg-gray-100 border-2 flex items-center justify-center cursor-pointer" style="border-color: transparent;">
+                                
+                                <%= s %>
+                            </button>
+
+                        <% }) %>
+                    </div>
+
+                    <input type="hidden" id="selectedSize" name="size" value="">
+                </div>
+
+                <div>
+                    <p>เลือกสี</p>
+                    <div class="bg-gray-100 w-[35px] h-[35px] flex">
+                        <%= product.color %>
+                    </div>
+                </div>
+
+                <div>
+                    <h2 class="">฿<%= product.price %>
+                    </h2>
+                </div>
+
+                <div>
+
+                    <p>สินค้าคงเหลือ....</p>
+                </div>
+
+                <div>
+                    <p class="">
+                        <%= product.description %>
+                    </p>
+                </div>
+
+                <div class="flex">
+                    <div>
+                        <a href="/cart">
+                            <img src="/img/customer/เพิ่มลงตะกร้า.png" class="w-[256px]">
+                        </a>
+                    </div>
+
+                    <div>
+                        <a href="/payment">
+                            <img src="/img/customer/ซื้อสินค้า.png" class="w-[256px]">
+                        </a>
+                    </div>
+                </div>
 
 
+            </div>
+        </div>
 
 
+        <script>
+            function selectSize(el, size) {
+                // reset ทุกปุ่ม
+                document.querySelectorAll('.size-btn').forEach(btn => {
+                    btn.style.borderColor = 'transparent';
+                });
+                // ไฮไลท์ปุ่มที่เลือก
+                el.style.borderColor = '#1f2937';
+                // เก็บค่า size
+                document.getElementById('selectedSize').value = size;
+            }
+        </script>
 
-</body>
-</html>
+    </body>
+
+    </html>

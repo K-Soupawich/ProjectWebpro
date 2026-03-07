@@ -51,8 +51,8 @@ router.get('/detail/:id', (req, res) => {
                 console.log(err);
                 return res.send("Database Error");
             }
-
-            res.render('detail', {product, details});
+            console.log(details)
+            res.render('detail', { product, variants: details });
         });
 
     });
