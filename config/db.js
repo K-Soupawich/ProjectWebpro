@@ -32,9 +32,9 @@ db.serialize(() => {
         name TEXT NOT NULL,
         description TEXT,
         price REAL NOT NULL,
-        is_active INTEGER DEFAULT 1,
         category_id INTEGER,
         created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+        is_active INTEGER DEFAULT 1,
         FOREIGN KEY (category_id) REFERENCES categories(id)
     )`);
 

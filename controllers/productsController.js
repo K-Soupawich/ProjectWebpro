@@ -18,6 +18,7 @@ exports.listProducts = (req, res) => {
             console.error(err);
             return res.status(500).send("Database error");
         }
+        
         res.render("products/list", {
             user: req.session.user,
             products,
@@ -200,7 +201,7 @@ exports.updateProduct = (req, res) => {
                     if (fileField) {
                         const tmpName = fileField[0].filename;
                         const ext = path.extname(tmpName);
-                        const newName = `${skuBase}-${colorCode}${ext}`;
+                        const newName = `${skuBase}${colorCode}${ext}`;
                         fs.renameSync(`public/uploads/${tmpName}`, `public/uploads/${newName}`);
                         imageFilename = newName;
                     }
@@ -263,14 +264,12 @@ exports.getNextSKU = (req, res) => {
     if (!code) return res.json({ sku: '' });
 
     // นับจำนวน products ที่อยู่ใน category นี้ แล้ว +1
-    let sql = `
+    db.get(`
         SELECT COUNT(*) AS total
         FROM products
         WHERE category_id = (SELECT id FROM categories WHERE code = ?)
         AND is_active = 1
-    `;
-
-    db.get(sql, [code], (err, row) => {
+    `, [code], (err, row) => {
         if (err) return res.status(500).json({ error: err.message });
         const num = String(row.total + 1).padStart(3, '0');
         res.json({ sku: code + num });  // { sku: 'SH003' }
