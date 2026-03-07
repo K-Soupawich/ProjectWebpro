@@ -26,34 +26,53 @@
                 <div>
                     <p>เลือกขนาด</p>
 
-                    <% const sizes = ['S','M','L','XL']; %>
+                    <% const sizes=['S','M','L','XL']; %>
 
-                    <div class="flex gap-2">
+                        <div class="flex gap-2">
 
-                        <% sizes.forEach( s => { %>
+                            <% sizes.forEach( s=> { %>
 
-                            <% const variant = variants.find(item => item.size === s); %>
+                                <% const variant=variants.find(item=> item.size === s); %>
 
-                            <button type="button" 
+                                    <button type="button" class="size-btn w-[45px] h-[45px] border-2 flex items-center justify-center
                                 <% if (!variant) { %>
+                                    bg-gray-100 text-gray-400 cursor-not-allowed
                                     disabled
-                                <% } %>
-                                onclick='selectSize(this, "<%= s %>")' class="size-btn w-[45px] h-[45px] bg-gray-100 border-2 flex items-center justify-center cursor-pointer" style="border-color: transparent;">
-                                
-                                <%= s %>
-                            </button>
+                                <% } else { %>
+                                    bg-gray-100 cursor-pointer
+                                <% } %>" <% if (!variant) { %>
+                                        disabled
+                                        <% } %>
 
-                        <% }) %>
-                    </div>
+                                            onclick='selectSize(this, "<%= s %>")' class="size-btn w-[45px] h-[45px]
+                                                bg-gray-100 border-2 flex items-center justify-center cursor-pointer"
+                                                style="border-color: transparent;">
 
-                    <input type="hidden" id="selectedSize" name="size" value="">
+                                                <%= s %>
+                                    </button>
+
+                                    <% }) %>
+                        </div>
+
+                        <input type="hidden" id="selectedSize" name="size" value="">
                 </div>
 
                 <div>
                     <p>เลือกสี</p>
-                    <div class="bg-gray-100 w-[35px] h-[35px] flex">
-                        <%= product.color %>
+
+                    <div class="flex gap-3">
+
+                        <% colors.forEach(function(color) { %>
+                            <a href='#'
+                                onclick='selectColor(this, "<%= color.code %>"); return false;'
+                                class='color-btn w-[40px] h-[40px] rounded-full border-2'
+                                style='background-color: <%= color.hex %>; border-color: transparent;'
+                        >
+                        </a>
+                        <% }) %>
+
                     </div>
+                    <input type="hidden" id="selectedColor" name="color" value="">
                 </div>
 
                 <div>
@@ -92,6 +111,7 @@
 
 
         <script>
+        
             function selectSize(el, size) {
                 // reset ทุกปุ่ม
                 document.querySelectorAll('.size-btn').forEach(btn => {
@@ -101,6 +121,14 @@
                 el.style.borderColor = '#1f2937';
                 // เก็บค่า size
                 document.getElementById('selectedSize').value = size;
+            }
+
+            function selectColor(el, code) {
+                document.querySelectorAll('.color-btn').forEach(btn => {
+                    btn.style.borderColor = 'transparent';
+                });
+                el.style.borderColor = '#1f2937';
+                document.getElementById('selectedColor').value = code;
             }
         </script>
 
