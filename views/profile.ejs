@@ -1,61 +1,139 @@
 <!DOCTYPE html>
 <html lang="en">
 
-    <%- include("head") %> 
+<%- include("head") %>
 
-<body style="font-family: 'Inter', 'Noto Sans Thai', sans-serif;" class="bg-[#F7F5F5]">
-    <div>
-        <%- include("navbar") %>
-    </div>
-
-    <div class="flex justify-center">
+    <body style="font-family: 'Inter', 'Noto Sans Thai', sans-serif;" class="bg-[#F7F5F5]">
         <div>
-            <div class="bg-[#F7F5F5] p-8 w-[899px] h-[150px]">
-                <div>
-                    <img src="/img/profile/<%= user.name %>.png" class="w-[210px] h-[210px] rounded-full object-cover mx-auto mb-4">
-                </div>
+            <%- include("navbar") %>
+        </div>
 
-                <p class="text-[24px] text-center font-semibold text-gray-700 mb-5"><%= user.name %></p>
-            </div>
-
+        <div class="flex justify-center">
             <div>
-                <div class="bg-white rounded-2xl shadow-md p-8 w-[899px] h-[720px]">
-                    <button onclick="history.back()" class="cursor-pointer hover:scale-105 transition duration-200">
-                        <img src="/img/customer/back_button.png" class="w-[13px]">
-                    </button>
-                    <div class="flex justify-center mt-[110px]">
-                        <div class="bg-white rounded-2xl w-[390px] h-[225px] border border-gray-300 shadow-sm">
-                            <div class="flex mt-[37px]">
-                                <img src="/img/customer/email.png" class="w-[22px] h-[18px] ml-[44px]">
-                                <p class="ml-[27px]">อีเมล</p>
-                                <p class="ml-[90px]">user.email</p>
-                            </div>
-
-                            
-                            <hr class="mx-[30px] border-gray-200">
-                            
-                            <div class="flex mt-[17px]">
-                                <img src="/img/customer/phone_number.png" class="w-[20px] h-[18px] ml-[44px]">
-                                <p>เบอร์โทรศัพท์</p>
-                                <p>user.phone</p>
-                            </div>
-
-                            <div class="flex">
-                                <img src="/img/customer/address.png" class="w-[22px] h-[18px] ml-[44px]">
-                                <p>ที่อยู่</p>
-                                <p>...........</p>
-                            </div>
-
-                            <a>
-                                <img src="/img/customer/edit_button.png" class="w-[149px]">
-                            </a>
-                        </div>
+                <div class="bg-[#F7F5F5] p-8 w-[899px] h-[150px]">
+                    <div>
+                        <img src="/img/profile/<%= user.name %>.png"
+                            class="w-[210px] h-[210px] rounded-full object-cover mx-auto mb-4">
                     </div>
+
+                    <p class="text-[24px] text-center font-semibold text-gray-700 mb-5">
+                        <%= user.name %>
+                    </p>
                 </div>
-                
+
+                <div>
+                    <div class="bg-white rounded-2xl shadow-md p-8 w-[899px] h-[720px]">
+                        <button onclick="history.back()" class="cursor-pointer hover:scale-105 transition duration-200">
+                            <img src="/img/customer/back_button.png" class="w-[13px]">
+                        </button>
+
+                        <form action="/customer/update-profile" method="POST">
+                            <div class="flex justify-center mt-[100px]">
+                                <div class="bg-white rounded-2xl w-[500px] h-[250px] border border-gray-300 shadow-sm">
+                                    <div class="flex mt-[20px]">
+                                        <img src="/img/customer/email.png" class="w-[22px] h-[18px] ml-[44px]">
+                                        <p class="ml-[27px]">อีเมล</p>
+                                        <p id="emailText" class="ml-[90px]"><%= user.email %></p>
+                                        <input id="emailInput" name="email" class="ml-[90px] hidden border rounded px-1" value="<%= user.email %>">
+                                    </div>
+
+                                    <hr class="mx-[30px] border-gray-200 mt-[12px]">
+
+                                    <div class="flex mt-[15px]">
+                                        <img src="/img/customer/phone_number.png" class="w-[20px] h-[18px] ml-[44px]">
+                                        <p class="ml-[27px]">เบอร์โทรศัพท์</p>
+                                        <p id="phoneText" class="ml-[60px]"><%= user.phone %></p>
+                                        <input id="phoneInput" name="phone" class="ml-[60px] hidden border rounded px-1" value="<%= user.phone %>">
+
+                                    </div>
+
+                                    <hr class="mx-[30px] border-gray-200 mt-[12px]">
+
+                                    <div class="flex mt-[15px]">
+                                        <img src="/img/customer/address.png" class="w-[22px] h-[18px] ml-[44px]">
+                                        <p class="ml-[27px]">ที่อยู่</p>
+                                        <p id="addressText" class="ml-[90px]">-</p> 
+                                        <input id="addressInput" name="address" class="ml-[90px] hidden border rounded px-1" value="<%= user.address %>">                                    </div>
+
+                                    <div class="flex justify-center">
+                                        <button type="button" onclick="editProfile()" id="editBtn">
+                                            <img id="editIcon" src="/img/customer/edit_button.png" class="w-[149px] mt-[28px]">
+                                        </button>
+                                    </div>
+
+                                </div>
+                            </div>
+                        </form>
+
+
+                        <div>
+                            <p>สถานะคำสั่งซื้อของคุณ</p>
+                            //รอแก้
+                            <div class="flex justify-center">
+                                <% products.forEach(product=> { %>
+                                <div class="bg-[#F8F8F8] w-[800px] rounded-[20px] border border-gray-200 shadow-sm p-4">
+                                    <div class="flex items-center justify-between">
+                                        <div class="flex items-center gap-4">
+                                            <img src="/uploads/<%= product.image %>"
+                                                class="w-[60px] h-[60px] object-cover rounded-lg">
+                                            <p>
+                                                <%= product.name %>
+                                            </p>
+                                        </div>
+
+                                        <span class="bg-green-100 text-green-600 px-4 py-2 rounded-lg">
+                                            จัดส่งสำเร็จ
+                                        </span>
+                                    </div>
+                                </div>
+
+                                <% }) %>
+                            </div>
+
+                            <div class="flex justify-center">
+                                <a href="/">
+                                    <img src="/img/customer/logout_button.png" class="w-[177px] mt-[50px]">
+                                </a>
+                            </div>
+                        </div>
+
+                    </div>
+
+                </div>
+
             </div>
         </div>
-    </div>
-    
-</body>
+        </div>
+
+    </body>
+
+    <script>
+
+        let editMode = false;
+
+        function editProfile(){
+
+            if(!editMode){
+
+                document.getElementById("emailText").classList.add("hidden");
+                document.getElementById("phoneText").classList.add("hidden");
+                document.getElementById("addressText").classList.add("hidden");
+
+                document.getElementById("emailInput").classList.remove("hidden");
+                document.getElementById("phoneInput").classList.remove("hidden");
+                document.getElementById("addressInput").classList.remove("hidden");
+
+                // เปลี่ยนรูปปุ่ม
+                document.getElementById("editIcon").src = "/img/customer/confirm_button.png";
+
+                // เปลี่ยนปุ่มเป็น submit
+                document.getElementById("editBtn").type = "submit";
+
+                editMode = true;
+            }
+
+        }
+
+    </script>
+
 </html>

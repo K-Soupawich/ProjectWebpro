@@ -100,7 +100,35 @@ router.get("/cart", (req, res) => {
 });
 
 router.get("/profile", (req, res) => {
-    res.render("profile");
+    db.all("SELECT * FROM products", [], (err, rows) => {
+
+    if (err) {
+        console.log(err);
+        return res.send("Database Error");
+    }
+
+    res.render("profile", { products: rows });
+
+    });
+
+});
+
+router.post("/update-profile", (req, res) => {
+
+    const { email, phone, address } = req.body;
+
+    db.run(
+        "UPDATE users SET email=?, phone=?, address=? WHERE id=?",
+        [email, phone, address, req.session.userId],
+        (err) => {
+            if(err){
+                console.log(err);
+                return res.send("Database Error");
+            }
+
+            res.redirect("/profile");
+        }
+    );
 
 });
 module.exports = router;
