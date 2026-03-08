@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html lang="en">
+
+    <%- include("head") %> 
+
+<body style="font-family: 'Inter', 'Noto Sans Thai', sans-serif;" class="bg-[#F7F5F5]">
+    <div>
+        <%- include("navbar") %>
+    </div>
+
+    <div class="flex justify-center">
+        <div>
+            <div class="bg-[#F7F5F5] p-8 w-[899px] h-[150px]">
+                <div>
+                    <img src="/img/profile/<%= user.name %>.png" class="w-[210px] h-[210px] rounded-full object-cover mx-auto mb-4">
+                </div>
+
+                <p class="text-[24px] text-center font-semibold text-gray-700 mb-5"><%= user.name %></p>
+            </div>
+
+            <div>
+                <div class="bg-white rounded-2xl shadow-md p-8 w-[899px] h-[720px]">
+                    <button onclick="history.back()" class="cursor-pointer hover:scale-105 transition duration-200">
+                        <img src="/img/customer/back_button.png" class="w-[13px]">
+                    </button>
+                    <div class="flex justify-center mt-[110px]">
+                        <div class="bg-white rounded-2xl w-[390px] h-[225px] border border-gray-300 shadow-sm">
+                            <div class="flex mt-[37px]">
+                                <img src="/img/customer/email.png" class="w-[22px] h-[18px] ml-[44px]">
+                                <p class="ml-[27px]">อีเมล</p>
+                                <p class="ml-[90px]">user.email</p>
+                            </div>
+
+                            
+                            <hr class="mx-[30px] border-gray-200">
+                            
+                            <div class="flex mt-[17px]">
+                                <img src="/img/customer/phone_number.png" class="w-[20px] h-[18px] ml-[44px]">
+                                <p>เบอร์โทรศัพท์</p>
+                                <p>user.phone</p>
+                            </div>
+
+                            <div class="flex">
+                                <img src="/img/customer/address.png" class="w-[22px] h-[18px] ml-[44px]">
+                                <p>ที่อยู่</p>
+                                <p>...........</p>
+                            </div>
+
+                            <a>
+                                <img src="/img/customer/edit_button.png" class="w-[149px]">
+                            </a>
+                        </div>
+                    </div>
+                </div>
+                
+            </div>
+        </div>
+    </div>
+    
+</body>
+</html>

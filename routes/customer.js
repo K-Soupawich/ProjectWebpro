@@ -81,7 +81,26 @@ router.get('/detail/:id', (req, res) => {
         });
 
     });
-  
+
 });
 
+router.get("/cart", (req, res) => {
+
+    db.all("SELECT * FROM products", [], (err, rows) => {
+
+    if (err) {
+        console.log(err);
+        return res.send("Database Error");
+    }
+
+    res.render("cart", { products: rows });
+
+    });
+
+});
+
+router.get("/profile", (req, res) => {
+    res.render("profile");
+
+});
 module.exports = router;

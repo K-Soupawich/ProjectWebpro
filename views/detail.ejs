@@ -5,17 +5,17 @@
             <%- include("navbar") %>
         </div>
 
-        <div class="flex mt-[108px] items-center">
+        <div class="flex mt-[108px] items-center ml-[117px]">
             <a href="/customer" class="mr-[64px]">
                 <img src="/img/customer/back_button.png" class="w-[13px]">
             </a>
-            <p>
+            <p class="text-[32px] text-[#30231D] font-semibold">
                 <%= product.name %>
             </p>
         </div>
 
-        <div class="mt-[50px] flex">
-            <div>
+        <div class="mt-[50px] flex justify-center items-center">
+            <div class="mr-[105px]">
                 <div
                     class="bg-white w-[493px] h-[530px] rounded-[12px] flex justify-center items-center shadow-[0_6px_20px_rgba(0,0,0,0.15)] mt-[18px]">
                     <img src="/uploads/<%= product.image %>" class="w-[450px] object-contain">
@@ -23,8 +23,8 @@
             </div>
 
             <div>
-                <div>
-                    <p>เลือกขนาด</p>
+                <div class="mb-[30px]">
+                    <p class="mb-[10px]">เลือกขนาด</p>
 
                     <% const sizes=['S','M','L','XL']; %>
 
@@ -57,41 +57,46 @@
                         <input type="hidden" id="selectedSize" name="size" value="">
                 </div>
 
-                <div>
-                    <p>เลือกสี</p>
+                <div class="mb-[30px]">
+                    <p class="mb-[10px]">เลือกสี</p>
 
                     <div class="flex gap-3">
 
                         <% colors.forEach(function(color) { %>
-                            <a href='#'
-                                onclick='selectColor(this, "<%= color.code %>"); return false;'
-                                class='color-btn w-[40px] h-[40px] rounded-full border-2'
-                                style='background-color: <%= color.hex %>; border-color: transparent;'
+                            <a href="#"
+                                onclick="selectColor(this, '<%= color.code %>'); return false;"
+                                class="color-btn w-[40px] h-[40px] rounded-full border-2"
+                                style="background-color: <%= color.hex %>; border-color: transparent;"
                         >
                         </a>
-                        <% }) %>
+                        <% }); %>
 
                     </div>
                     <input type="hidden" id="selectedColor" name="color" value="">
                 </div>
 
-                <div>
-                    <h2 class="">฿<%= product.price %>
+                <div class="mb-[30px]">
+                    <h2 class="text-[32px] font-bold text-[#30231D]">฿<%= product.price %>
                     </h2>
                 </div>
 
-                <div>
+                <div class="flex items-center gap-2 bg-[#FEFCFC] w-[175px] h-[48px] rounded-[40px] border border-gray-200 mb-[8px]">
+                    <button type="button" onclick="decrease()" class="cursor-pointer ml-[20px] text-[20px]">-</button>
+                    <input id="num" type="text" value="1" class="w-[94px] text-center text-[16px]">
+                    <button type="button" onclick="increase()" class="cursor-pointer text-[20px]">+</button>
+                </div>
 
+                <div class="mb-[32px]">
                     <p>สินค้าคงเหลือ....</p>
                 </div>
 
-                <div>
-                    <p class="">
+                <div class="mb-[20px]">
+                    <p>
                         <%= product.description %>
                     </p>
                 </div>
 
-                <div class="flex">
+                <div class="flex ">
                     <div>
                         <a href="/cart">
                             <img src="/img/customer/เพิ่มลงตะกร้า.png" class="w-[256px]">
@@ -129,6 +134,22 @@
                 });
                 el.style.borderColor = '#1f2937';
                 document.getElementById('selectedColor').value = code;
+            }
+
+            function increase(){
+                let num = parseInt(document.getElementById("num").value);
+
+                if (num >= 1) {
+                    document.getElementById("num").value = num + 1;
+                }
+            }
+
+            function decrease(){
+                let num = parseInt(document.getElementById("num").value);
+
+                if (num > 1) {
+                    document.getElementById("num").value = num - 1;
+                }
             }
         </script>
 
