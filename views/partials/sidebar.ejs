@@ -1,5 +1,109 @@
-<% if(user.role === "admin"){ %>
-    <%- include("sidebar-admin") %>
-<% } else if(user.role === "staff"){ %>
-    <%- include("sidebar-staff") %>
-<% } %>
+<%
+  const navItems = [
+    {
+      key:   'dashboard',
+      label: 'แดชบอร์ด',
+      href:  '/dashboard',
+      icon:  '/img/sidebar/dashboard.png',
+      iconActive: '/img/sidebar/dashboard-s.png',
+      roles: ['admin', 'staff']
+    },
+    {
+      key:   'products',
+      label: 'จัดการสินค้า',
+      href:  '/products',
+      icon:  '/img/sidebar/products.png',
+      iconActive: '/img/sidebar/products-s.png',
+      roles: ['admin', 'staff']
+    },
+    {
+      key:   'grn',
+      label: 'จัดการสต็อก',
+      href:  '/grn/receive',
+      icon:  '/img/sidebar/stock.png',
+      iconActive: '/img/sidebar/stock-s.png',
+      roles: ['admin', 'staff']
+    },
+    {
+      key:   'grn',
+      label: 'สินค้ารับเข้า',
+      href:  '/grn/receive',
+      icon:  '/img/sidebar/grn.png',
+      iconActive: '/img/sidebar/grn-s.png',
+      roles: ['admin', 'staff']
+    },
+    {
+      key:   'orders',
+      label: 'คำสั่งซื้อ',
+      href:  '/orders',
+      icon:  '/img/sidebar/orders.png',
+      iconActive: '/img/sidebar/orders-s.png',
+      roles: ['admin', 'staff']
+    },
+    {
+      key:   'users',
+      label: 'จัดการผู้ใช้',
+      href:  '/users',
+      icon:  '/img/sidebar/users.png',
+      iconActive: '/img/sidebar/users-s.png',
+      roles: ['admin']
+    },
+  ];
+
+  const role = user?.role || '';
+%>
+
+<div class="w-[200px] min-h-screen bg-[#F0EBE3] border-r border-[#E0D5C8]
+            flex flex-col flex-shrink-0 sticky top-0 h-screen">
+
+  <!-- Logo -->
+  <div class="flex flex-col items-center pt-8 pb-6 border-b border-[#E0D5C8]">
+    <img src="/img/logo1.png" class="w-[100px] h-auto">
+  </div>
+
+  <!-- Nav -->
+  <nav class="flex-1 px-3 py-5 flex flex-col gap-1 overflow-y-auto">
+    <% navItems.forEach(item => { %>
+      <% if (item.roles.includes(role)) { %>
+        <%
+          const isActive = currentPage === item.key;
+        %>
+        <a href="<%= item.href %>"
+           class="flex items-center gap-3 px-3 py-2.5 rounded-xl transition-all select-none
+                  <%= isActive
+                        ? 'bg-[#D9CDBF] text-[#30231D]'
+                        : 'text-[#7A6A5A] hover:bg-[#E8E0D5] hover:text-[#30231D]' %>">
+
+          <!-- icon: active ใช้รูป -s, ปกติใช้รูปเทา -->
+          <img src="<%= isActive ? item.iconActive : item.icon %>"
+               class="w-[20px] h-[20px] object-contain flex-shrink-0">
+
+          <span class="text-[13px] <%= isActive ? 'font-semibold' : 'font-medium' %>">
+            <%= item.label %>
+          </span>
+        </a>
+      <% } %>
+    <% }) %>
+  </nav>
+
+  <!-- Profile -->
+  <div class="border-t border-[#E0D5C8] px-4 py-4 flex items-center gap-3">
+    <% if (user?.avatar) { %>
+      <img src="/uploads/<%= user.avatar %>"
+           class="w-9 h-9 rounded-full object-cover flex-shrink-0 border border-[#D9CDBF]">
+    <% } else { %>
+      <!-- placeholder avatar -->
+      <div class="w-9 h-9 rounded-full bg-[#D9CDBF] flex items-center justify-center flex-shrink-0">
+        <svg class="w-5 h-5 text-[#8B7355]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8"
+                d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"/>
+        </svg>
+      </div>
+    <% } %>
+    <div class="min-w-0">
+      <p class="text-[13px] font-semibold text-[#30231D] truncate"><%= user?.name || user?.username || '—' %></p>
+      <p class="text-[11px] text-[#A28161] capitalize"><%= role %></p>
+    </div>
+  </div>
+
+</div>

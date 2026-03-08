@@ -2,9 +2,10 @@ const express = require('express');
 const session = require('express-session');
 require('dotenv').config();
 
-const authRoutes = require('./routes/authRoutes');
+const authRoutes = require('./routes/authRoute');
 const homeRoutes = require('./routes/homeRoute');
 const productsRoutes = require("./routes/productsRoute");
+const grnRoutes = require('./routes/grnRoute');
 const { isLoggedIn, authorize } = require('./middleware/authMiddleware');
 const customerRoute = require('./routes/customer');
 
@@ -35,12 +36,16 @@ app.use((req, res, next) => {
 // ===== Public Routes =====
 app.use('/', authRoutes);
 app.use('/', homeRoutes);
-app.use("/products", productsRoutes);
+app.use('/products', productsRoutes);
 app.use('/customer', customerRoute);
+app.use('/grn', grnRoutes);
 
 // ===== Protected Routes =====
 app.get('/dashboard', isLoggedIn, authorize(['admin', 'staff']), (req, res) => {
-    res.render('dashboard', { user: req.session.user });
+    res.render('dashboard', { 
+        user: req.session.user,
+        currentPage: 'dashboard'
+    });
 });
 
 

@@ -10,21 +10,19 @@ exports.showRegister = (req, res) => {
 };
 
 exports.register = async (req, res) => {
-    const { username, email, password, confirm_password} = req.body;
+    const { username, phone, email, password, confirm_password} = req.body;
 
     if (password !== confirm_password) {
         return res.send("Passwords do not match");
     }
 
-    console.log(username, email, password);
     const hashedPassword = await bcrypt.hash(password, 10);
 
     db.run(
-        "INSERT INTO users (username, email, password) VALUES (?, ?, ?)", [username, email, hashedPassword],
+        "INSERT INTO users (username, phone, email, password) VALUES (?, ?, ?, ?)", [username, phone, email, hashedPassword],
         function(err) {
             if (err) {
                 console.log(err);
-                alert("User already exist");
                 // return res.send("Error: " + err.message);
                 // return res.send("User already exist");
             }

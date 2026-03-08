@@ -34,6 +34,7 @@ db.serialize(() => {
         price REAL NOT NULL,
         category_id INTEGER,
         created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+        is_active INTEGER DEFAULT 1,
         FOREIGN KEY (category_id) REFERENCES categories(id)
     )`);
 
@@ -49,6 +50,18 @@ db.serialize(() => {
         image TEXT,
         created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
         FOREIGN KEY (product_id) REFERENCES products(id)
+    );`)
+
+    // Stock Receipt
+    db.run(`
+    CREATE TABLE IF NOT EXISTS stock_receipts (
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        grn_ref TEXT,
+        sku TEXT NOT NULL,
+        qty_received INTEGER NOT NULL,
+        received_by INTEGER,
+        received_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+        FOREIGN KEY (received_by) REFERENCES users(id)
     );`)
 
     // ========ใส่ข้อมูล=========
@@ -74,22 +87,6 @@ db.serialize(() => {
         ('DR', 'เดรส'),
         ('CT', 'เสื้อแขนยาว')
     `);
-
-    // // format (name ,description, price, category_id, image,)
-    // db.run(`
-    // INSERT OR IGNORE INTO products 
-    // (name, description, price, category_id, image)
-    // VALUES
-    // ('เสื้อยืด Space of Loves', 'เสื้อผ้าคุณภาพดี ใส่สบาย', 250, 1, 'spaceofloves.png'),
-    // ('เสื้อยืด Heart Mind', 'ดีไซน์เรียบหรู ใส่ได้ทุกวัน', 270, 1, 'heartmind.png'),
-    // ('เสื้อยืด ปลาแดกราเมน', 'ลายสุดฮิต ขายดี', 550, 1, 'fishramen.png'),
-    // ('เสื้อยืด ปลาแดกราเมน', 'ลายสุดฮิต ขายดี', 550, 1, 'fishramen.png'),
-    // ('เสื้อยืด ปลาแดกราเมน', 'ลายสุดฮิต ขายดี', 550, 1, 'fishramen.png'),
-    // ('เสื้อยืด Heart Mind', 'ดีไซน์เรียบหรู ใส่ได้ทุกวัน', 270, 1, 'heartmind.png'),
-    // ('เสื้อยืด Space of Loves', 'เสื้อผ้าคุณภาพดี ใส่สบาย', 250, 1, 'spaceofloves.png'),
-    // ('เสื้อยืด Space of Loves', 'เสื้อผ้าคุณภาพดี ใส่สบาย', 250, 1, 'spaceofloves.png')
-    // `);
-
 });
 
 module.exports = db;

@@ -31,6 +31,7 @@ router.get('/add', ...check_auth, productsController.showAdd);
 router.post('/add', ...check_auth, upload.fields(colorFields), productsController.createProduct);
 router.get('/next-sku', ...check_auth, productsController.getNextSKU);
 router.get('/:id/edit', ...check_auth, productsController.showEdit);
+router.post('/:id/edit', ...check_auth, upload.fields(colorFields), productsController.updateProduct);
 router.post('/:id/delete', ...check_auth, productsController.deleteProduct);
 
 module.exports = router;
