@@ -1,0 +1,514 @@
+<!DOCTYPE html>
+<html lang="th">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
+    <link
+        href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+Thai:wght@400;500;600;700&family=IBM+Plex+Mono:wght@500&display=swap"
+        rel="stylesheet">
+    <style>
+        body {
+            font-family: 'IBM Plex Sans Thai', sans-serif;
+        }
+
+        .mono {
+            font-family: 'IBM Plex Mono', monospace;
+        }
+
+        .color-dot {
+            width: 20px; height: 20px;
+            border-radius: 50%;
+            border: 1.5px solid rgba(0,0,0,0.12);
+            display: inline-block;
+        }
+    </style>
+    <title>จัดการสต็อก – KOFY</title>
+</head>
+
+<body class="flex bg-[#F5F3EF] h-screen overflow-hidden">
+
+    <%- include('../partials/sidebar') %>
+
+    <div class="flex-1 flex flex-col h-screen overflow-y-auto">
+
+        <div class="sticky top-0 z-20 bg-[#F5F3EF]/95 backdrop-blur border-b border-[#E8E0D5]
+            px-10 h-[62px] flex items-center justify-between gap-4">
+            <h1 class="text-[18px] font-bold pt-1 my-4 text-[#30231D] tracking-tight">
+                จัดการสต็อก
+            </h1>
+        </div>
+
+        <div class="px-10 py-8 flex-1">
+
+        <div class="flex gap-4 mb-6 flex-wrap">
+
+            <!-- Total variants -->
+            <div class="bg-white rounded-xl border border-[#E8E0D5] px-5 py-3 flex items-center gap-3 shadow-sm">
+                <div class="w-8 h-8 rounded-full bg-[#F0EBE3] flex items-center justify-center">
+                    <svg class="w-4 h-4 text-[#A28161]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                        d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10" />
+                    </svg>
+                </div>
+
+                <div>
+                    <p class="text-[10px] font-semibold text-[#999] uppercase tracking-wider">รายการทั้งหมด</p>
+                    <p class="text-[20px] font-bold text-[#30231D] leading-tight"><%= variants.length %></p>
+                </div>
+
+            </div>
+
+            <!-- Low stock -->
+            <div class="bg-white rounded-xl border border-[#E8E0D5] px-5 py-3 flex items-center gap-3 shadow-sm">
+                <div class="w-8 h-8 rounded-full bg-[#FEF3C7] flex items-center justify-center">
+                    <svg class="w-4 h-4 text-[#D97706]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                        d="M12 9v2m0 4h.01M10.29 3.86L1.82 18a2 2 0 001.71 3h16.94a2 2 0 001.71-3L13.71 3.86a2 2 0 00-3.42 0z" />
+                    </svg>
+                </div>
+                <div>
+                    <p class="text-[10px] font-semibold text-[#999] uppercase tracking-wider">ใกล้หมด (≤10)</p>
+                    <p class="text-[20px] font-bold text-[#D97706] leading-tight"><%= lowStockItems.length %></p>
+                </div>
+            </div>
+
+            <!-- Out of stock -->
+            <div class="bg-white rounded-xl border border-[#E8E0D5] px-5 py-3 flex items-center gap-3 shadow-sm">
+                <div class="w-8 h-8 rounded-full bg-[#FEE2E2] flex items-center justify-center">
+                    <svg class="w-4 h-4 text-[#EF4444]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                        d="M18.364 18.364A9 9 0 005.636 5.636m12.728 12.728A9 9 0 015.636 5.636m12.728 12.728L5.636 5.636" />
+                    </svg>
+                </div>
+                <div>
+                    <p class="text-[10px] font-semibold text-[#999] uppercase tracking-wider">หมดสต็อก</p>
+                    <p class="text-[20px] font-bold text-[#EF4444] leading-tight"><%= outOfStockItems.length %></p>
+                </div>
+            </div>
+
+        </div>
+
+        <!-- Search + Filter -->
+        <div class="flex gap-3 mb-5">
+
+            <!-- Search -->
+            <div class="relative flex-1 max-w-[340px]">
+
+                <svg class="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-[#C5BAB0]"
+                    fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                    d="M21 21l-4.35-4.35M17 11A6 6 0 105 11a6 6 0 0012 0z" />
+                </svg>
+
+                <input id="searchInput" type="text" placeholder="ค้นหาสินค้า หรือ SKU..."
+                    class="w-full pl-9 pr-4 py-2.5 border border-[#E8E0D5] rounded-lg text-[13px]
+                        bg-white text-[#30231D] outline-none focus:border-[#A28161]
+                        focus:ring-2 focus:ring-[#A28161]/10 transition placeholder:text-[#CCC]">
+            </div>
+
+            <!-- Category dropdown -->
+            <div class="relative">
+                <select id="catSelect"
+                    class="appearance-none pl-4 pr-9 py-2.5 border border-[#E8E0D5] rounded-lg text-[13px]
+                        bg-white text-[#30231D] outline-none focus:border-[#A28161]
+                        focus:ring-2 focus:ring-[#A28161]/10 transition cursor-pointer min-w-[160px]">
+
+                    <option value="">ทั้งหมด</option>
+                    <% categories.forEach(cat => { %>
+                        <option value="<%= cat.name.toLowerCase() %>"><%= cat.name %></option>
+                    <% }) %>
+                </select>
+
+                <svg class="absolute right-3 top-1/2 -translate-y-1/2 w-4 h-4 text-[#C5BAB0] pointer-events-none"
+                    fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
+                </svg>
+
+            </div>
+        </div>
+
+        <!-- ตารางสินค้า (Variants) -->
+        <div class="bg-white rounded-2xl border border-[#E8E0D5] shadow-sm overflow-hidden mb-8">
+
+            <!-- Table header -->
+            <div class="grid grid-cols-[72px_1fr_140px_60px_60px_100px_110px] gap-0
+                        px-5 py-3 bg-[#FDFCF9] border-b border-[#E8E0D5]">
+                <p class="text-[11px] font-semibold text-[#999] uppercase tracking-wider">รูป</p>
+                <p class="text-[11px] font-semibold text-[#999] uppercase tracking-wider">ชื่อสินค้า</p>
+                <p class="text-[11px] font-semibold text-[#999] uppercase tracking-wider mono">SKU</p>
+                <p class="text-[11px] font-semibold text-[#999] uppercase tracking-wider text-center">ขนาด</p>
+                <p class="text-[11px] font-semibold text-[#999] uppercase tracking-wider text-center">สี</p>
+                <p class="text-[11px] font-semibold text-[#999] uppercase tracking-wider text-center">คงเหลือ</p>
+                <p class="text-[11px] font-semibold text-[#999] uppercase tracking-wider text-center">สถานะ</p>
+            </div>
+
+            <!-- Rows -->
+            <% if (variants.length === 0) { %>
+                <div id="emptyMsg" class="flex flex-col items-center justify-center py-16 text-[#C5BAB0]">
+                    <svg class="w-10 h-10 mb-3 opacity-40" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"
+                        d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10" />
+                    </svg>
+                    <p class="text-[13px]">ไม่พบสินค้า</p>
+                </div>
+            <% } else { %>
+                <% variants.forEach(v => { %>
+                    <%
+                        let statusLabel = 'ปกติ';
+                        let statusClass = 'bg-[#ECFDF5] text-[#059669]';
+                        if (v.stock === 0) {
+                            statusLabel = 'หมดสต็อก';
+                            statusClass = 'bg-[#FEE2E2] text-[#EF4444]';
+                        } else if (v.stock <= 10) {
+                            statusLabel = 'ใกล้หมด';
+                            statusClass = 'bg-[#FEF3C7] text-[#D97706]';
+                        }
+                    %>
+                    <div class="variant-row grid grid-cols-[72px_1fr_140px_60px_60px_100px_110px] gap-0
+                                items-center px-5 py-3.5 border-b border-[#F0EBE3] last:border-b-0
+                                hover:bg-[#FDFCF9] transition-colors"
+                        data-name="<%= (v.product_name + ' ' + v.sku).toLowerCase() %>"
+                        data-category="<%= (v.category_name || '').toLowerCase() %>">
+
+                        <!-- รูป -->
+                        <div class="w-12 h-12 rounded-xl overflow-hidden bg-[#F5F3EF] flex items-center justify-center border border-[#E8E0D5]">
+                            <% if (v.variant_image) { %>
+                            <img src="/uploads/<%= v.variant_image %>" class="w-full h-full object-cover">
+                            <% } else { %>
+                            <svg class="w-5 h-5 text-[#D4C9BC]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"
+                                d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14" />
+                            </svg>
+                            <% } %>
+                        </div>
+
+                        <!-- ชื่อสินค้า + หมวดหมู่ -->
+                        <div class="pl-1">
+                            <p class="text-[13px] font-semibold text-[#30231D]"><%= v.product_name %></p>
+                            <p class="text-[11px] text-[#A28161] mt-0.5"><%= v.category_name || '—' %></p>
+                        </div>
+
+                        <!-- SKU -->
+                        <div class="mono text-[12px] font-semibold text-[#6E5742] tracking-widest"><%= v.sku %></div>
+
+                        <!-- ขนาด -->
+                        <div class="text-center text-[13px] font-semibold text-[#30231D]"><%= v.size || '—' %></div>
+
+                        <!-- สี -->
+                        <div class="flex justify-center">
+                            <% if (v.color) { %>
+                            <span class="color-dot" data-color="<%= v.color %>"
+                                title="<%= v.color %>"></span>
+                            <% } else { %>
+                            <span class="text-[13px] text-[#C5BAB0]">—</span>
+                            <% } %>
+                        </div>
+
+                        <!-- คงเหลือ -->
+                        <div class="text-center">
+                            <span class="text-[15px] font-bold <%= v.stock === 0 ? 'text-[#EF4444]' : v.stock <= 10 ? 'text-[#D97706]' : 'text-[#30231D]' %>">
+                            <%= v.stock %>
+                            </span>
+                            <span class="text-[11px] text-[#C5BAB0] ml-0.5">ชิ้น</span>
+                        </div>
+
+                        <!-- สถานะ -->
+                        <div class="flex justify-center">
+                            <span class="inline-flex items-center px-2.5 py-1 rounded-full text-[11px] font-semibold <%= statusClass %>">
+                            <%= statusLabel %>
+                            </span>
+                        </div>
+                    </div>
+                <% }) %>
+            <% } %>
+
+            <!-- ตอน filter ไม่เจอ -->
+            <div id="emptyMsg" class="hidden flex-col items-center justify-center py-16 text-[#C5BAB0]">
+                <svg class="w-10 h-10 mb-3 opacity-40" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"
+                        d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10" />
+                </svg>
+
+                <p class="text-[13px]">ไม่พบสินค้า</p>
+            </div>
+
+            <!-- Footer -->
+            <% if (variants.length > 0) { %>
+                <div class="px-5 py-3 bg-[#FDFCF9] border-t border-[#E8E0D5]
+                            flex items-center justify-between gap-4 text-[12px] text-[#999]">
+
+                    <!-- ซ้าย: จำนวนที่แสดง -->
+                    <span id="pageInfo"></span>
+
+                    <!-- กลาง: pagination controls -->
+                    <div class="flex items-center gap-2">
+
+                        <!-- ปุ่มย้อนกลับ -->
+                        <button id="btnPrev" onclick="changePage(currentPage - 1)"
+                            class="w-8 h-8 flex items-center justify-center rounded-lg border border-[#E8E0D5]
+                                bg-white text-[#A28161] hover:bg-[#F0EBE3] disabled:opacity-30
+                                disabled:pointer-events-none transition">
+                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"/>
+                            </svg>
+                        </button>
+
+                        <!-- ช่องใส่เลขหน้า -->
+                        <div class="flex items-center gap-1.5 text-[12px] text-[#999]">
+                            <span>หน้า</span>
+                            <input id="pageInput" type="number" min="1" value="1"
+                            onchange="changePage(parseInt(this.value))"
+                            onkeydown="if(event.key==='Enter') changePage(parseInt(this.value))"
+                            class="w-12 text-center border border-[#E8E0D5] rounded-lg px-1 py-1
+                                    text-[12px] font-semibold text-[#30231D] bg-white outline-none
+                                    focus:border-[#A28161] focus:ring-2 focus:ring-[#A28161]/10 transition">
+                            <span>/ <span id="totalPages">1</span></span>
+                        </div>
+
+                        <!-- ปุ่มถัดไป -->
+                        <button id="btnNext" onclick="changePage(currentPage + 1)"
+                            class="w-8 h-8 flex items-center justify-center rounded-lg border border-[#E8E0D5]
+                                bg-white text-[#A28161] hover:bg-[#F0EBE3] disabled:opacity-30
+                                disabled:pointer-events-none transition">
+                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/>
+                            </svg>
+                        </button>
+                    </div>
+                </div>
+            <% } %>
+        </div>
+
+
+        <!-- ===== STOCK MOVEMENT LOG ===== -->
+        <div class="bg-white rounded-2xl border border-[#E8E0D5] shadow-sm overflow-hidden">
+
+            <div class="px-6 py-4 border-b border-[#E8E0D5] flex items-center justify-between">
+
+                <div>
+                    <p class="text-[13px] font-bold text-[#30231D]">ประวัติการเคลื่อนไหวสต็อก</p>
+                    <p class="text-[11px] text-[#A28161] mt-0.5">100 รายการล่าสุด</p>
+                </div>
+
+                <div class="flex items-center gap-4 text-[11px] text-[#999]">
+                    <span class="flex items-center gap-1.5">
+                    <span class="w-2 h-2 rounded-full bg-[#22C55E] inline-block"></span> รับเข้า
+                    </span>
+                    <span class="flex items-center gap-1.5">
+                    <span class="w-2 h-2 rounded-full bg-[#3B82F6] inline-block"></span> ขายออก
+                    </span>
+                    <span class="flex items-center gap-1.5">
+                    <span class="w-2 h-2 rounded-full bg-[#A28161] inline-block"></span> ปรับปรุง
+                    </span>
+                    <span class="flex items-center gap-1.5">
+                    <span class="w-2 h-2 rounded-full bg-[#EF4444] inline-block"></span> ตัดออก
+                    </span>
+                </div>
+            </div>
+
+            <% if (movements.length === 0) { %>
+            <div class="flex flex-col items-center justify-center py-12 text-[#C5BAB0]">
+                <svg class="w-9 h-9 mb-3 opacity-40" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"
+                    d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2" />
+                </svg>
+                
+                <p class="text-[13px]">
+                    ยังไม่มีประวัติการเคลื่อนไหว
+                </p>
+            </div>
+            <% } else { %>
+
+            <!-- Log header -->
+            <div class="grid grid-cols-[140px_44px_140px_80px_1fr_160px] gap-0
+                        px-6 py-2.5 bg-[#FDFCF9] border-b border-[#E8E0D5]">
+                <p class="text-[11px] font-semibold text-[#999] uppercase tracking-wider">วันที่ / เวลา</p>
+                <p class="text-[11px] font-semibold text-[#999] uppercase tracking-wider text-center">ประเภท</p>
+                <p class="text-[11px] font-semibold text-[#999] uppercase tracking-wider mono">SKU</p>
+                <p class="text-[11px] font-semibold text-[#999] uppercase tracking-wider text-center">จำนวน</p>
+                <p class="text-[11px] font-semibold text-[#999] uppercase tracking-wider">หมายเหตุ / โดย</p>
+                <p class="text-[11px] font-semibold text-[#999] uppercase tracking-wider">สินค้า</p>
+            </div>
+
+            <% movements.forEach(m => {
+                let typeLabel = m.type;
+                let typeDot   = 'bg-[#A28161]';
+                let qtyColor  = 'text-[#30231D]';
+                let qtySign   = '';
+
+                if (m.type === 'receive') {
+                typeLabel = 'รับเข้า';  typeDot = 'bg-[#22C55E]';
+                qtyColor  = 'text-[#059669]'; qtySign = '+';
+                } else if (m.type === 'sale') {
+                typeLabel = 'ขายออก'; typeDot = 'bg-[#3B82F6]';
+                qtyColor  = 'text-[#3B82F6]'; qtySign = '-';
+                } else if (m.type === 'adjust') {
+                typeLabel = 'ปรับปรุง'; typeDot = 'bg-[#A28161]';
+                qtySign = m.qty_change > 0 ? '+' : '';
+                qtyColor = m.qty_change >= 0 ? 'text-[#059669]' : 'text-[#EF4444]';
+                } else if (m.type === 'remove') {
+                typeLabel = 'ตัดออก'; typeDot = 'bg-[#EF4444]';
+                qtyColor  = 'text-[#EF4444]'; qtySign = '-';
+                }
+
+                const dateObj = new Date(m.created_at);
+                const dateStr = dateObj.toLocaleDateString('th-TH', { day:'2-digit', month:'short', year:'numeric' });
+                const timeStr = dateObj.toLocaleTimeString('th-TH', { hour:'2-digit', minute:'2-digit' });
+
+                // แจ้งเตือน low stock หลังจากเคลื่อนไหว
+                const isLow = m.current_stock !== null && m.current_stock <= 10 && m.current_stock > 0 && (m.type === 'sale' || m.type === 'remove');
+                const isOut = m.current_stock === 0 && (m.type === 'sale' || m.type === 'remove');
+            %>
+                <div class="grid grid-cols-[140px_44px_140px_80px_1fr_160px] gap-0
+                            items-center px-6 py-3.5 border-b border-[#F0EBE3] last:border-b-0
+                            hover:bg-[#FDFCF9] transition-colors">
+
+                <!-- วันที่ -->
+                <div>
+                    <p class="text-[12px] font-semibold text-[#30231D]"><%= dateStr %></p>
+                    <p class="text-[11px] text-[#C5BAB0]"><%= timeStr %></p>
+                </div>
+
+                <!-- ประเภท (dot) -->
+                <div class="flex justify-center">
+                    <span class="w-2.5 h-2.5 rounded-full <%= typeDot %>" title="<%= typeLabel %>"></span>
+                </div>
+
+                <!-- SKU -->
+                <div class="mono text-[12px] font-semibold text-[#6E5742] tracking-widest">
+                    <%= m.sku %>
+                </div>
+
+                <!-- จำนวน -->
+                <div class="text-center">
+                    <span class="text-[14px] font-bold <%= qtyColor %>">
+                    <%= qtySign %><%= Math.abs(m.qty_change) %>
+                    </span>
+                    <% if (isOut) { %>
+                    <span class="block text-[10px] font-bold text-[#EF4444] mt-0.5">หมดสต็อก</span>
+                    <% } else if (isLow) { %>
+                    <span class="block text-[10px] font-bold text-[#D97706] mt-0.5">เหลือ <%= m.current_stock %></span>
+                    <% } %>
+                </div>
+
+                <!-- Note / โดย -->
+                <div>
+                    <% if (m.note) { %>
+                    <p class="text-[12px] text-[#30231D] truncate max-w-[260px]"><%= m.note %></p>
+                    <% } %>
+                    <% if (m.actor_name) { %>
+                    <p class="text-[11px] text-[#A28161] mt-0.5">โดย <%= m.actor_name %></p>
+                    <% } %>
+                </div>
+
+                <!-- สินค้า -->
+                <div>
+                    <p class="text-[12px] text-[#30231D] font-semibold truncate"><%= m.product_name || '—' %></p>
+                    <p class="text-[11px] text-[#C5BAB0] mt-0.5">
+                        <%= [m.color, m.size].filter(Boolean).join(' / ') || '—' %>
+                    </p>
+                </div>
+
+                </div>
+            <% }) %>
+
+            <% } %>
+        </div>
+
+        </div>
+    </div>
+
+    <script>
+const COLORS = [
+            { code: 'BK', label: 'Black', hex: '#0e0e0e' },
+            { code: 'WT', label: 'White', hex: '#eeeeee' },
+            { code: 'PK', label: 'Pink', hex: '#FFCCF6' },
+            { code: 'RD', label: 'Red', hex: '#e03030' },
+            { code: 'BL', label: 'Blue', hex: '#2560e0' },
+            { code: 'SK', label: 'Sky', hex: '#7ec8e3' },
+            { code: 'YL', label: 'Yellow', hex: '#f5d800' },
+            { code: 'BR', label: 'Brown', hex: '#573529' },
+            { code: 'GN', label: 'Green', hex: '#22c55e' },
+            { code: 'PP', label: 'Purple', hex: '#973aee' },
+            { code: 'GR', label: 'Gray', hex: '#9299a5' },
+        ];
+        
+        document.querySelectorAll('.color-dot[data-color]').forEach(el => {
+            const hex = COLORS[el.dataset.color] || el.dataset.color;
+            el.style.backgroundColor = hex;
+        });
+
+        const search = document.getElementById('searchInput');
+        const catSel = document.getElementById('catSelect');
+        const rows = Array.from(document.querySelectorAll('.variant-row'));
+        const emptyMsg = document.getElementById('emptyMsg');
+
+        const PAGE_SIZE = 15;
+        let currentPage = 1;
+        let filteredRows = [...rows];
+
+        function filter() {
+            const q = (search?.value || '').toLowerCase().trim();
+            const cat = (catSel?.value || '').toLowerCase();
+
+            filteredRows = rows.filter(row => {
+                const nameMatch = !q || row.dataset.name.includes(q);
+                const catMatch = !cat || row.dataset.category === cat;
+                return nameMatch && catMatch;
+            });
+
+            currentPage = 1;
+            render();
+        }
+        
+        function render() {
+            const total = filteredRows.length;
+            const totalPg = Math.max(1, Math.ceil(total / PAGE_SIZE));
+            currentPage = Math.min(Math.max(1, currentPage), totalPg);
+
+            const start = (currentPage - 1) * PAGE_SIZE;
+            const end = start + PAGE_SIZE;
+
+            // ซ่อนทุก row ก่อน
+            rows.forEach(r => r.style.display = 'none');
+
+            // แสดงเฉพาะหน้าปัจจุบัน
+            filteredRows.forEach((r, i) => {
+                r.style.display = (i >= start && i < end) ? '' : 'none';
+            });
+
+            if (emptyMsg) {
+                emptyMsg.classList.toggle('hidden', total > 0);
+                emptyMsg.classList.toggle('flex', total === 0);
+            }
+
+            // อัปเดต UI
+            const showing = Math.min(end, total) - start;
+            document.getElementById('pageInfo').textContent = total > 0 ? `แสดง ${start + 1}-${Math.min(end, total)} จาก ${total} รายการ` : 'ไม่พบรายการ';
+            document.getElementById('totalPages').textContent = totalPg;
+
+            const pageInput = document.getElementById('pageInput');
+            if (pageInput) pageInput.value = currentPage;
+
+            const btnPrev = document.getElementById('btnPrev');
+            const btnNext = document.getElementById('btnNext');
+            if (btnPrev) btnPrev.disabled = currentPage <= 1;
+            if (btnNext) btnNext.disabled = currentPage >= totalPg;
+        }
+
+        function changePage(pg) {
+            const totalPg = Math.max(1, Math.ceil(filteredRows.length / PAGE_SIZE));
+            currentPage = Math.min(Math.max(1, pg), totalPg);
+            render();
+        }
+
+        search?.addEventListener('input', filter);
+        catSel?.addEventListener('change', filter);
+
+        render();
+    </script>
+
+</body>
+</html>

@@ -1,0 +1,107 @@
+<%- include("head") %>
+
+<body style="font-family: 'Inter', 'Noto Sans Thai', sans-serif;" class="bg-[#F7F5F5]">
+    <div>
+        <%- include("navbar") %>
+    </div>
+
+    <!-- Search Bar -->
+    <div class="mt-[40px]">
+        <form action="/customer/shop" method="GET" class="flex justify-center mt-4">
+            <div class="relative w-[800px]">
+                <input type="text" name="q"
+                    value="<%= typeof searchQuery !== 'undefined' ? searchQuery : '' %>"
+                    placeholder="ค้นหาสินค้า"
+                    class="w-[800px] h-[40px] rounded-full border border-gray-300 pl-5 pr-12 outline-none bg-gray-100">
+                <button type="submit" class="absolute right-4 top-1/2 -translate-y-1/2">
+                    <img src="/img/customer/search.png" class="w-[20px]">
+                </button>
+            </div>
+        </form>
+    </div>
+
+    <!-- Category Filter -->
+    <div class="flex text-center justify-center mt-[55px]">
+
+        <% 
+        const categories = [
+            { code: 'SH', label: 'เสื้อ',       img: 'หมวดเสื้อ.png' },
+            { code: 'CT', label: 'เสื้อแขนยาว', img: 'หมวดเสื้อแขนยาว.png' },
+            { code: 'PN', label: 'กางเกง',       img: 'หมวดกางเกง.png' },
+            { code: 'SK', label: 'กระโปรง',      img: 'หมวดกระโปรง.png' },
+            { code: 'DR', label: 'เดรส',          img: 'หมวดเดรส.png' },
+            { code: 'UW', label: 'ชุดชั้นใน',    img: 'หมวดชุดชั้นใน.png' },
+        ];
+        %>
+
+        <% categories.forEach(cat => { %>
+            <div class="category w-[94px] mr-[82px] cursor-pointer">
+                <a href="/customer/shop?category=<%= cat.code %>">
+                    <img src="/img/customer/<%= cat.img %>"
+                        class="rounded-full hover:scale-105 transition duration-200
+                        <%= selectedCategory === cat.code ? 'ring-4 ring-[#A28161]' : '' %>">
+                </a>
+                <div class="mt-[15px]">
+                    <p class="text-[#30231D] <%= selectedCategory === cat.code ? 'font-bold' : '' %>">
+                        <%= cat.label %>
+                    </p>
+                </div>
+            </div>
+        <% }) %>
+
+    </div>
+
+    <div>
+        <hr class="mx-[200px] mt-[50px] border-gray-300">
+    </div>
+
+    <!-- Product Grid -->
+    <% if (products.length === 0) { %>
+        <div class="flex justify-center items-center mt-[80px] mb-[80px]">
+            <p class="text-gray-400 text-[18px]">ไม่พบสินค้า</p>
+        </div>
+    <% } else { %>
+        <div class="grid grid-cols-3 gap-[20px] mx-[60px] mt-[40px] mb-[60px]">
+            <% products.forEach(product => { %>
+                <div class="flex justify-center">
+                    <a href="/customer/detail/<%= product.id %>" class="block w-fit">
+                        <div class="product-card w-[326px] flex-shrink-0 bg-white rounded-2xl
+                            shadow-[0_8px_20px_rgba(0,0,0,0.08)] p-2
+                            hover:shadow-[0_12px_28px_rgba(0,0,0,0.14)] hover:-translate-y-1 transition duration-200">
+
+                            <!-- รูปสินค้า -->
+                            <div class="flex justify-center items-center">
+                                <div class="bg-white w-[284px] h-[230px] rounded-[12px] flex justify-center
+                                    items-center shadow-[0_6px_20px_rgba(0,0,0,0.15)] mt-[18px] overflow-hidden">
+                                    <% if (product.image) { %>
+                                        <img src="/uploads/<%= product.image %>"
+                                            class="w-[212px] h-[212px] object-contain"
+                                            onerror="this.src='/img/customer/no-image.png'">
+                                    <% } else { %>
+                                        <div class="w-[212px] h-[212px] flex items-center justify-center bg-gray-100 rounded">
+                                            <span class="text-gray-300 text-[13px]">ไม่มีรูปภาพ</span>
+                                        </div>
+                                    <% } %>
+                                </div>
+                            </div>
+
+                            <!-- ชื่อและราคา -->
+                            <div class="flex flex-col px-[18px] pb-[14px]">
+                                <p class="mt-[14px] text-[#30231D] text-[15px] truncate" title="<%= product.name %>">
+                                    <%= product.name %>
+                                </p>
+                                <div class="flex items-center justify-between mt-[10px]">
+                                    <h2 class="font-bold text-[#30231D] text-[16px]">฿<%= product.price.toLocaleString() %></h2>
+                                    <img src="/img/home/cart.png" class="w-[24px]">
+                                </div>
+                            </div>
+
+                        </div>
+                    </a>
+                </div>
+            <% }) %>
+        </div>
+    <% } %>
+
+</body>
+</html>

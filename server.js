@@ -2,12 +2,13 @@ const express = require('express');
 const session = require('express-session');
 require('dotenv').config();
 
-const authRoutes = require('./routes/authRoute');
-const homeRoutes = require('./routes/homeRoute');
-const productsRoutes = require("./routes/productsRoute");
-const grnRoutes = require('./routes/grnRoute');
+const authRoute = require('./routes/authRoute');
+const homeRoute = require('./routes/homeRoute');
+const customerRoute = require('./routes/customerRoute');
+const productsRoute = require('./routes/productsRoute');
+const stockRoute = require('./routes/stockRoute');
+const grnRoute = require('./routes/grnRoute');
 const { isLoggedIn, authorize } = require('./middleware/authMiddleware');
-const customerRoute = require('./routes/customer');
 
 const app = express();
 app.set('view engine', 'ejs');
@@ -33,47 +34,17 @@ app.use((req, res, next) => {
     next();
 });
 
-// ===== Public Routes =====
-app.use('/', authRoutes);
-app.use('/', homeRoutes);
-app.use('/products', productsRoutes);
+app.use('/', authRoute);
+app.use('/', homeRoute);
 app.use('/customer', customerRoute);
-app.use('/grn', grnRoutes);
+app.use('/products', productsRoute);
+app.use('/stock', stockRoute);
+app.use('/grn', grnRoute);
 
-// ===== Protected Routes =====
 app.get('/dashboard', isLoggedIn, authorize(['admin', 'staff']), (req, res) => {
     res.render('dashboard', { 
         user: req.session.user,
         currentPage: 'dashboard'
-    });
-});
-
-
-// Customer only
-// app.get('/customer', isLoggedIn, authorize(['customer']), (req, res) => {
-//     res.render('customer', { user: req.session.user });
-// });
-app.get('/customer', isLoggedIn, authorize(['customer']), (req, res) => {
-    const db = require('./config/db');
-    
-    console.log("=== /customer route hit ==="); // เพิ่มบรรทัดนี้
-    
-    db.all(`
-        SELECT products.*, categories.name AS category_name
-        FROM products
-        JOIN categories ON products.category_id = categories.id
-    `, [], (err, rows) => {
-        console.log("rows:", rows); // เพิ่มบรรทัดนี้
-        console.log("err:", err);   // เพิ่มบรรทัดนี้
-        
-        if (err) {
-            console.log(err);
-            return res.send("Database Error");
-        }
-        res.render('customer', { 
-            user: req.session.user,
-            products: rows
-        });
     });
 });
 

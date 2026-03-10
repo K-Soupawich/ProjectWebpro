@@ -2,538 +2,688 @@
 <html lang="th">
 
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
-  <link
-    href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+Thai:wght@400;500;600;700&family=IBM+Plex+Mono:wght@500&display=swap"
-    rel="stylesheet">
-  <style>
-    body {
-      font-family: 'IBM Plex Sans Thai', sans-serif;
-    }
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
+    <link
+        href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+Thai:wght@400;500;600;700&family=IBM+Plex+Mono:wght@500&display=swap"
+        rel="stylesheet">
+    <style>
+        body {
+            font-family: 'IBM Plex Sans Thai', sans-serif;
+        }
 
-    .mono {
-      font-family: 'IBM Plex Mono', monospace;
-    }
+        .mono {
+            font-family: 'IBM Plex Mono', monospace;
+        }
 
-    .line-row {
-      animation: rowIn 0.18s ease-out both;
-    }
+        .line-row {
+            animation: rowIn 0.18s ease-out both;
+        }
 
-    @keyframes rowIn {
-      from {
-        opacity: 0;
-        transform: translateY(-4px);
-      }
+        @keyframes rowIn {
+            from {
+                opacity: 0;
+                transform: translateY(-4px);
+            }
 
-      to {
-        opacity: 1;
-        transform: translateY(0);
-      }
-    }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
 
-    /* ปุ่มลบ hover */
-    .btn-del:hover {
-      color: #ef4444;
-      background: #fee2e2;
-    }
+        /* ปุ่มลบ hover */
+        .btn-del:hover {
+            color: #ef4444;
+            background: #fee2e2;
+        }
 
-    /* status dot */
-    .dot-ok {
-      background: #22c55e;
-    }
-
-    .dot-err {
-      background: #ef4444;
-    }
-
-    .dot-idle {
-      background: #d1d5db;
-    }
-
-    /* toast */
-    #toast {
-      transition: opacity .25s, transform .25s;
-    }
-  </style>
-  <title>รับสินค้าเข้าคลัง – KOFY</title>
+        /* toast */
+        #toast {
+            transition: opacity .25s, transform .25s;
+        }
+    </style>
+    <title>รับสินค้าเข้าคลัง – KOFY</title>
 </head>
 
-<body class="flex bg-[#F5F3EF] min-h-screen min-w-[1100px]">
+<body class="flex bg-[#F5F3EF] h-screen overflow-hidden">
 
-  <%- include('../partials/sidebar') %>
+    <%- include('../partials/sidebar') %>
 
-    <!-- ===== MAIN ===== -->
-    <div class="flex-1 flex flex-col">
+        <!-- ===== MAIN ===== -->
+        <div class="flex-1 flex flex-col h-screen overflow-y-auto">
 
-      <!-- Header bar -->
-      <div class="sticky top-0 z-20 bg-[#F5F3EF]/95 backdrop-blur border-b border-[#E8E0D5]
+            <!-- Header bar -->
+            <div class="sticky top-0 z-20 bg-[#F5F3EF]/95 backdrop-blur border-b border-[#E8E0D5]
                 px-10 h-[62px] flex items-center justify-between gap-4">
-        <h1 class="text-[18px] font-bold text-[#30231D] tracking-tight">รับสินค้าเข้าคลัง</h1>
+                <h1 class="text-[18px] font-bold text-[#30231D] tracking-tight">รับสินค้าเข้าคลัง</h1>
 
-        <div class="flex items-center gap-3">
-          <!-- GRN ref -->
-          <span class="mono text-[11px] text-[#A28161] tracking-widest uppercase">GRN</span>
-          <span id="grnRef" class="mono text-[13px] font-semibold text-[#30231D]">—</span>
+                <div class="flex items-center gap-3">
+                    <!-- GRN ref -->
+                    <span class="mono text-[11px] text-[#A28161] tracking-widest uppercase">GRN</span>
+                    <span id="grnRef" class="mono text-[13px] font-semibold text-[#30231D]">—</span>
 
-          <!-- Confirm button -->
-          <button id="btnConfirm"
-            class="flex items-center gap-2 bg-[#6E5742] hover:bg-[#5a4535] active:scale-[.98]
+                    <!-- Confirm button -->
+                    <button id="btnConfirm"
+                        class="flex items-center gap-2 bg-[#6E5742] hover:bg-[#5a4535] active:scale-[.98]
                  text-white text-[13px] font-semibold px-5 py-2 rounded-lg transition-all shadow-sm disabled:opacity-40 disabled:pointer-events-none"
-            disabled>
-            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
-            </svg>
-            ยืนยันรับสินค้า
-          </button>
-        </div>
-      </div>
+                        disabled>
+                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
+                        </svg>
+                        ยืนยันรับสินค้า
+                    </button>
+                </div>
+            </div>
 
-      <!-- ===== CONTENT ===== -->
-      <div class="px-10 py-8 flex-1">
+            <!-- ===== CONTENT ===== -->
+            <div class="px-10 py-8 flex-1">
 
-        <!-- Summary strip -->
-        <div class="flex gap-6 mb-6">
-          <div class="bg-white rounded-xl border border-[#E8E0D5] px-5 py-3 flex items-center gap-3 shadow-sm">
-            <div class="w-8 h-8 rounded-full bg-[#F0EBE3] flex items-center justify-center">
-              <svg class="w-4 h-4 text-[#A28161]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                  d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" />
-              </svg>
-            </div>
-            <div>
-              <p class="text-[10px] font-semibold text-[#999] uppercase tracking-wider">รายการทั้งหมด</p>
-              <p id="sumLines" class="text-[20px] font-bold text-[#30231D] leading-tight">0</p>
-            </div>
-          </div>
-          <div class="bg-white rounded-xl border border-[#E8E0D5] px-5 py-3 flex items-center gap-3 shadow-sm">
-            <div class="w-8 h-8 rounded-full bg-[#F0EBE3] flex items-center justify-center">
-              <svg class="w-4 h-4 text-[#A28161]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                  d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10" />
-              </svg>
-            </div>
-            <div>
-              <p class="text-[10px] font-semibold text-[#999] uppercase tracking-wider">ชิ้นรวม</p>
-              <p id="sumQty" class="text-[20px] font-bold text-[#30231D] leading-tight">0</p>
-            </div>
-          </div>
-          <div class="bg-white rounded-xl border border-[#E8E0D5] px-5 py-3 flex items-center gap-3 shadow-sm">
-            <div class="w-8 h-8 rounded-full bg-[#F0EBE3] flex items-center justify-center">
-              <svg class="w-4 h-4 text-[#A28161]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                  d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0" />
-              </svg>
-            </div>
-            <div>
-              <p class="text-[10px] font-semibold text-[#999] uppercase tracking-wider">ตรวจสอบแล้ว</p>
-              <p id="sumValid" class="text-[20px] font-bold text-[#30231D] leading-tight">0 / 0</p>
-            </div>
-          </div>
-        </div>
+                <!-- Summary strip -->
+                <div class="flex gap-6 mb-6">
+                    <div
+                        class="bg-white rounded-xl border border-[#E8E0D5] px-5 py-3 flex items-center gap-3 shadow-sm">
+                        <div class="w-8 h-8 rounded-full bg-[#F0EBE3] flex items-center justify-center">
+                            <svg class="w-4 h-4 text-[#A28161]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                    d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" />
+                            </svg>
+                        </div>
+                        <div>
+                            <p class="text-[10px] font-semibold text-[#999] uppercase tracking-wider">รายการทั้งหมด</p>
+                            <p id="sumLines" class="text-[20px] font-bold text-[#30231D] leading-tight">0</p>
+                        </div>
+                    </div>
+                    <div
+                        class="bg-white rounded-xl border border-[#E8E0D5] px-5 py-3 flex items-center gap-3 shadow-sm">
+                        <div class="w-8 h-8 rounded-full bg-[#F0EBE3] flex items-center justify-center">
+                            <svg class="w-4 h-4 text-[#A28161]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                    d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10" />
+                            </svg>
+                        </div>
+                        <div>
+                            <p class="text-[10px] font-semibold text-[#999] uppercase tracking-wider">ชิ้นรวม</p>
+                            <p id="sumQty" class="text-[20px] font-bold text-[#30231D] leading-tight">0</p>
+                        </div>
+                    </div>
+                </div>
 
-        <!-- Add-item form card -->
-        <div class="bg-white rounded-2xl border border-[#E8E0D5] shadow-sm p-6 mb-5">
-          <p class="text-[11px] font-semibold text-[#A28161] tracking-widest uppercase mb-4">เพิ่มรายการสินค้า</p>
+                <!-- Add-item form card -->
+                <div class="bg-white rounded-2xl border border-[#E8E0D5] shadow-sm p-6 mb-5">
+                    <p class="text-[11px] font-semibold text-[#A28161] tracking-widest uppercase mb-4">เพิ่มรายการสินค้า
+                    </p>
 
-          <div class="flex gap-3 items-end">
-            <!-- SKU input -->
-            <div class="flex flex-col gap-1.5 flex-1">
-              <label class="text-[11px] font-semibold text-[#999] tracking-wide uppercase">
-                SKU
-                <span class="normal-case font-normal text-[#bbb] ml-1">(เช่น SH001BKL)</span>
-              </label>
-              <div class="relative">
-                <input id="inputSku" type="text" maxlength="20" placeholder="SH001BKL" class="mono w-full border border-[#E8E0D5] rounded-lg px-4 py-2.5 text-[14px] font-semibold
-                       text-[#30231D] bg-[#FDFCF9] outline-none tracking-widest uppercase
+                    <div class="flex gap-3 items-center">
+                        <!-- SKU searchable dropdown -->
+                        <div class="flex flex-col gap-1.5 flex-[2.5]">
+                            <label class="text-[11px] font-semibold text-[#999] tracking-wide uppercase">สินค้า /
+                                SKU</label>
+                            <div class="relative" id="skuDropdownWrapper">
+
+                                <!-- search input -->
+                                <input id="skuSearch" type="text" autocomplete="off"
+                                    placeholder="พิมพ์ชื่อสินค้า หรือ SKU เพื่อค้นหา..." class="w-full border border-[#E8E0D5] rounded-lg px-4 py-2.5 text-[14px]
+                       text-[#30231D] bg-[#FDFCF9] outline-none
                        focus:border-[#A28161] focus:ring-2 focus:ring-[#A28161]/10 transition
-                       placeholder:font-normal placeholder:tracking-normal placeholder:text-[#ccc]">
-                <!-- status dot -->
-                <span id="skuDot"
-                  class="dot-idle absolute right-3 top-1/2 -translate-y-1/2 w-2 h-2 rounded-full transition-colors"></span>
-              </div>
-              <!-- preview hint -->
-              <p id="skuHint" class="text-[11px] text-[#bbb] h-4 transition-all"></p>
-            </div>
+                       placeholder:text-[#ccc]">
 
-            <!-- Product name (auto-fill + manual) -->
-            <div class="flex flex-col gap-1.5 flex-[1.5]">
-              <label class="text-[11px] font-semibold text-[#999] tracking-wide uppercase">ชื่อสินค้า</label>
-              <input id="inputName" type="text" placeholder="ดึงจาก SKU อัตโนมัติ หรือพิมพ์เอง" class="w-full border border-[#E8E0D5] rounded-lg px-4 py-2.5 text-[14px]
-                     text-[#30231D] bg-[#FDFCF9] outline-none
-                     focus:border-[#A28161] focus:ring-2 focus:ring-[#A28161]/10 transition
-                     placeholder:text-[#ccc]">
-            </div>
+                                <!-- selected badge -->
+                                <div id="skuSelected" class="hidden absolute inset-0 flex items-center pl-4 pr-10
+                          bg-[#FDFCF9] border border-[#A28161] rounded-lg
+                          ring-2 ring-[#A28161]/10 cursor-pointer" onclick="clearSkuSelection()">
+                                    <span id="skuSelectedSku"
+                                        class="mono text-[13px] font-semibold text-[#6E5742] tracking-widest mr-3"></span>
+                                    <span id="skuSelectedName"
+                                        class="text-[13px] text-[#30231D] truncate flex-1"></span>
+                                </div>
 
-            <!-- Qty -->
-            <div class="flex flex-col gap-1.5 w-[110px]">
-              <label class="text-[11px] font-semibold text-[#999] tracking-wide uppercase">จำนวน</label>
-              <input id="inputQty" type="number" min="1" value="1" class="border border-[#E8E0D5] rounded-lg px-4 py-2.5 text-[14px] text-center
+                                <!-- dropdown list -->
+                                <div id="skuDropdown" class="hidden absolute z-30 left-0 right-0 top-[calc(100%+4px)]
+                       bg-white border border-[#E8E0D5] rounded-xl shadow-lg
+                       max-h-[240px] overflow-y-auto">
+                                    <div id="skuDropdownList"></div>
+                                    <div id="skuDropdownEmpty"
+                                        class="hidden px-4 py-3 text-[13px] text-[#C5BAB0] text-center">
+                                        ไม่พบสินค้า
+                                    </div>
+                                </div>
+                            </div>
+                            <p id="skuHint" class="text-[11px] text-[#bbb] h-4"></p>
+                        </div>
+
+                        <!-- hidden: ค่าจริงที่ส่งเข้า addLine() -->
+                        <input type="hidden" id="inputSku">
+                        <input type="hidden" id="inputName">
+
+                        <!-- Qty -->
+                        <div class="flex flex-col gap-1.5 w-[110px]">
+                            <label class="text-[11px] font-semibold text-[#999] tracking-wide uppercase">จำนวน</label>
+                            <input id="inputQty" type="number" min="1" value="1" class="border border-[#E8E0D5] rounded-lg px-4 py-2.5 text-[14px] text-center
                      text-[#30231D] bg-[#FDFCF9] outline-none
                      focus:border-[#A28161] focus:ring-2 focus:ring-[#A28161]/10 transition">
-            </div>
+                            <p class="h-4"></p>
+                        </div>
 
-            <!-- Add button -->
-            <button id="btnAdd"
-              class="flex items-center gap-2 bg-[#A28161] hover:bg-[#8B6B4A] active:scale-[.97]
+                        <!-- Add button -->
+                        <button id="btnAdd"
+                            class="flex items-center gap-2 bg-[#A28161] hover:bg-[#8B6B4A] active:scale-[.97]
                    text-white text-[13px] font-semibold px-5 py-2.5 rounded-lg transition-all shadow-sm whitespace-nowrap">
-              <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M12 4v16m8-8H4" />
-              </svg>
-              เพิ่มรายการ
-            </button>
-          </div>
+                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5"
+                                    d="M12 4v16m8-8H4" />
+                            </svg>
+                            เพิ่มรายการ
+                        </button>
+                    </div>
 
-          <!-- Validation error -->
-          <p id="addError" class="text-[12px] text-red-500 mt-2 hidden"></p>
-        </div>
+                    <!-- Validation error -->
+                    <p id="addError" class="text-[12px] text-red-500 mt-2 hidden"></p>
+                </div>
 
-        <!-- Items table card -->
-        <div class="bg-white rounded-2xl border border-[#E8E0D5] shadow-sm overflow-hidden">
+                <!-- Items table card -->
+                <div class="bg-white rounded-2xl border border-[#E8E0D5] shadow-sm overflow-hidden">
 
-          <!-- Table header -->
-          <div class="grid grid-cols-[40px_160px_1fr_100px_80px_44px] gap-0 
+                    <!-- Table header -->
+                    <div class="grid grid-cols-[40px_160px_1fr_100px_44px] gap-0 
                     px-5 py-2.5 bg-[#FDFCF9] border-b border-[#E8E0D5]
                     text-[10px] font-semibold text-[#999] uppercase tracking-widest">
-            <div class="text-center">#</div>
-            <div>SKU</div>
-            <div>ชื่อสินค้า / Variant</div>
-            <div class="text-center">จำนวน</div>
-            <div class="text-center">สถานะ</div>
-            <div></div>
-          </div>
+                        <div class="text-center">#</div>
+                        <div>SKU</div>
+                        <div>ชื่อสินค้า / Variant</div>
+                        <div class="text-center">จำนวน</div>
+                        <div></div>
+                    </div>
 
-          <!-- Rows container -->
-          <div id="tableBody">
-            <!-- empty state -->
-            <div id="emptyState" class="py-16 text-center">
-              <svg class="w-10 h-10 text-[#D8CEBD] mx-auto mb-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"
-                  d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10" />
-              </svg>
-              <p class="text-[13px] text-[#C5BAB0]">ยังไม่มีรายการ<br>เพิ่มสินค้าด้านบนได้เลย</p>
-            </div>
-          </div>
+                    <!-- Rows container -->
+                    <div id="tableBody">
+                        <!-- empty state -->
+                        <div id="emptyState" class="py-16 text-center">
+                            <svg class="w-10 h-10 text-[#D8CEBD] mx-auto mb-3" fill="none" stroke="currentColor"
+                                viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"
+                                    d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10" />
+                            </svg>
+                            <p class="text-[13px] text-[#C5BAB0]">ยังไม่มีรายการ<br>เพิ่มสินค้าด้านบนได้เลย</p>
+                        </div>
+                    </div>
 
-          <!-- Table footer summary -->
-          <div id="tableFooter" class="hidden border-t border-[#E8E0D5] px-5 py-3
+                    <!-- Table footer summary -->
+                    <div id="tableFooter" class="hidden border-t border-[#E8E0D5] px-5 py-3
                                      flex items-center justify-end gap-8 text-[12px] text-[#999]">
-            <span>รายการ: <strong id="footLines" class="text-[#30231D]">0</strong></span>
-            <span>รวม: <strong id="footQty" class="text-[#30231D]">0</strong> ชิ้น</span>
-          </div>
+                        <span>รายการ: <strong id="footLines" class="text-[#30231D]">0</strong></span>
+                        <span>รวม: <strong id="footQty" class="text-[#30231D]">0</strong> ชิ้น</span>
+                    </div>
+                </div>
+
+                <!-- ===== RECEIPT LOG ===== -->
+                <div class="mt-8">
+                    <div class="flex items-center justify-between mb-4">
+                        <div>
+                            <p class="text-[11px] font-semibold text-[#A28161] tracking-widest uppercase mb-0.5">
+                                ประวัติการรับสินค้า</p>
+                            <p class="text-[12px] text-[#C5BAB0]">แสดงรายการล่าสุด 50 รายการ</p>
+                        </div>
+                        <!-- Badge count -->
+                        <span class="bg-[#F0EBE3] text-[#A28161] text-[11px] font-semibold px-3 py-1 rounded-full">
+                            <%= receiptLog.length %> รายการ
+                        </span>
+                    </div>
+
+                    <div class="bg-white rounded-2xl border border-[#E8E0D5] shadow-sm overflow-hidden">
+
+                        <!-- Table header -->
+                        <div class="grid grid-cols-[160px_120px_1fr_80px_130px_120px] gap-0
+                        px-5 py-2.5 bg-[#FDFCF9] border-b border-[#E8E0D5]
+                        text-[10px] font-semibold text-[#999] uppercase tracking-widest">
+                            <div>GRN Ref</div>
+                            <div>SKU</div>
+                            <div>ชื่อสินค้า / Variant</div>
+                            <div class="text-center">จำนวน</div>
+                            <div>รับโดย</div>
+                            <div>วันที่รับ</div>
+                        </div>
+
+                        <% if (receiptLog.length===0) { %>
+                            <div class="py-16 text-center">
+                                <svg class="w-10 h-10 text-[#D8CEBD] mx-auto mb-3" fill="none" stroke="currentColor"
+                                    viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"
+                                        d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" />
+                                </svg>
+                                <p class="text-[13px] text-[#C5BAB0]">ยังไม่มีประวัติการรับสินค้า</p>
+                            </div>
+                            <% } else { %>
+                                <% receiptLog.forEach((log, idx)=> { %>
+                                    <div class="grid grid-cols-[160px_120px_1fr_80px_130px_120px] gap-0 items-center
+                            px-5 py-3.5 border-b border-[#F0EBE3] last:border-b-0
+                            <%= idx % 2 === 0 ? '' : 'bg-[#FDFCF9]' %>
+                            hover:bg-[#F5F3EF] transition-colors">
+
+                                        <!-- GRN Ref -->
+                                        <div
+                                            class="mono text-[11px] font-semibold text-[#A28161] tracking-widest truncate pr-2">
+                                            <%= log.grn_ref || '—' %>
+                                        </div>
+
+                                        <!-- SKU -->
+                                        <div class="mono text-[12px] font-semibold text-[#6E5742] tracking-widest">
+                                            <%= log.sku %>
+                                        </div>
+
+                                        <!-- Product name + variant -->
+                                        <div class="text-[13px] text-[#30231D] truncate pr-2">
+                                            <%= log.productName || log.sku %>
+                                                <% if (log.color || log.size) { %>
+                                                    <span class="text-[#bbb] text-[11px]">
+                                                        <%= [log.color, log.size].filter(Boolean).map(s=> '· ' +
+                                                            s).join(' ') %>
+                                                    </span>
+                                                    <% } %>
+                                        </div>
+
+                                        <!-- Qty -->
+                                        <div class="text-center">
+                                            <span class="inline-flex items-center justify-center bg-[#EEF9F1] text-[#22c55e]
+                                 text-[12px] font-bold px-2.5 py-0.5 rounded-full min-w-[40px]">
+                                                +<%= log.qty_received %>
+                                            </span>
+                                        </div>
+
+                                        <!-- Received by -->
+                                        <div class="text-[12px] text-[#555] flex items-center gap-1.5">
+                                            <div
+                                                class="w-5 h-5 rounded-full bg-[#F0EBE3] flex items-center justify-center flex-shrink-0">
+                                                <svg class="w-3 h-3 text-[#A28161]" fill="none" stroke="currentColor"
+                                                    viewBox="0 0 24 24">
+                                                    <path stroke-linecap="round" stroke-linejoin="round"
+                                                        stroke-width="2"
+                                                        d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
+                                                </svg>
+                                            </div>
+                                            <%= log.received_by_name || 'ไม่ระบุ' %>
+                                        </div>
+
+                                        <!-- Date -->
+                                        <div class="text-[11px] text-[#999] mono">
+                                            <% const d=new Date(log.received_at); const
+                                                dateStr=d.toLocaleDateString('th-TH', { day:'2-digit', month:'2-digit',
+                                                year:'2-digit' }); const timeStr=d.toLocaleTimeString('th-TH', {
+                                                hour:'2-digit', minute:'2-digit' }); %>
+                                                <span class="text-[#555]">
+                                                    <%= dateStr %>
+                                                </span>
+                                                <span class="text-[#bbb] ml-1">
+                                                    <%= timeStr %>
+                                                </span>
+                                        </div>
+
+                                    </div>
+                                    <% }) %>
+                                        <% } %>
+
+                    </div>
+                </div>
+
+            </div><!-- /content -->
+        </div><!-- /main -->
+
+        <!-- ===== TOAST ===== -->
+        <div id="toast" class="fixed bottom-6 right-6 z-50 opacity-0 pointer-events-none translate-y-2">
+            <div id="toastInner"
+                class="flex items-center gap-3 px-5 py-3 rounded-xl shadow-xl text-[13px] font-semibold text-white">
+                <span id="toastIcon"></span>
+                <span id="toastMsg"></span>
+            </div>
         </div>
 
-      </div><!-- /content -->
-    </div><!-- /main -->
+        <!-- ===== CONFIRM MODAL ===== -->
+        <div id="confirmOverlay"
+            class="hidden fixed inset-0 bg-black/30 z-50 flex items-center justify-center backdrop-blur-sm">
+            <div class="bg-white rounded-2xl p-7 w-[420px] shadow-2xl">
+                <h3 class="text-[16px] font-bold text-[#30231D] mb-1">ยืนยันรับสินค้า?</h3>
+                <p class="text-[13px] text-[#999] mb-5">
+                    ระบบจะอัปเดต stock ของทุก variant ที่ระบุ<br>
+                    ไม่สามารถยกเลิกได้หลังยืนยัน
+                </p>
 
-    <!-- ===== TOAST ===== -->
-    <div id="toast" class="fixed bottom-6 right-6 z-50 opacity-0 pointer-events-none translate-y-2">
-      <div id="toastInner"
-        class="flex items-center gap-3 px-5 py-3 rounded-xl shadow-xl text-[13px] font-semibold text-white">
-        <span id="toastIcon"></span>
-        <span id="toastMsg"></span>
-      </div>
-    </div>
+                <div id="modalSummary" class="bg-[#F5F3EF] rounded-xl px-4 py-3 mb-5 text-[13px] text-[#555] space-y-1">
+                </div>
 
-    <!-- ===== CONFIRM MODAL ===== -->
-    <div id="confirmOverlay"
-      class="hidden fixed inset-0 bg-black/30 z-50 flex items-center justify-center backdrop-blur-sm">
-      <div class="bg-white rounded-2xl p-7 w-[420px] shadow-2xl">
-        <h3 class="text-[16px] font-bold text-[#30231D] mb-1">ยืนยันรับสินค้า?</h3>
-        <p class="text-[13px] text-[#999] mb-5">
-          ระบบจะอัปเดต stock ของทุก variant ที่ระบุ<br>
-          ไม่สามารถยกเลิกได้หลังยืนยัน
-        </p>
-
-        <div id="modalSummary" class="bg-[#F5F3EF] rounded-xl px-4 py-3 mb-5 text-[13px] text-[#555] space-y-1"></div>
-
-        <div class="flex justify-end gap-3">
-          <button onclick="closeConfirmModal()"
-            class="px-5 py-2 text-[13px] font-medium text-[#999] hover:text-[#30231D] transition rounded-lg">
-            ยกเลิก
-          </button>
-          <button id="btnModalConfirm" class="px-6 py-2 bg-[#6E5742] hover:bg-[#5a4535] text-white text-[13px] font-semibold
+                <div class="flex justify-end gap-3">
+                    <button onclick="closeConfirmModal()"
+                        class="px-5 py-2 text-[13px] font-medium text-[#999] hover:text-[#30231D] transition rounded-lg">
+                        ยกเลิก
+                    </button>
+                    <button id="btnModalConfirm" class="px-6 py-2 bg-[#6E5742] hover:bg-[#5a4535] text-white text-[13px] font-semibold
                  rounded-lg transition active:scale-[.97] shadow-sm">
-            ยืนยัน
-          </button>
+                        ยืนยัน
+                    </button>
+                </div>
+
+                <script id="variantsData" type="application/json">
+          <%- JSON.stringify(variants) %>
+        </script>
+
+            </div>
         </div>
-      </div>
-    </div>
 
 
-    <script>
-      // ================================================================
-      // STATE
-      // ================================================================
-      let lines = [];   // { id, sku, name, qty, status: 'pending'|'ok'|'err', hint }
-      let lineCounter = 0;
+        <script>
+            // ================================================================
+            // VARIANTS DATA (จาก server)
+            // ================================================================
+            const VARIANTS = JSON.parse(document.getElementById('variantsData').textContent);
+            // [ { sku, size, color, stock, productName }, ... ]
 
-      // ================================================================
-      // GRN REF  (timestamp-based, เพียงพอสำหรับ scope นี้)
-      // ================================================================
-      function genGRN() {
-        const now = new Date();
-        const d = now.toISOString().slice(0, 10).replace(/-/g, '');
-        const t = String(now.getHours()).padStart(2, '0') + String(now.getMinutes()).padStart(2, '0');
-        return `GRN-${d}-${t}`;
-      }
-      document.getElementById('grnRef').textContent = genGRN();
+            // ================================================================
+            // STATE
+            // ================================================================
+            let lines = [];
+            let lineCounter = 0;
 
-      // ================================================================
-      // SKU LOOKUP  (debounce)
-      // ================================================================
-      let debounceTimer = null;
-
-      document.getElementById('inputSku').addEventListener('input', e => {
-        const raw = e.target.value.toUpperCase().trim();
-        e.target.value = raw;
-        clearTimeout(debounceTimer);
-        setSkuStatus('idle');
-        document.getElementById('skuHint').textContent = '';
-        document.getElementById('inputName').value = '';
-        if (raw.length < 3) return;
-        debounceTimer = setTimeout(() => lookupSku(raw), 350);
-      });
-
-      async function lookupSku(sku) {
-        try {
-          const res = await fetch(`/stock/lookup-sku?sku=${encodeURIComponent(sku)}`);
-          const data = await res.json();
-
-          if (data.found) {
-            setSkuStatus('ok');
-            document.getElementById('inputName').value = data.name;
-            document.getElementById('skuHint').textContent =
-              `${data.productName}  ·  ${data.color || ''}  ${data.size || ''}  ·  stock ปัจจุบัน: ${data.stock}`;
-          } else {
-            setSkuStatus('err');
-            document.getElementById('skuHint').textContent = 'ไม่พบ SKU นี้ในระบบ';
-          }
-        } catch (err) {
-          setSkuStatus('err');
-        }
-      }
-
-      function setSkuStatus(s) {
-        const dot = document.getElementById('skuDot');
-        dot.className = `absolute right-3 top-1/2 -translate-y-1/2 w-2 h-2 rounded-full transition-colors dot-${s}`;
-      }
-
-      // ================================================================
-      // ADD LINE
-      // ================================================================
-      document.getElementById('btnAdd').addEventListener('click', addLine);
-      document.getElementById('inputQty').addEventListener('keydown', e => { if (e.key === 'Enter') addLine(); });
-      document.getElementById('inputSku').addEventListener('keydown', e => { if (e.key === 'Enter') document.getElementById('inputQty').focus(); });
-
-      function addLine() {
-        const sku = document.getElementById('inputSku').value.toUpperCase().trim();
-        const name = document.getElementById('inputName').value.trim();
-        const qty = parseInt(document.getElementById('inputQty').value);
-        const errEl = document.getElementById('addError');
-
-        // Validate
-        if (!sku) { showAddError('กรุณาระบุ SKU'); return; }
-        if (!qty || qty < 1) { showAddError('จำนวนต้องมากกว่า 0'); return; }
-        if (lines.find(l => l.sku === sku)) { showAddError(`SKU ${sku} มีอยู่แล้วในรายการ`); return; }
-        errEl.classList.add('hidden');
-
-        const dot = document.getElementById('skuDot');
-        const status = dot.classList.contains('dot-ok') ? 'ok' : dot.classList.contains('dot-err') ? 'err' : 'pending';
-
-        lines.push({ id: ++lineCounter, sku, name: name || sku, qty, status });
-        renderTable();
-        updateSummary();
-
-        // reset input
-        document.getElementById('inputSku').value = '';
-        document.getElementById('inputName').value = '';
-        document.getElementById('inputQty').value = 1;
-        document.getElementById('skuHint').textContent = '';
-        setSkuStatus('idle');
-        document.getElementById('inputSku').focus();
-      }
-
-      function showAddError(msg) {
-        const el = document.getElementById('addError');
-        el.textContent = msg;
-        el.classList.remove('hidden');
-      }
-
-      // ================================================================
-      // RENDER TABLE
-      // ================================================================
-      function renderTable() {
-        const tbody = document.getElementById('tableBody');
-        const empty = document.getElementById('emptyState');
-        const footer = document.getElementById('tableFooter');
-
-        if (lines.length === 0) {
-          empty.style.display = 'block';
-          footer.classList.add('hidden');
-          tbody.querySelectorAll('.line-row').forEach(r => r.remove());
-          return;
-        }
-
-        empty.style.display = 'none';
-        footer.classList.remove('hidden');
-
-        // rebuild rows
-        tbody.querySelectorAll('.line-row').forEach(r => r.remove());
-
-        lines.forEach((line, idx) => {
-          const row = document.createElement('div');
-          row.className = 'line-row grid grid-cols-[40px_160px_1fr_100px_80px_44px] gap-0 items-center px-5 py-3.5 border-b border-[#F0EBE3] last:border-b-0';
-          row.dataset.id = line.id;
-
-          const statusBadge = {
-            ok: `<span class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-green-50 text-green-700 text-[11px] font-semibold"><span class="w-1.5 h-1.5 rounded-full bg-green-500 inline-block"></span>พบ SKU</span>`,
-            err: `<span class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-red-50 text-red-600 text-[11px] font-semibold"><span class="w-1.5 h-1.5 rounded-full bg-red-500 inline-block"></span>ไม่พบ</span>`,
-            pending: `<span class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-gray-100 text-gray-500 text-[11px] font-semibold"><span class="w-1.5 h-1.5 rounded-full bg-gray-400 inline-block"></span>รอตรวจ</span>`,
-          }[line.status];
-
-          row.innerHTML = `
-          <div class="text-center text-[12px] text-[#C5BAB0] font-semibold">${idx + 1}</div>
-          <div class="mono text-[13px] font-semibold text-[#6E5742] tracking-widest">${line.sku}</div>
-          <div class="text-[13px] text-[#30231D]">${line.name}</div>
-          <div class="text-center">
-            <input type="number" min="1" value="${line.qty}"
-              class="w-[72px] border border-[#E8E0D5] rounded-lg px-2 py-1.5 text-[13px] text-center
-                     text-[#30231D] bg-[#FDFCF9] outline-none
-                     focus:border-[#A28161] focus:ring-2 focus:ring-[#A28161]/10 transition"
-              data-id="${line.id}" onchange="updateQty(this)">
-          </div>
-          <div class="flex justify-center">${statusBadge}</div>
-          <div class="flex justify-center">
-            <button type="button" onclick="removeLine(${line.id})"
-              class="btn-del w-7 h-7 rounded-md flex items-center justify-center text-[#C5BAB0] transition">
-              <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
-              </svg>
-            </button>
-          </div>
-        `;
-          tbody.appendChild(row);
-        });
-
-        // footer counts
-        const total = lines.reduce((s, l) => s + l.qty, 0);
-        document.getElementById('footLines').textContent = lines.length;
-        document.getElementById('footQty').textContent = total;
-      }
-
-      function updateQty(input) {
-        const id = parseInt(input.dataset.id);
-        const qty = parseInt(input.value);
-        if (!qty || qty < 1) { input.value = 1; return; }
-        const line = lines.find(l => l.id === id);
-        if (line) { line.qty = qty; updateSummary(); }
-      }
-
-      function removeLine(id) {
-        lines = lines.filter(l => l.id !== id);
-        renderTable();
-        updateSummary();
-      }
-
-      // ================================================================
-      // SUMMARY STRIP
-      // ================================================================
-      function updateSummary() {
-        const total = lines.reduce((s, l) => s + l.qty, 0);
-        const ok = lines.filter(l => l.status === 'ok').length;
-
-        document.getElementById('sumLines').textContent = lines.length;
-        document.getElementById('sumQty').textContent = total;
-        document.getElementById('sumValid').textContent = `${ok} / ${lines.length}`;
-
-        // Enable confirm only when all lines are status=ok
-        const canConfirm = lines.length > 0 && lines.every(l => l.status === 'ok');
-        document.getElementById('btnConfirm').disabled = !canConfirm;
-      }
-
-      // ================================================================
-      // CONFIRM FLOW
-      // ================================================================
-      document.getElementById('btnConfirm').addEventListener('click', () => {
-        // build summary
-        const summary = document.getElementById('modalSummary');
-        summary.innerHTML = lines.map(l =>
-          `<div class="flex justify-between"><span class="mono text-[#6E5742]">${l.sku}</span><span>${l.name} — <strong>${l.qty} ชิ้น</strong></span></div>`
-        ).join('');
-        document.getElementById('confirmOverlay').classList.remove('hidden');
-      });
-
-      function closeConfirmModal() {
-        document.getElementById('confirmOverlay').classList.add('hidden');
-      }
-
-      document.getElementById('confirmOverlay').addEventListener('click', e => {
-        if (e.target === document.getElementById('confirmOverlay')) closeConfirmModal();
-      });
-
-      document.getElementById('btnModalConfirm').addEventListener('click', async () => {
-        const btn = document.getElementById('btnModalConfirm');
-        btn.disabled = true;
-        btn.textContent = 'กำลังบันทึก...';
-
-        try {
-          const res = await fetch('/stock/receive', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({
-              grn: document.getElementById('grnRef').textContent,
-              lines: lines.map(l => ({ sku: l.sku, qty: l.qty }))
-            })
-          });
-
-          const data = await res.json();
-
-          if (res.ok && data.success) {
-            closeConfirmModal();
-            showToast('success', `รับสินค้าสำเร็จ ${data.updated} รายการ`);
-            lines = [];
-            renderTable();
-            updateSummary();
-            // refresh GRN
+            // ================================================================
+            // GRN REF
+            // ================================================================
+            function genGRN() {
+                const now = new Date();
+                const d = now.toISOString().slice(0, 10).replace(/-/g, '');
+                const t = String(now.getHours()).padStart(2, '0') + String(now.getMinutes()).padStart(2, '0');
+                return `GRN-${d}-${t}`;
+            }
             document.getElementById('grnRef').textContent = genGRN();
-          } else {
-            throw new Error(data.message || 'เกิดข้อผิดพลาด');
-          }
-        } catch (err) {
-          showToast('error', err.message);
-        } finally {
-          btn.disabled = false;
-          btn.textContent = 'ยืนยัน';
-        }
-      });
 
-      // ================================================================
-      // TOAST
-      // ================================================================
-      function showToast(type, msg) {
-        const toast = document.getElementById('toast');
-        const inner = document.getElementById('toastInner');
-        const icon = document.getElementById('toastIcon');
-        const text = document.getElementById('toastMsg');
+            // ================================================================
+            // SEARCHABLE DROPDOWN
+            // ================================================================
+            const skuSearch = document.getElementById('skuSearch');
+            const skuDropdown = document.getElementById('skuDropdown');
+            const skuList = document.getElementById('skuDropdownList');
+            const skuEmpty = document.getElementById('skuDropdownEmpty');
+            const skuSelected = document.getElementById('skuSelected');
 
-        inner.className = `flex items-center gap-3 px-5 py-3 rounded-xl shadow-xl text-[13px] font-semibold text-white
+            // เปิด dropdown ตอน focus
+            skuSearch.addEventListener('focus', () => {
+                renderDropdown('');
+                skuDropdown.classList.remove('hidden');
+            });
+
+            // filter ตอนพิมพ์
+            skuSearch.addEventListener('input', () => {
+                renderDropdown(skuSearch.value.trim());
+                skuDropdown.classList.remove('hidden');
+            });
+
+            // ปิด dropdown ตอนคลิกนอก
+            document.addEventListener('click', e => {
+                if (!document.getElementById('skuDropdownWrapper').contains(e.target)) {
+                    skuDropdown.classList.add('hidden');
+                }
+            });
+
+            function renderDropdown(query) {
+                const q = query.toLowerCase();
+                const filtered = q
+                    ? VARIANTS.filter(v =>
+                        v.sku.toLowerCase().includes(q) ||
+                        v.productName.toLowerCase().includes(q) ||
+                        (v.color || '').toLowerCase().includes(q) ||
+                        (v.size || '').toLowerCase().includes(q)
+                    )
+                    : VARIANTS;
+
+                skuList.innerHTML = '';
+
+                if (filtered.length === 0) {
+                    skuEmpty.classList.remove('hidden');
+                    return;
+                }
+                skuEmpty.classList.add('hidden');
+
+                filtered.forEach(v => {
+                    const alreadyAdded = lines.find(l => l.sku === v.sku);
+                    const div = document.createElement('div');
+                    div.className = `flex items-center gap-3 px-4 py-2.5 cursor-pointer transition
+                         ${alreadyAdded ? 'opacity-40 pointer-events-none' : 'hover:bg-[#F5F3EF]'}`;
+                    div.innerHTML = `
+          <span class="mono text-[12px] font-semibold text-[#6E5742] w-[100px] flex-shrink-0">${v.sku}</span>
+          <span class="text-[13px] text-[#30231D] flex-1 truncate">${v.productName}
+            <span class="text-[#bbb]">${v.color ? '· ' + v.color : ''} ${v.size ? '· ' + v.size : ''}</span>
+          </span>
+          <span class="text-[11px] text-[#C5BAB0] flex-shrink-0">stock: ${v.stock}</span>
+          ${alreadyAdded ? '<span class="text-[10px] text-[#A28161] flex-shrink-0">เพิ่มแล้ว</span>' : ''}
+        `;
+                    if (!alreadyAdded) {
+                        div.addEventListener('click', () => selectSku(v));
+                    }
+                    skuList.appendChild(div);
+                });
+            }
+
+            function selectSku(v) {
+                // เซ็ต hidden fields
+                document.getElementById('inputSku').value = v.sku;
+                document.getElementById('inputName').value =
+                    `${v.productName} (${v.color || ''} ${v.size || ''})`.trim();
+
+                // แสดง badge
+                document.getElementById('skuSelectedSku').textContent = v.sku;
+                document.getElementById('skuSelectedName').textContent =
+                    `${v.productName} · ${v.color || ''} ${v.size || ''}`.trim();
+                document.getElementById('skuHint').textContent =
+                    `stock ปัจจุบัน: ${v.stock}`;
+
+                skuSelected.classList.remove('hidden');
+                skuSearch.classList.add('invisible');
+                skuDropdown.classList.add('hidden');
+
+                // focus qty
+                document.getElementById('inputQty').select();
+            }
+
+            function clearSkuSelection() {
+                document.getElementById('inputSku').value = '';
+                document.getElementById('inputName').value = '';
+                document.getElementById('skuHint').textContent = '';
+                skuSelected.classList.add('hidden');
+                skuSearch.classList.remove('invisible');
+                skuSearch.value = '';
+                skuSearch.focus();
+            }
+
+            // ================================================================
+            // ADD LINE
+            // ================================================================
+            document.getElementById('btnAdd').addEventListener('click', addLine);
+            document.getElementById('inputQty').addEventListener('keydown', e => {
+                if (e.key === 'Enter') addLine();
+            });
+
+            function addLine() {
+                const sku = document.getElementById('inputSku').value.toUpperCase().trim();
+                const name = document.getElementById('inputName').value.trim();
+                const qty = parseInt(document.getElementById('inputQty').value);
+                const errEl = document.getElementById('addError');
+
+                if (!sku) { showAddError('กรุณาเลือกสินค้า'); return; }
+                if (!qty || qty < 1) { showAddError('จำนวนต้องมากกว่า 0'); return; }
+                if (lines.find(l => l.sku === sku)) { showAddError(`SKU ${sku} มีอยู่แล้วในรายการ`); return; }
+                errEl.classList.add('hidden');
+
+                lines.push({ id: ++lineCounter, sku, name: name || sku, qty });
+                renderTable();
+                updateSummary();
+
+                // reset
+                clearSkuSelection();
+                document.getElementById('inputQty').value = 1;
+            }
+
+            function showAddError(msg) {
+                const el = document.getElementById('addError');
+                el.textContent = msg;
+                el.classList.remove('hidden');
+            }
+
+            // ================================================================
+            // RENDER TABLE
+            // ================================================================
+            function renderTable() {
+                const tbody = document.getElementById('tableBody');
+                const empty = document.getElementById('emptyState');
+                const footer = document.getElementById('tableFooter');
+
+                if (lines.length === 0) {
+                    empty.style.display = 'block';
+                    footer.classList.add('hidden');
+                    tbody.querySelectorAll('.line-row').forEach(r => r.remove());
+                    return;
+                }
+
+                empty.style.display = 'none';
+                footer.classList.remove('hidden');
+                tbody.querySelectorAll('.line-row').forEach(r => r.remove());
+
+                lines.forEach((line, idx) => {
+                    const row = document.createElement('div');
+                    row.className = 'line-row grid grid-cols-[40px_160px_1fr_100px_44px] gap-0 items-center px-5 py-3.5 border-b border-[#F0EBE3] last:border-b-0';
+                    row.dataset.id = line.id;
+
+                    row.innerHTML = `
+            <div class="text-center text-[12px] text-[#C5BAB0] font-semibold">${idx + 1}</div>
+            <div class="mono text-[13px] font-semibold text-[#6E5742] tracking-widest">${line.sku}</div>
+            <div class="text-[13px] text-[#30231D]">${line.name}</div>
+            <div class="text-center">
+              <input type="number" min="1" value="${line.qty}"
+                class="w-[72px] border border-[#E8E0D5] rounded-lg px-2 py-1.5 text-[13px] text-center
+                      text-[#30231D] bg-[#FDFCF9] outline-none
+                      focus:border-[#A28161] focus:ring-2 focus:ring-[#A28161]/10 transition"
+                data-id="${line.id}" onchange="updateQty(this)">
+            </div>
+            <div class="flex justify-center">
+              <button type="button" onclick="removeLine(${line.id})"
+                class="btn-del w-7 h-7 rounded-md flex items-center justify-center text-[#C5BAB0] transition">
+                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
+                </svg>
+              </button>
+            </div>
+          `;
+                    tbody.appendChild(row);
+                });
+
+                document.getElementById('footLines').textContent = lines.length;
+                document.getElementById('footQty').textContent = lines.reduce((s, l) => s + l.qty, 0);
+            }
+
+            function updateQty(input) {
+                const id = parseInt(input.dataset.id);
+                const qty = parseInt(input.value);
+                if (!qty || qty < 1) { input.value = 1; return; }
+                const line = lines.find(l => l.id === id);
+                if (line) { line.qty = qty; updateSummary(); }
+            }
+
+            function removeLine(id) {
+                lines = lines.filter(l => l.id !== id);
+                renderTable();
+                updateSummary();
+                renderDropdown(skuSearch.value); // refresh dropdown เพื่อเอา "เพิ่มแล้ว" ออก
+            }
+
+            // ================================================================
+            // SUMMARY STRIP
+            // ================================================================
+            function updateSummary() {
+                const total = lines.reduce((s, l) => s + l.qty, 0);
+                document.getElementById('sumLines').textContent = lines.length;
+                document.getElementById('sumQty').textContent = total;
+                document.getElementById('btnConfirm').disabled = lines.length === 0;
+            }
+
+            // ================================================================
+            // CONFIRM FLOW
+            // ================================================================
+            document.getElementById('btnConfirm').addEventListener('click', () => {
+                const summary = document.getElementById('modalSummary');
+                summary.innerHTML = lines.map(l =>
+                    `<div class="flex justify-between">
+           <span class="mono text-[#6E5742]">${l.sku}</span>
+           <span>${l.name} — <strong>${l.qty} ชิ้น</strong></span>
+         </div>`
+                ).join('');
+                document.getElementById('confirmOverlay').classList.remove('hidden');
+            });
+
+            function closeConfirmModal() {
+                document.getElementById('confirmOverlay').classList.add('hidden');
+            }
+
+            document.getElementById('confirmOverlay').addEventListener('click', e => {
+                if (e.target === document.getElementById('confirmOverlay')) closeConfirmModal();
+            });
+
+            document.getElementById('btnModalConfirm').addEventListener('click', async () => {
+                const btn = document.getElementById('btnModalConfirm');
+                btn.disabled = true;
+                btn.textContent = 'กำลังบันทึก...';
+
+                try {
+                    const res = await fetch('/grn/receive', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({
+                            grn: document.getElementById('grnRef').textContent,
+                            lines: lines.map(l => ({ sku: l.sku, qty: l.qty }))
+                        })
+                    });
+
+                    const data = await res.json();
+
+                    if (res.ok && data.success) {
+                        closeConfirmModal();
+                        showToast('success', `รับสินค้าสำเร็จ ${data.updated} รายการ`);
+                        lines = [];
+                        renderTable();
+                        updateSummary();
+                        document.getElementById('grnRef').textContent = genGRN();
+                    } else {
+                        throw new Error(data.message || 'เกิดข้อผิดพลาด');
+                    }
+                } catch (err) {
+                    showToast('error', err.message);
+                } finally {
+                    btn.disabled = false;
+                    btn.textContent = 'ยืนยัน';
+                }
+            });
+
+            // ================================================================
+            // TOAST
+            // ================================================================
+            function showToast(type, msg) {
+                const toast = document.getElementById('toast');
+                const inner = document.getElementById('toastInner');
+                const icon = document.getElementById('toastIcon');
+                const text = document.getElementById('toastMsg');
+
+                inner.className = `flex items-center gap-3 px-5 py-3 rounded-xl shadow-xl text-[13px] font-semibold text-white
                         ${type === 'success' ? 'bg-[#22c55e]' : 'bg-red-500'}`;
-        icon.innerHTML = type === 'success'
-          ? `<svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M5 13l4 4L19 7"/></svg>`
-          : `<svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg>`;
-        text.textContent = msg;
+                icon.innerHTML = type === 'success'
+                    ? `<svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M5 13l4 4L19 7"/></svg>`
+                    : `<svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg>`;
+                text.textContent = msg;
 
-        toast.classList.remove('opacity-0', 'translate-y-2', 'pointer-events-none');
-        toast.classList.add('opacity-100', 'translate-y-0');
+                toast.classList.remove('opacity-0', 'translate-y-2', 'pointer-events-none');
+                toast.classList.add('opacity-100', 'translate-y-0');
 
-        setTimeout(() => {
-          toast.classList.add('opacity-0', 'translate-y-2');
-          setTimeout(() => toast.classList.add('pointer-events-none'), 300);
-        }, 3000);
-      }
-    </script>
+                setTimeout(() => {
+                    toast.classList.add('opacity-0', 'translate-y-2');
+                    setTimeout(() => toast.classList.add('pointer-events-none'), 300);
+                }, 3000);
+            }
+        </script>
 
 </body>
 

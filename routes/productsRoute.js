@@ -26,7 +26,7 @@ const colorFields = COLORS.map(c => ({ name: `colorImage_${c}`, maxCount: 1 }));
 
 const check_auth = [isLoggedIn, authorize(['admin', 'staff'])];
 
-router.get('/', ...check_auth, productsController.listProducts);
+router.get('/', ...check_auth, productsController.showList);
 router.get('/add', ...check_auth, productsController.showAdd);
 router.post('/add', ...check_auth, upload.fields(colorFields), productsController.createProduct);
 router.get('/next-sku', ...check_auth, productsController.getNextSKU);

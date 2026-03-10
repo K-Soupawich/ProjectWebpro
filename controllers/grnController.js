@@ -1,16 +1,44 @@
 const db = require('../config/db');
 
 exports.showReceive = (req, res) => {
-    res.render('grn/receive', {
-        user: req.session.user,
-        currentPage: 'grn'
+    db.all(`
+        SELECT v.sku, v.size, v.color, v.stock, p.name AS productName
+        FROM product_variants v
+        JOIN products p
+        ON p.id = v.product_id
+        ORDER BY p.name, v.color, v.size
+    `, [], (err, variants) => {
+        if (err) {
+            console.error(err);
+            return res.status(500).send('Database error');
+        }
+        db.all(`
+            SELECT
+                sr.id, sr.grn_ref, sr.sku, sr.qty_received, sr.received_at, 
+                u.username AS received_by_name,
+                p.name AS productName,
+                v.color, v.size
+            FROM stock_receipts sr
+            LEFT JOIN users u ON u.id = sr.received_by
+            LEFT JOIN product_variants v ON v.sku = sr.sku
+            LEFT JOIN products p ON p.id = v.product_id
+            ORDER BY sr.received_at DESC
+            LIMIT 50
+        `, [], (logErr, receiptLog) => {
+            if (logErr) {
+                console.error(logErr);
+                receiptLog = [];
+            }
+            res.render('grn/receive', {
+                user: req.session.user,
+                currentPage: 'grn',
+                variants,
+                receiptLog
+            });
+        });
     });
 };
 
-/**
- * GET /stock/lookup-sku?sku=SH001BKL
- * ค้นหา variant จาก SKU แล้วคืนข้อมูลให้ frontend แสดง hint + เปลี่ยน dot status
- */
 exports.lookupSku = (req, res) => {
     const sku = (req.query.sku || '').trim().toUpperCase();
 
@@ -19,10 +47,10 @@ exports.lookupSku = (req, res) => {
     }
 
     db.get(`
-        SELECT v.id, v.sku, v.size, v.color, v.stock,
-            p.name AS productName
+        SELECT v.id, v.sku, v.size, v.color, v.stock, p.name AS productName
         FROM product_variants v
-        JOIN products p ON p.id = v.product_id
+        JOIN products p
+        ON p.id = v.product_id
         WHERE v.sku = ?
     `, [sku], (err, row) => {
         if (err) {
@@ -38,7 +66,6 @@ exports.lookupSku = (req, res) => {
             found: true,
             sku: row.sku,
             productName: row.productName,
-            // ชื่อรวม variant สำหรับแสดงใน name field
             name: `${row.productName} (${row.color || ''} ${row.size || ''})`.trim(),
             color: row.color,
             size: row.size,
@@ -47,15 +74,6 @@ exports.lookupSku = (req, res) => {
     });
 };
 
-/**
- * POST /stock/receive
- * Body: { grn: "GRN-20250308-1430", lines: [{ sku, qty }, ...] }
- *
- * Logic:
- * 1. ตรวจว่า SKU ทุกรายการมีอยู่จริง (ป้องกัน partial commit)
- * 2. UPDATE stock ทีละแถว ใน transaction
- * 3. INSERT stock_receipts เป็น audit log
- */
 exports.receiveStock = (req, res) => {
     const { grn, lines } = req.body;
 
@@ -72,7 +90,6 @@ exports.receiveStock = (req, res) => {
 
     const staffId = req.session.user?.id || null;
 
-    // ใช้ serialized เพื่อ simulate transaction (sqlite3 ไม่ support async transaction โดยตรง)
     db.serialize(() => {
         db.run('BEGIN TRANSACTION');
 
@@ -84,7 +101,7 @@ exports.receiveStock = (req, res) => {
             if (errorOccurred) return;
 
             if (index >= lines.length) {
-                // ทุก line สำเร็จ → commit
+                // ทุก line สำเร็จ => commit 
                 db.run('COMMIT', (commitErr) => {
                     if (commitErr) {
                         return res.status(500).json({ success: false, message: commitErr.message });
@@ -108,16 +125,22 @@ exports.receiveStock = (req, res) => {
                         return res.status(400).json({ success: false, message: errorOccurred });
                     }
 
-                    // INSERT audit log
+                    // INSERT log
                     db.run(
                         `INSERT INTO stock_receipts (grn_ref, sku, qty_received, received_by)
                          VALUES (?, ?, ?, ?)`,
                         [grn || null, sku.toUpperCase(), qtyInt, staffId],
                         (insertErr) => {
+                            db.run(
+                                `INSERT INTO stock_movements (type, sku, qty_change, actor_id, note)
+                                VALUES ('receive', ?, ?, ?, ?)`,
+                                [sku.toUpperCase(), qtyInt, staffId, `GRN: ${grn || '-'}`]
+                            );
+                            
                             if (insertErr) {
-                                // log ไม่ได้ก็ไม่ใช่ fatal — แต่ถ้าอยากเข้มงวดสามารถ rollback ได้
                                 console.error('audit log error:', insertErr.message);
                             }
+
                             updatedCount++;
                             processNext(index + 1);
                         }

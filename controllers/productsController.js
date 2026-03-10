@@ -2,7 +2,7 @@ const fs = require('fs');
 const db = require('../config/db');
 const path = require('path');
 
-exports.listProducts = (req, res) => {
+exports.showList = (req, res) => {
     db.all(`
         SELECT p.*, 
             c.name AS category_name,
@@ -22,7 +22,8 @@ exports.listProducts = (req, res) => {
         res.render("products/list", {
             user: req.session.user,
             products,
-            currentPage: 'products'
+            currentPage: 'products',
+            COLOR_PRIORITY
         });
     });
 };

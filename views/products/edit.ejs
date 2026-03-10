@@ -34,7 +34,7 @@
 
     <%- include('../partials/sidebar') %>
 
-        <div class="min-h-screen px-10 py-8 flex-1">
+        <div class="min-h-screen ml-[200px] px-10 py-8 flex-1">
 
             <h1 class="text-[22px] font-bold text-[#30231D] mb-6">แก้ไขสินค้า</h1>
 
@@ -42,12 +42,11 @@
                 enctype="multipart/form-data">
                 <input type="hidden" name="_method" value="PUT">
 
-                <!-- Hidden: comma-separated values ที่ JS จะเซ็ตก่อน submit -->
                 <input type="hidden" name="skuBase" id="skuBase" value="<%= skuBase %>">
                 <input type="hidden" name="sizes" id="sizesInput">
                 <input type="hidden" name="colors" id="colorsInput">
 
-                <!-- ===== Card 1: ข้อมูลหลัก ===== -->
+                <!-- Card 1 -->
                 <div class="bg-white rounded-2xl border border-[#E8E0D5] p-7 mb-5 shadow-sm">
                     <p class="text-[11px] font-semibold text-[#A28161] tracking-widest uppercase mb-5">
                         รายละเอียดสินค้า
@@ -140,21 +139,22 @@
                     </div>
                 </div>
 
-                <!-- ===== Card 2: คำอธิบาย ===== -->
+                <!-- Card 2 -->
                 <div class="bg-white rounded-2xl border border-[#E8E0D5] p-7 mb-5 shadow-sm">
                     <p class="text-[11px] font-semibold text-[#A28161] tracking-widest uppercase mb-4">
                         คำอธิบายสินค้า
                     </p>
 
                     <textarea name="description" rows="4"
-                        placeholder="อธิบายสินค้า วัสดุ การดูแลรักษา หรือคุณสมบัติพิเศษ..." class="w-full border border-[#E8E0D5] rounded-lg px-4 py-3 text-[14px] text-[#30231D] bg-[#FDFCF9] outline-none
+                        placeholder="อธิบายสินค้า วัสดุ การดูแลรักษา หรือคุณสมบัติพิเศษ..."
+                        class="w-full border border-[#E8E0D5] rounded-lg px-4 py-3 text-[14px] text-[#30231D] bg-[#FDFCF9] outline-none
                         focus:border-[#A28161] focus:ring-2 focus:ring-[#A28161]/10 transition resize-none">
                         <%= product.description || '' %>
                     </textarea>
 
                 </div>
 
-                <!-- ===== Card 3: สี + รูป ===== -->
+                <!-- Card 3 -->
                 <div class="bg-white rounded-2xl border border-[#E8E0D5] p-7 mb-6 shadow-sm">
 
                     <div class="flex items-center justify-between mb-1">
@@ -208,10 +208,7 @@
 
                 </div>
 
-                <!-- Hidden: existingImage ของแต่ละสี (JS จะ set ก่อน submit) -->
                 <div id="existingImageInputs"></div>
-
-                <!-- Real file inputs -->
                 <div id="fileInputs" style="display:none">
 
                     <% ['BK','WT','PK','RD','BL','SK','YL','BR','GN','PP','GR'].forEach(code=> { %>
@@ -223,7 +220,7 @@
             </form>
         </div>
 
-        <!-- ===== COLOR PICKER MODAL ===== -->
+        <!-- Color Picker -->
         <div id="colorPickerOverlay"
             class="hidden fixed inset-0 bg-black/30 z-50 flex items-center justify-center backdrop-blur-sm">
 
@@ -248,36 +245,29 @@
         </div>
 
         <script>
-            // ============================================================
-            // DATA
-            // ============================================================
             const COLORS = [
-                { code: 'BK', label: 'Black', hex: '#1a1a1a' },
-                { code: 'WT', label: 'White', hex: '#f0f0f0' },
-                { code: 'PK', label: 'Pink', hex: '#f4a0b5' },
+                { code: 'BK', label: 'Black', hex: '#0e0e0e' },
+                { code: 'WT', label: 'White', hex: '#eeeeee' },
+                { code: 'PK', label: 'Pink', hex: '#FFCCF6' },
                 { code: 'RD', label: 'Red', hex: '#e03030' },
                 { code: 'BL', label: 'Blue', hex: '#2560e0' },
                 { code: 'SK', label: 'Sky', hex: '#7ec8e3' },
                 { code: 'YL', label: 'Yellow', hex: '#f5d800' },
-                { code: 'BR', label: 'Brown', hex: '#8B6340' },
+                { code: 'BR', label: 'Brown', hex: '#573529' },
                 { code: 'GN', label: 'Green', hex: '#22c55e' },
-                { code: 'PP', label: 'Purple', hex: '#a855f7' },
-                { code: 'GR', label: 'Gray', hex: '#9ca3af' },
+                { code: 'PP', label: 'Purple', hex: '#973aee' },
+                { code: 'GR', label: 'Gray', hex: '#9299a5' },
             ];
 
             // โหลด existing variants จาก server
             const existingVariants = JSON.parse(document.getElementById('variantsData').textContent);
 
-            // colorStore[code] = { file: File|null, preview: string|null, existingImage: string|null }
             let colorStore = {};
             let activeColor = null;
             const selectedSizes = new Set();
 
-            // ============================================================
-            // INIT: pre-fill จาก existing data
-            // ============================================================
             (function init() {
-                // sizes ที่มีอยู่แล้ว — ดูจาก EJS ที่ render class active แล้ว
+                // sizes ที่มีอยู่แล้ว
                 document.querySelectorAll('.size-chip').forEach(chip => {
                     if (chip.classList.contains('bg-[#30231D]')) {
                         selectedSizes.add(chip.dataset.size);
@@ -285,15 +275,14 @@
                 });
 
                 // สร้าง colorStore จาก variants
-                // group by color → เอาแค่ unique color แต่ละสี
                 const seen = new Set();
                 existingVariants.forEach(v => {
                     if (seen.has(v.color)) return;
                     seen.add(v.color);
                     colorStore[v.color] = {
                         file: null,
-                        preview: null,          // ยังไม่ได้ upload ใหม่
-                        existingImage: v.image, // รูปเดิมจาก DB
+                        preview: null, // ยังไม่ได้ upload ใหม่
+                        existingImage: v.image, // รูปเดิมจาก database
                     };
                 });
 
@@ -303,13 +292,13 @@
                 else renderColorTabs();
             })();
 
-            // ============================================================
-            // SIZE CHIPS
-            // ============================================================
+            // เลือก Size
             document.getElementById('sizeChips').addEventListener('click', e => {
                 const chip = e.target.closest('.size-chip');
                 if (!chip) return;
+
                 const s = chip.dataset.size;
+
                 if (selectedSizes.has(s)) {
                     selectedSizes.delete(s);
                     chip.classList.remove('bg-[#30231D]', 'text-white', 'border-[#30231D]');
@@ -321,9 +310,7 @@
                 }
             });
 
-            // ============================================================
-            // COLOR PICKER
-            // ============================================================
+            // เลือกสี
             document.getElementById('colorPickerOverlay').addEventListener('click', e => {
                 if (e.target === document.getElementById('colorPickerOverlay')) closeColorPicker();
             });
@@ -331,19 +318,27 @@
             function openColorPicker() {
                 const grid = document.getElementById('colorGrid');
                 grid.innerHTML = '';
+
                 COLORS.forEach(c => {
                     const used = !!colorStore[c.code];
                     const div = document.createElement('div');
                     div.className = `flex flex-col items-center gap-1.5 p-2 rounded-xl cursor-pointer border border-transparent
                        transition hover:bg-[#F5F3EF] hover:border-[#E8E0D5]
                        ${used ? 'opacity-30 pointer-events-none' : ''}`;
+
                     div.innerHTML = `
-        <div class="w-8 h-8 rounded-full border border-black/10 shadow-sm" style="background:${c.hex}"></div>
-        <span class="text-[10px] font-semibold text-[#666]">${c.label}</span>
-      `;
-                    if (!used) div.addEventListener('click', () => { addColor(c.code); closeColorPicker(); });
+                        <div class="w-8 h-8 rounded-full border border-black/10 shadow-sm" style="background:${c.hex}"></div>
+                        <span class="text-[10px] font-semibold text-[#666]">${c.label}</span>
+                    `;
+
+                    if (!used) div.addEventListener('click', () => {
+                        addColor(c.code);
+                        closeColorPicker();
+                    });
+
                     grid.appendChild(div);
                 });
+
                 document.getElementById('colorPickerOverlay').classList.remove('hidden');
             }
 
@@ -351,11 +346,8 @@
                 document.getElementById('colorPickerOverlay').classList.add('hidden');
             }
 
-            // ============================================================
-            // COLOR MANAGEMENT
-            // ============================================================
             function addColor(code) {
-                colorStore[code] = { file: null, preview: null, existingImage: null};
+                colorStore[code] = { file: null, preview: null, existingImage: null };
                 setActiveColor(code);
             }
 
@@ -373,9 +365,6 @@
                 renderColorPanel();
             }
 
-            // ============================================================
-            // RENDER TABS
-            // ============================================================
             function renderColorTabs() {
                 const row = document.getElementById('colorTabRow');
                 row.innerHTML = '';
@@ -387,17 +376,15 @@
 
                     const tab = document.createElement('div');
                     tab.className = `flex items-center gap-2 px-3.5 py-1.5 rounded-full cursor-pointer border transition select-none
-          ${isActive
-                            ? 'bg-[#30231D] border-[#30231D] text-white'
-                            : 'bg-white border-[#E8E0D5] text-[#555] hover:border-[#A28161]'}`;
+                    ${isActive ? 'bg-[#30231D] border-[#30231D] text-white' : 'bg-white border-[#E8E0D5] text-[#555] hover:border-[#A28161]'}`;
 
                     tab.innerHTML = `
-        <div class="w-3.5 h-3.5 rounded-full border border-black/10 flex-shrink-0" style="background:${c.hex}"></div>
-        <span class="text-[12px] font-semibold">${c.label}</span>
-        ${hasImg ? '<span class="w-1.5 h-1.5 rounded-full bg-[#A28161] flex-shrink-0"></span>' : ''}
-        <span class="remove-color ml-0.5 text-[14px] leading-none
-         ${isActive ? 'text-white/50 hover:text-white' : 'text-[#ccc] hover:text-red-400'} transition">×</span>
-      `;
+                        <div class="w-3.5 h-3.5 rounded-full border border-black/10 flex-shrink-0" style="background:${c.hex}"></div>
+                        <span class="text-[12px] font-semibold">${c.label}</span>
+                        ${hasImg ? '<span class="w-1.5 h-1.5 rounded-full bg-[#A28161] flex-shrink-0"></span>' : ''}
+                        <span class="remove-color ml-0.5 text-[14px] leading-none
+                        ${isActive ? 'text-white/50 hover:text-white' : 'text-[#ccc] hover:text-red-400'} transition">×</span>
+                    `;
 
                     tab.addEventListener('click', e => {
                         if (e.target.classList.contains('remove-color')) { removeColor(code); return; }
@@ -418,9 +405,6 @@
                 row.appendChild(addBtn);
             }
 
-            // ============================================================
-            // RENDER PER-COLOR PANEL
-            // ============================================================
             function renderColorPanel() {
                 const panel = document.getElementById('colorPanel');
 
@@ -460,15 +444,16 @@
                     const filled = document.createElement('div');
                     filled.className = `relative w-[160px] h-[160px] rounded-xl border border-[#E8E0D5] overflow-hidden group shadow-sm`;
                     filled.innerHTML = `
-        <img src="${currentPreview}" class="w-full h-full object-cover">
-        <div class="absolute inset-0 flex items-center justify-center
-                    bg-black/0 group-hover:bg-black/25 transition">
-          <button type="button"
-            class="remove-img hidden group-hover:flex items-center justify-center
-                   w-8 h-8 rounded-full bg-white/90 text-red-500 text-[13px] shadow
-                   hover:bg-red-500 hover:text-white transition">✕</button>
-        </div>
-      `;
+                        <img src="${currentPreview}" class="w-full h-full object-cover">
+                        <div class="absolute inset-0 flex items-center justify-center
+                                    bg-black/0 group-hover:bg-black/25 transition">
+                        <button type="button"
+                            class="remove-img hidden group-hover:flex items-center justify-center
+                                w-8 h-8 rounded-full bg-white/90 text-red-500 text-[13px] shadow
+                                hover:bg-red-500 hover:text-white transition">✕</button>
+                        </div>
+                    `;
+
                     filled.querySelector('.remove-img').addEventListener('click', () => {
                         colorStore[colorCode].file = null;
                         colorStore[colorCode].preview = null;
@@ -477,10 +462,12 @@
                         renderColorTabs();
                         renderImgArea(colorCode);
                     });
+
                     area.appendChild(filled);
 
                     const changeLabel = makeFileLabel(colorCode, 'เปลี่ยนรูป', 'w-[100px] h-[160px]');
                     area.appendChild(changeLabel);
+
                 } else {
                     area.appendChild(makeFileLabel(colorCode, null, 'w-[160px] h-[160px]'));
                 }
@@ -493,30 +480,32 @@
                        border-2 border-dashed border-[#D8CEBD] text-[#ccc] cursor-pointer
                        hover:border-[#A28161] hover:text-[#A28161] hover:bg-[#F5F3EF] transition gap-2`;
                 label.innerHTML = `
-      <svg class="w-8 h-8 opacity-70" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"
-          d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14
-             m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"/>
-      </svg>
-      <span class="text-[11px] font-medium text-center leading-tight px-2">
-        ${text || 'อัปโหลดรูปภาพ<br><span class="text-[10px]">PNG, JPG, WEBP</span>'}
-      </span>
-    `;
+                    <svg class="w-8 h-8 opacity-70" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"
+                        d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14
+                            m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"/>
+                    </svg>
+                    <span class="text-[11px] font-medium text-center leading-tight px-2">
+                        ${text || 'อัปโหลดรูปภาพ<br><span class="text-[10px]">PNG, JPG, WEBP</span>'}
+                    </span>
+                    `;
                 return label;
             }
 
-            // file input listeners
             ['BK', 'WT', 'PK', 'RD', 'BL', 'SK', 'YL', 'BR', 'GN', 'PP', 'GR'].forEach(colorCode => {
                 document.getElementById(`img_${colorCode}`).addEventListener('change', e => {
                     const file = e.target.files[0];
                     if (!file) return;
+
                     const reader = new FileReader();
+
                     reader.onload = ev => {
                         colorStore[colorCode].file = file;
                         colorStore[colorCode].preview = ev.target.result;
                         renderColorTabs();
                         renderImgArea(colorCode);
                     };
+
                     reader.readAsDataURL(file);
                 });
             });
@@ -526,25 +515,28 @@
                 if (fi) fi.value = '';
             }
 
-            // ============================================================
-            // FORM SUBMIT
-            // ============================================================
+            // Submit Form
             document.getElementById('productForm').addEventListener('submit', e => {
                 if (selectedSizes.size === 0) {
                     e.preventDefault(); alert('กรุณาเลือกขนาดอย่างน้อย 1 ขนาด'); return;
                 }
+
                 const colorList = Object.keys(colorStore);
+
                 if (colorList.length === 0) {
                     e.preventDefault(); alert('กรุณาเพิ่มสีอย่างน้อย 1 สี'); return;
                 }
+
                 document.getElementById('sizesInput').value = [...selectedSizes].join(',');
                 document.getElementById('colorsInput').value = colorList.join(',');
 
-                // inject hidden inputs สำหรับรูปเดิมแต่ละสี
+                // สำหรับรูปเดิมแต่ละสี
                 const container = document.getElementById('existingImageInputs');
                 container.innerHTML = '';
+
                 colorList.forEach(code => {
                     const img = colorStore[code].existingImage;
+
                     if (img) {
                         const inp = document.createElement('input');
                         inp.type = 'hidden';
