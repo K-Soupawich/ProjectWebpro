@@ -17,11 +17,14 @@
 
     <%- include('partials/sidebar') %>
 
-    <div class="flex-1 flex flex-col h-screen overflow-y-auto">
+        <div class="flex-1 flex flex-col h-screen overflow-y-auto">
+                <div class="flex-shrink-0 bg-[#F5F3EF] border-b border-[#E8E0D5]
+                px-4 md:px-10 h-[62px] flex items-center justify-between gap-3">
 
-        <div class="sticky top-0 z-20 bg-[#F5F3EF]/95 backdrop-blur border-b border-[#E8E0D5]
-            px-10 h-[62px] flex items-center justify-between">
-            <h1 class="text-[18px] font-bold text-[#30231D] tracking-tight">แดชบอร์ด</h1>
+                    <h1 class="hidden md:block text-[18px] font-bold text-[#30231D] tracking-tight whitespace-nowrap">
+                        แดชบอร์ด
+                    </h1>
+
             <p class="text-[12px] text-[#A28161] mono"><%= new Date().toLocaleDateString('th-TH', { weekday:'long', year:'numeric', month:'long', day:'numeric' }) %></p>
         </div>
 
