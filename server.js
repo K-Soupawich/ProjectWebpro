@@ -5,15 +5,20 @@ require('dotenv').config();
 const authRoute = require('./routes/authRoute');
 const homeRoute = require('./routes/homeRoute');
 const customerRoute = require('./routes/customerRoute');
+const profileRoute = require('./routes/profileRoute');
 const productsRoute = require('./routes/productsRoute');
 const stockRoute = require('./routes/stockRoute');
 const grnRoute = require('./routes/grnRoute');
+const orderRoute = require('./routes/orderRoute');
+const usersRoute = require('./routes/usersRoute');
+const dashboardController = require('./controllers/dashboardController');
 const { isLoggedIn, authorize } = require('./middleware/authMiddleware');
 
 const app = express();
 app.set('view engine', 'ejs');
 
 app.use(express.urlencoded({ extended: true }));
+app.use(express.json());
 app.use(express.static('public'));
 
 // ===== Session Config =====
@@ -37,9 +42,13 @@ app.use((req, res, next) => {
 app.use('/', authRoute);
 app.use('/', homeRoute);
 app.use('/customer', customerRoute);
+app.use('/profile', profileRoute);
 app.use('/products', productsRoute);
 app.use('/stock', stockRoute);
 app.use('/grn', grnRoute);
+app.use('/orders', orderRoute)
+app.use('/users', usersRoute)
+app.get('/dashboard', isLoggedIn, authorize(['admin','staff']), dashboardController.showDashboard);
 
 app.get('/dashboard', isLoggedIn, authorize(['admin', 'staff']), (req, res) => {
     res.render('dashboard', { 

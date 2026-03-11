@@ -51,13 +51,13 @@
 
     <%- include('../partials/sidebar') %>
 
-        <!-- ===== MAIN ===== -->
         <div class="flex-1 flex flex-col h-screen overflow-y-auto">
 
-            <!-- Header bar -->
             <div class="sticky top-0 z-20 bg-[#F5F3EF]/95 backdrop-blur border-b border-[#E8E0D5]
                 px-10 h-[62px] flex items-center justify-between gap-4">
-                <h1 class="text-[18px] font-bold text-[#30231D] tracking-tight">รับสินค้าเข้าคลัง</h1>
+                <h1 class="text-[18px] font-bold pt-1 my-4 text-[#30231D] tracking-tight">
+                    รับสินค้าเข้าคลัง
+                </h1>
 
                 <div class="flex items-center gap-3">
                     <!-- GRN ref -->
@@ -77,10 +77,8 @@
                 </div>
             </div>
 
-            <!-- ===== CONTENT ===== -->
             <div class="px-10 py-8 flex-1">
 
-                <!-- Summary strip -->
                 <div class="flex gap-6 mb-6">
                     <div
                         class="bg-white rounded-xl border border-[#E8E0D5] px-5 py-3 flex items-center gap-3 shadow-sm">
@@ -110,7 +108,7 @@
                     </div>
                 </div>
 
-                <!-- Add-item form card -->
+                <!-- Add-item form -->
                 <div class="bg-white rounded-2xl border border-[#E8E0D5] shadow-sm p-6 mb-5">
                     <p class="text-[11px] font-semibold text-[#A28161] tracking-widest uppercase mb-4">เพิ่มรายการสินค้า
                     </p>
@@ -125,14 +123,15 @@
                                 <!-- search input -->
                                 <input id="skuSearch" type="text" autocomplete="off"
                                     placeholder="พิมพ์ชื่อสินค้า หรือ SKU เพื่อค้นหา..." class="w-full border border-[#E8E0D5] rounded-lg px-4 py-2.5 text-[14px]
-                       text-[#30231D] bg-[#FDFCF9] outline-none
-                       focus:border-[#A28161] focus:ring-2 focus:ring-[#A28161]/10 transition
-                       placeholder:text-[#ccc]">
+                                        text-[#30231D] bg-[#FDFCF9] outline-none
+                                        focus:border-[#A28161] focus:ring-2 focus:ring-[#A28161]/10 transition
+                                        placeholder:text-[#ccc]">
 
                                 <!-- selected badge -->
                                 <div id="skuSelected" class="hidden absolute inset-0 flex items-center pl-4 pr-10
-                          bg-[#FDFCF9] border border-[#A28161] rounded-lg
-                          ring-2 ring-[#A28161]/10 cursor-pointer" onclick="clearSkuSelection()">
+                                    bg-[#FDFCF9] border border-[#A28161] rounded-lg
+                                    ring-2 ring-[#A28161]/10 cursor-pointer"
+                                    onclick="clearSkuSelection()">
                                     <span id="skuSelectedSku"
                                         class="mono text-[13px] font-semibold text-[#6E5742] tracking-widest mr-3"></span>
                                     <span id="skuSelectedName"
@@ -141,8 +140,8 @@
 
                                 <!-- dropdown list -->
                                 <div id="skuDropdown" class="hidden absolute z-30 left-0 right-0 top-[calc(100%+4px)]
-                       bg-white border border-[#E8E0D5] rounded-xl shadow-lg
-                       max-h-[240px] overflow-y-auto">
+                                    bg-white border border-[#E8E0D5] rounded-xl shadow-lg
+                                    max-h-[240px] overflow-y-auto">
                                     <div id="skuDropdownList"></div>
                                     <div id="skuDropdownEmpty"
                                         class="hidden px-4 py-3 text-[13px] text-[#C5BAB0] text-center">
@@ -153,7 +152,6 @@
                             <p id="skuHint" class="text-[11px] text-[#bbb] h-4"></p>
                         </div>
 
-                        <!-- hidden: ค่าจริงที่ส่งเข้า addLine() -->
                         <input type="hidden" id="inputSku">
                         <input type="hidden" id="inputName">
 
@@ -166,7 +164,6 @@
                             <p class="h-4"></p>
                         </div>
 
-                        <!-- Add button -->
                         <button id="btnAdd"
                             class="flex items-center gap-2 bg-[#A28161] hover:bg-[#8B6B4A] active:scale-[.97]
                    text-white text-[13px] font-semibold px-5 py-2.5 rounded-lg transition-all shadow-sm whitespace-nowrap">
@@ -182,10 +179,8 @@
                     <p id="addError" class="text-[12px] text-red-500 mt-2 hidden"></p>
                 </div>
 
-                <!-- Items table card -->
                 <div class="bg-white rounded-2xl border border-[#E8E0D5] shadow-sm overflow-hidden">
 
-                    <!-- Table header -->
                     <div class="grid grid-cols-[40px_160px_1fr_100px_44px] gap-0 
                     px-5 py-2.5 bg-[#FDFCF9] border-b border-[#E8E0D5]
                     text-[10px] font-semibold text-[#999] uppercase tracking-widest">
@@ -196,20 +191,20 @@
                         <div></div>
                     </div>
 
-                    <!-- Rows container -->
                     <div id="tableBody">
-                        <!-- empty state -->
+
                         <div id="emptyState" class="py-16 text-center">
+
                             <svg class="w-10 h-10 text-[#D8CEBD] mx-auto mb-3" fill="none" stroke="currentColor"
                                 viewBox="0 0 24 24">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"
                                     d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10" />
                             </svg>
+
                             <p class="text-[13px] text-[#C5BAB0]">ยังไม่มีรายการ<br>เพิ่มสินค้าด้านบนได้เลย</p>
                         </div>
                     </div>
 
-                    <!-- Table footer summary -->
                     <div id="tableFooter" class="hidden border-t border-[#E8E0D5] px-5 py-3
                                      flex items-center justify-end gap-8 text-[12px] text-[#999]">
                         <span>รายการ: <strong id="footLines" class="text-[#30231D]">0</strong></span>
@@ -217,7 +212,7 @@
                     </div>
                 </div>
 
-                <!-- ===== RECEIPT LOG ===== -->
+                <!-- Log -->
                 <div class="mt-8">
                     <div class="flex items-center justify-between mb-4">
                         <div>
@@ -225,7 +220,6 @@
                                 ประวัติการรับสินค้า</p>
                             <p class="text-[12px] text-[#C5BAB0]">แสดงรายการล่าสุด 50 รายการ</p>
                         </div>
-                        <!-- Badge count -->
                         <span class="bg-[#F0EBE3] text-[#A28161] text-[11px] font-semibold px-3 py-1 rounded-full">
                             <%= receiptLog.length %> รายการ
                         </span>
@@ -233,7 +227,6 @@
 
                     <div class="bg-white rounded-2xl border border-[#E8E0D5] shadow-sm overflow-hidden">
 
-                        <!-- Table header -->
                         <div class="grid grid-cols-[160px_120px_1fr_80px_130px_120px] gap-0
                         px-5 py-2.5 bg-[#FDFCF9] border-b border-[#E8E0D5]
                         text-[10px] font-semibold text-[#999] uppercase tracking-widest">
@@ -326,10 +319,9 @@
                     </div>
                 </div>
 
-            </div><!-- /content -->
-        </div><!-- /main -->
+            </div>
+        </div>
 
-        <!-- ===== TOAST ===== -->
         <div id="toast" class="fixed bottom-6 right-6 z-50 opacity-0 pointer-events-none translate-y-2">
             <div id="toastInner"
                 class="flex items-center gap-3 px-5 py-3 rounded-xl shadow-xl text-[13px] font-semibold text-white">
@@ -338,9 +330,8 @@
             </div>
         </div>
 
-        <!-- ===== CONFIRM MODAL ===== -->
         <div id="confirmOverlay"
-            class="hidden fixed inset-0 bg-black/30 z-50 flex items-center justify-center backdrop-blur-sm">
+            class="max-h-[80vh] flex flex-col overflow-hidden hidden fixed inset-0 bg-black/30 z-50 flex items-center justify-center backdrop-blur-sm">
             <div class="bg-white rounded-2xl p-7 w-[420px] shadow-2xl">
                 <h3 class="text-[16px] font-bold text-[#30231D] mb-1">ยืนยันรับสินค้า?</h3>
                 <p class="text-[13px] text-[#999] mb-5">
@@ -348,7 +339,7 @@
                     ไม่สามารถยกเลิกได้หลังยืนยัน
                 </p>
 
-                <div id="modalSummary" class="bg-[#F5F3EF] rounded-xl px-4 py-3 mb-5 text-[13px] text-[#555] space-y-1">
+                <div id="modalSummary" class="bg-[#F5F3EF] overflow-y-auto max-h-[50vh] flex-1 rounded-xl px-4 py-3 mb-5 text-[13px] text-[#555]  space-y-1">
                 </div>
 
                 <div class="flex justify-end gap-3">
@@ -362,30 +353,19 @@
                     </button>
                 </div>
 
-                <script id="variantsData" type="application/json">
-          <%- JSON.stringify(variants) %>
-        </script>
-
+                
             </div>
         </div>
-
+        <script id="variantsData" type="application/json">
+            <%- JSON.stringify(variants) %>
+        </script>
 
         <script>
-            // ================================================================
-            // VARIANTS DATA (จาก server)
-            // ================================================================
-            const VARIANTS = JSON.parse(document.getElementById('variantsData').textContent);
-            // [ { sku, size, color, stock, productName }, ... ]
+            const variants = JSON.parse(document.getElementById('variantsData').textContent);
 
-            // ================================================================
-            // STATE
-            // ================================================================
             let lines = [];
             let lineCounter = 0;
 
-            // ================================================================
-            // GRN REF
-            // ================================================================
             function genGRN() {
                 const now = new Date();
                 const d = now.toISOString().slice(0, 10).replace(/-/g, '');
@@ -394,9 +374,7 @@
             }
             document.getElementById('grnRef').textContent = genGRN();
 
-            // ================================================================
-            // SEARCHABLE DROPDOWN
-            // ================================================================
+            // Search
             const skuSearch = document.getElementById('skuSearch');
             const skuDropdown = document.getElementById('skuDropdown');
             const skuList = document.getElementById('skuDropdownList');
@@ -425,13 +403,13 @@
             function renderDropdown(query) {
                 const q = query.toLowerCase();
                 const filtered = q
-                    ? VARIANTS.filter(v =>
+                    ? variants.filter(v =>
                         v.sku.toLowerCase().includes(q) ||
                         v.productName.toLowerCase().includes(q) ||
                         (v.color || '').toLowerCase().includes(q) ||
                         (v.size || '').toLowerCase().includes(q)
                     )
-                    : VARIANTS;
+                    : variants;
 
                 skuList.innerHTML = '';
 
@@ -492,9 +470,6 @@
                 skuSearch.focus();
             }
 
-            // ================================================================
-            // ADD LINE
-            // ================================================================
             document.getElementById('btnAdd').addEventListener('click', addLine);
             document.getElementById('inputQty').addEventListener('keydown', e => {
                 if (e.key === 'Enter') addLine();
@@ -526,9 +501,6 @@
                 el.classList.remove('hidden');
             }
 
-            // ================================================================
-            // RENDER TABLE
-            // ================================================================
             function renderTable() {
                 const tbody = document.getElementById('tableBody');
                 const empty = document.getElementById('emptyState');
@@ -551,25 +523,25 @@
                     row.dataset.id = line.id;
 
                     row.innerHTML = `
-            <div class="text-center text-[12px] text-[#C5BAB0] font-semibold">${idx + 1}</div>
-            <div class="mono text-[13px] font-semibold text-[#6E5742] tracking-widest">${line.sku}</div>
-            <div class="text-[13px] text-[#30231D]">${line.name}</div>
-            <div class="text-center">
-              <input type="number" min="1" value="${line.qty}"
-                class="w-[72px] border border-[#E8E0D5] rounded-lg px-2 py-1.5 text-[13px] text-center
-                      text-[#30231D] bg-[#FDFCF9] outline-none
-                      focus:border-[#A28161] focus:ring-2 focus:ring-[#A28161]/10 transition"
-                data-id="${line.id}" onchange="updateQty(this)">
-            </div>
-            <div class="flex justify-center">
-              <button type="button" onclick="removeLine(${line.id})"
-                class="btn-del w-7 h-7 rounded-md flex items-center justify-center text-[#C5BAB0] transition">
-                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
-                </svg>
-              </button>
-            </div>
-          `;
+                        <div class="text-center text-[12px] text-[#C5BAB0] font-semibold">${idx + 1}</div>
+                        <div class="mono text-[13px] font-semibold text-[#6E5742] tracking-widest">${line.sku}</div>
+                        <div class="text-[13px] text-[#30231D]">${line.name}</div>
+                        <div class="text-center">
+                        <input type="number" min="1" value="${line.qty}"
+                            class="w-[72px] border border-[#E8E0D5] rounded-lg px-2 py-1.5 text-[13px] text-center
+                                text-[#30231D] bg-[#FDFCF9] outline-none
+                                focus:border-[#A28161] focus:ring-2 focus:ring-[#A28161]/10 transition"
+                            data-id="${line.id}" onchange="updateQty(this)">
+                        </div>
+                        <div class="flex justify-center">
+                        <button type="button" onclick="removeLine(${line.id})"
+                            class="btn-del w-7 h-7 rounded-md flex items-center justify-center text-[#C5BAB0] transition">
+                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
+                            </svg>
+                        </button>
+                        </div>
+                    `;
                     tbody.appendChild(row);
                 });
 
@@ -589,12 +561,9 @@
                 lines = lines.filter(l => l.id !== id);
                 renderTable();
                 updateSummary();
-                renderDropdown(skuSearch.value); // refresh dropdown เพื่อเอา "เพิ่มแล้ว" ออก
+                renderDropdown(skuSearch.value); // refresh dropdown
             }
 
-            // ================================================================
-            // SUMMARY STRIP
-            // ================================================================
             function updateSummary() {
                 const total = lines.reduce((s, l) => s + l.qty, 0);
                 document.getElementById('sumLines').textContent = lines.length;
@@ -602,16 +571,13 @@
                 document.getElementById('btnConfirm').disabled = lines.length === 0;
             }
 
-            // ================================================================
-            // CONFIRM FLOW
-            // ================================================================
             document.getElementById('btnConfirm').addEventListener('click', () => {
                 const summary = document.getElementById('modalSummary');
                 summary.innerHTML = lines.map(l =>
                     `<div class="flex justify-between">
-           <span class="mono text-[#6E5742]">${l.sku}</span>
-           <span>${l.name} — <strong>${l.qty} ชิ้น</strong></span>
-         </div>`
+                        <span class="mono text-[#6E5742]">${l.sku}</span>
+                        <span>${l.name} — <strong>${l.qty} ชิ้น</strong></span>
+                    </div>`
                 ).join('');
                 document.getElementById('confirmOverlay').classList.remove('hidden');
             });
@@ -630,7 +596,7 @@
                 btn.textContent = 'กำลังบันทึก...';
 
                 try {
-                    const res = await fetch('/grn/receive', {
+                    const res = await fetch('/grn', {
                         method: 'POST',
                         headers: { 'Content-Type': 'application/json' },
                         body: JSON.stringify({
@@ -659,9 +625,6 @@
                 }
             });
 
-            // ================================================================
-            // TOAST
-            // ================================================================
             function showToast(type, msg) {
                 const toast = document.getElementById('toast');
                 const inner = document.getElementById('toastInner');

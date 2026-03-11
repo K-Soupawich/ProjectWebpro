@@ -421,7 +421,7 @@
     </div>
 
     <script>
-const COLORS = [
+        const COLORS = [
             { code: 'BK', label: 'Black', hex: '#0e0e0e' },
             { code: 'WT', label: 'White', hex: '#eeeeee' },
             { code: 'PK', label: 'Pink', hex: '#FFCCF6' },
@@ -436,8 +436,8 @@ const COLORS = [
         ];
         
         document.querySelectorAll('.color-dot[data-color]').forEach(el => {
-            const hex = COLORS[el.dataset.color] || el.dataset.color;
-            el.style.backgroundColor = hex;
+            const found = COLORS.find(c => c.code === el.dataset.color);
+            el.style.backgroundColor = found ? found.hex : '#ccc';
         });
 
         const search = document.getElementById('searchInput');

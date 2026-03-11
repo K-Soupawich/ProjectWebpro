@@ -38,14 +38,14 @@
             href: '/orders' ,
             icon: '/img/sidebar/orders.png' ,
             iconActive: '/img/sidebar/orders-s.png' ,
-            roles: ['admin', 'staff' ]
+            roles: ['staff' ]
         },
         {
             key: 'users' ,
             label: 'จัดการผู้ใช้' ,
             href: '/users' ,
-            icon: '/img/sidebar/users.png' ,
-            iconActive: '/img/sidebar/users-s.png' ,
+            icon: '/img/sidebar/จัดการผู้ใช้.png' ,
+            iconActive: '/img/sidebar/จัดการผู้ใช้-s.png' ,
             roles: ['admin']
         },
     ];
@@ -53,56 +53,146 @@
     const role=user?.role || '' ;
 %>
 
-    <div class="w-[200px] bg-[#F0EBE3] border-r border-[#E0D5C8]
-            flex flex-col flex-shrink-0 sticky top-0 h-screen">
+<div id="mobileTopBar" style="display:none"
+    class="fixed top-0 left-0 right-0 z-40 h-[56px] bg-[#F0EBE3] border-b border-[#E0D5C8]
+           flex items-center justify-between px-4">
+    <button id="sidebarToggle" class="w-9 h-9 flex flex-col items-center justify-center gap-[5px] rounded-lg
+                hover:bg-[#E0D5C8] transition">
+        <span class="ham-line block w-5 h-[2px] bg-[#6E5742] rounded-full transition-all origin-center"></span>
+        <span class="ham-line block w-5 h-[2px] bg-[#6E5742] rounded-full transition-all"></span>
+        <span class="ham-line block w-5 h-[2px] bg-[#6E5742] rounded-full transition-all origin-center"></span>
+    </button>
+</div>
 
-        <!-- Logo -->
-        <div class="flex flex-col items-center pt-8 pb-6 border-b border-[#E0D5C8]">
-            <img src="/img/logo1.png" class="w-[100px] h-auto">
-        </div>
+<!-- Overlay -->
+<div id="sidebarOverlay"
+    class="fixed inset-0 z-30 bg-black/40 backdrop-blur-sm hidden transition-opacity"></div>
 
-        <!-- Nav -->
-        <nav class="flex-1 px-3 py-7 flex flex-col gap-4 overflow-y-auto">
-            <% navItems.forEach(item=> { %>
-                <% if (item.roles.includes(role)) { %>
-                    <% const isActive=currentPage===item.key; %>
-                    <a href="<%= item.href %>" class="flex items-center gap-3 px-3 py-2.5 rounded-xl transition-all select-none
-                    <%= isActive ? 'bg-[#D9CDBF] text-[#30231D]' : 'text-[#7A6A5A] hover:bg-[#E8E0D5] hover:text-[#30231D]' %>">
+<!-- Sidebar -->
+<div id="sidebarDrawer"
+    class="top-0 left-0 z-40 w-[200px] h-screen bg-[#F0EBE3] border-r border-[#E0D5C8]
+           flex flex-col flex-shrink-0 transition-transform duration-300 ease-in-out">
 
-                        <!-- icon active ใช้รูป -s, ปกติใช้รูปเทา -->
-                        <img src="<%= isActive ? item.iconActive : item.icon %>"
-                            class="w-[20px] h-[20px] object-contain flex-shrink-0">
-
-                        <span class="text-[13px] <%= isActive ? 'font-semibold' : 'font-medium' %>">
-                            <%= item.label %>
-                        </span>
-                    </a>
-                <% } %>
-            <% }) %>
-        </nav>
-
-        <!-- Profile -->
-        <div class="border-t border-[#E0D5C8] px-4 py-4 flex items-center gap-3">
-            <% if (user?.avatar) { %>
-                <img src="/uploads/<%= user.avatar %>"
-                    class="w-9 h-9 rounded-full object-cover flex-shrink-0 border border-[#D9CDBF]">
-            <% } else { %>
-                <!-- placeholder avatar -->
-                <div class="w-9 h-9 rounded-full bg-[#D9CDBF] flex items-center justify-center flex-shrink-0">
-                    <svg class="w-5 h-5 text-[#8B7355]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8"
-                            d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
-                    </svg>
-                </div>
-            <% } %>
-                <div class="min-w-0">
-                    <p class="text-[13px] font-semibold text-[#30231D] truncate">
-                        <%= user?.name || user?.username || '—' %>
-                    </p>
-                    <p class="text-[11px] text-[#A28161] capitalize">
-                        <%= role %>
-                    </p>
-                </div>
-        </div>
-
+    <div class="flex flex-col items-center pt-8 pb-6 border-b border-[#E0D5C8]">
+        <img src="/img/logo1.png" class="w-[100px] h-auto">
     </div>
+
+    <nav class="flex-1 px-3 py-7 flex flex-col gap-4 overflow-y-auto">
+        <% navItems.forEach(item=> { %>
+            <% if (item.roles.includes(role)) { %>
+                <% const isActive=currentPage===item.key; %>
+                <a href="<%= item.href %>" class="flex items-center gap-3 px-3 py-2.5 rounded-xl transition-all select-none
+                <%= isActive ? 'bg-[#D9CDBF] text-[#30231D]' : 'text-[#7A6A5A] hover:bg-[#E8E0D5] hover:text-[#30231D]' %>">
+                    <img src="<%= isActive ? item.iconActive : item.icon %>"
+                        class="w-[20px] h-[20px] object-contain flex-shrink-0">
+                    <span class="text-[13px] <%= isActive ? 'font-semibold' : 'font-medium' %>">
+                        <%= item.label %>
+                    </span>
+                </a>
+            <% } %>
+        <% }) %>
+    </nav>
+
+    <!-- Profile -->
+    <a href="/profile" class="border-t border-[#E0D5C8] px-4 py-4 flex items-center gap-3 hover:bg-[#E8E0D5] transition rounded-b-xl">
+        <% if (user?.avatar) { %>
+            <img src="img/profile/<%= user.avatar %>"
+                class="w-9 h-9 rounded-full object-cover flex-shrink-0 border border-[#D9CDBF]">
+        <% } else { %>
+            <div class="w-9 h-9 rounded-full bg-[#D9CDBF] flex items-center justify-center flex-shrink-0">
+                <svg class="w-5 h-5 text-[#8B7355]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8"
+                        d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
+                </svg>
+            </div>
+        <% } %>
+        <div class="min-w-0">
+            <p class="text-[13px] font-semibold text-[#30231D] truncate">
+                <%= user?.name || user?.username || '—' %>
+            </p>
+            <p class="text-[11px] text-[#A28161] capitalize"><%= role %></p>
+        </div>
+    </a>
+
+</div>
+
+<div class="md:hidden h-[56px] flex-shrink-0 w-full"></div>
+
+<div id="sidebarPlaceholder" style="width:200px; flex-shrink:0;"></div>
+
+<script>
+(function () {
+    const COLLAPSE_WIDTH = 900;
+
+    const topBar      = document.getElementById('mobileTopBar');
+    const toggle      = document.getElementById('sidebarToggle');
+    const drawer      = document.getElementById('sidebarDrawer');
+    const overlay     = document.getElementById('sidebarOverlay');
+    const placeholder = document.getElementById('sidebarPlaceholder');
+    const lines       = toggle.querySelectorAll('.ham-line');
+
+    let isOpen = false;
+
+    function openDrawer() {
+        isOpen = true;
+        drawer.style.transform = 'translateX(0)';
+        overlay.classList.remove('hidden');
+    }
+
+    function closeDrawer() {
+        isOpen = false;
+        drawer.style.transform = 'translateX(-200px)';
+        overlay.classList.add('hidden');
+    }
+
+    const mainContent = (() => {
+        const all = document.querySelectorAll('body > *');
+        for (const el of all) {
+            const id = el.id || '';
+            if (!['mobileTopBar','sidebarOverlay','sidebarDrawer','sidebarPlaceholder'].includes(id)) {
+                return el;
+            }
+        }
+        return null;
+    })();
+
+    function applyLayout() {
+        const isMobile = window.innerWidth < COLLAPSE_WIDTH;
+
+        if (isMobile) {
+            topBar.style.display        = 'flex';
+            placeholder.style.display   = 'none';
+            drawer.style.position       = 'fixed';
+            drawer.style.top            = '0';
+            drawer.style.left           = '0';
+            drawer.style.height         = '100vh';
+            drawer.style.marginTop      = '0';
+            if (!isOpen) drawer.style.transform = 'translateX(-200px)';
+
+            if (mainContent) mainContent.style.paddingTop = '56px';
+
+        } else {
+            topBar.style.display        = 'none';
+            placeholder.style.display   = 'block';
+            overlay.classList.add('hidden');
+            drawer.style.position       = 'fixed';
+            drawer.style.top            = '0';
+            drawer.style.left           = '0';
+            drawer.style.height         = '100vh';
+            drawer.style.transform      = 'translateX(0)';
+            if (mainContent) mainContent.style.paddingTop = '';
+
+            isOpen = false;
+        }
+    }
+
+    toggle.addEventListener('click', () => isOpen ? closeDrawer() : openDrawer());
+    overlay.addEventListener('click', closeDrawer);
+    drawer.querySelectorAll('a').forEach(a =>
+        a.addEventListener('click', () => { if (window.innerWidth < COLLAPSE_WIDTH) closeDrawer(); })
+    );
+
+    window.addEventListener('resize', applyLayout);
+    applyLayout();
+})();
+</script>

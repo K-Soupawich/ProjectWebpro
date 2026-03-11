@@ -6,7 +6,7 @@ const { isLoggedIn, authorize } = require('../middleware/authMiddleware');
 const check_auth = [isLoggedIn, authorize(['admin', 'staff'])];
 
 router.get('/', ...check_auth, grnController.showReceive);
-router.post('/', ...check_auth, express.json(), grnController.receiveStock);
 router.get('/lookup-sku', ...check_auth, grnController.lookupSku);
+router.post('/', ...check_auth, grnController.receiveStock);
 
 module.exports = router;

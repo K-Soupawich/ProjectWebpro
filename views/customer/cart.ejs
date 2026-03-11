@@ -9,34 +9,52 @@
     </div>
 
     <div class="flex gap-15 items-center mt-[101px] mb-[75px] ml-[105px]">
-        <button onclick="history.back()" class="cursor-pointer hover:scale-105 transition duration-200">
+        <a href="/customer/shop" class="cursor-pointer hover:scale-105 transition duration-200">
             <img src="/img/customer/back_button.png" class="w-[13px]">
-        </button>
+        </a>
         <p class="text-[#30231D] font-bold text-[20px]">ตะกร้าสินค้า</p>
     </div>
 
     <div class="flex justify-center gap-7">
-        <div class="bg-[#F8F8F8] w-[894px] h-[690px] rounded-[20px] border border-gray-200 shadow-sm sticky">
-            <% products.forEach(product=> { %>
-                <div class="flex">
-                    <input type="checkbox" class="w-[22px] h-[22px]">
-                    
-                    <img src="/uploads/<%= product.image %>">
+        <div class="bg-[#F8F8F8] w-[894px] min-h-[200px] rounded-[20px] border border-gray-200 shadow-sm p-[24px] flex flex-col gap-4">
+            <% if (cart.length === 0) { %>
+                <p class="text-gray-400 text-center py-16">ไม่มีสินค้าในตะกร้า</p>
+            <% } %>
+            <% cart.forEach(item => { %>
+                <div class="flex items-center gap-4 bg-white rounded-[12px] p-[16px] shadow-sm">
 
-                    <div>
-                        <p><%= product.name %></p>
-                        <p>ขนาด: <%= product.size %></p>
+                    <img src="/uploads/<%= item.image %>"
+                         onerror="this.src='/img/customer/no-image.png'"
+                         class="w-[80px] h-[80px] object-contain rounded">
+
+                    <div class="flex-1">
+                        <p class="font-semibold text-[#30231D]"><%= item.name %></p>
+                        <p class="text-[13px] text-gray-400">ขนาด: <%= item.size %> · สี: <%= item.color %></p>
                     </div>
 
-                    <div class="flex items-center gap-2 bg-[#FEFCFC] w-[175px] h-[48px] rounded-[40px] border border-gray-200 mb-[8px]">
-                        <button type="button" onclick="decrease()" class="cursor-pointer ml-[20px] text-[20px]">-</button>
-                        <input id="num" type="text" value="1" class="w-[94px] text-center text-[16px]">
-                        <button type="button" onclick="increase()" class="cursor-pointer text-[20px]">+</button>
+                    <!-- ปรับจำนวน -->
+                    <div class="flex items-center gap-4">
+                        <form method="POST" action="/customer/cart/update"
+                            class="flex items-center bg-white border border-gray-200 rounded-full px-3 h-[40px] gap-3">
+                            <input type="hidden" name="variantId" value="<%= item.variantId %>">
+                            <button type="submit" name="qty" value="<%= item.qty - 1 %>"
+                                    class="text-[18px] text-[#30231D] hover:opacity-60">−</button>
+                            <span class="text-[15px] w-[20px] text-center"><%= item.qty %></span>
+                            <button type="submit" name="qty" value="<%= item.qty + 1 %>"
+                                    class="text-[18px] text-[#30231D] hover:opacity-60">+</button>
+                        </form>
+
+                        <p class="font-bold text-[#30231D]">฿<%= (item.price * item.qty).toLocaleString() %></p>
                     </div>
 
-                    <h2 class="text-[32px] font-bold text-[#30231D]">฿<%= product.price %></h2>
+
+                    <!-- ลบ -->
+                    <form method="POST" action="/customer/cart/remove">
+                        <input type="hidden" name="variantId" value="<%= item.variantId %>">
+                        <button type="submit" class="text-gray-300 hover:text-red-400 text-[20px] transition">✕</button>
+                    </form>
                 </div>
-                <% }) %>
+            <% }) %>
         </div>
 
         <div class="bg-[#F8F8F8] w-[413px] h-[348px] rounded-[20px] border border-gray-200 shadow-sm p-[30px]">
@@ -46,21 +64,21 @@
             
             <div class="flex justify-between mb-[21px]">
                 <p>ยอดรวมทั้งหมด</p>
-                <p>฿เงิน</p>
+                <p>฿<%= subtotal.toLocaleString() %></p>
             </div>
             <div class="flex justify-between mb-[27px]">
                 <p>ค่าจัดส่ง</p>
-                <p>฿50</p>
+                <p>฿<%= shipping.toLocaleString() %></p>
             </div>
             <div>
                 <hr class="mx-[10px] border-gray-300 mb-[18px]">
             </div>
             <div class="flex justify-between mb-[41px]">
                 <p class="text-[18px] font-semibold">ยอดรวมสุทธิ</p>
-                <p >฿เงินรวม</p>
+                <p>฿<%= total.toLocaleString() %></p>
             </div>
             <div class="flex justify-center">
-                <a href="#">
+                <a href="/customer/payment">
                     <img src="/img/customer/ชำระเงิน.png" class="w-[313px] hover:scale-105 transition duration-200">
                 </a>
             </div>
@@ -68,23 +86,7 @@
         </div>
     </div>
 
-    <script>
-        function increase(){
-            let num = parseInt(document.getElementById("num").value);
-
-            if (num >= 1) {
-                document.getElementById("num").value = num + 1;
-            }
-        }
-
-        function decrease(){
-            let num = parseInt(document.getElementById("num").value);
-
-            if (num > 1) {
-                document.getElementById("num").value = num - 1;
-            }
-        }
-    </script>
+    
 
 
 </body>

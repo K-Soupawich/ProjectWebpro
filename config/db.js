@@ -60,7 +60,7 @@ db.serialize(() => {
         variant_id INTEGER NOT NULL,
         qty INTEGER NOT NULL DEFAULT 1 CHECK(qty > 0),
         created_at DATETIME DEFAULT (datetime('now','localtime')),
-        FOREIGN KEY (user_id) REFERENCES users(id)            ON DELETE CASCADE,
+        FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE,
         FOREIGN KEY (variant_id) REFERENCES product_variants(id) ON DELETE CASCADE,
         UNIQUE (user_id, variant_id)
     )`);
@@ -129,11 +129,20 @@ db.serialize(() => {
 
     (async () => {
         const hashedPassword = await bcrypt.hash("1234", 10);
+        db.run(`
+            INSERT OR IGNORE INTO users (username, email, password, phone, role)
+            VALUES (?, ?, ?, ?, ?)
+        `, ["admin1", "admin1@gmail.com", hashedPassword, "0999999999", "admin"]);
 
         db.run(`
             INSERT OR IGNORE INTO users (username, email, password, phone, role)
             VALUES (?, ?, ?, ?, ?)
         `, ["staff1", "staff1@gmail.com", hashedPassword, "0812345678", "staff"]);
+
+        db.run(`
+            INSERT OR IGNORE INTO users (username, email, password, phone, role)
+            VALUES (?, ?, ?, ?, ?)
+        `, ["test1", "test1@gmail.com", hashedPassword, "0123456789", "customer"]);
     })();
 
     db.run(`

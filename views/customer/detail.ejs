@@ -1,12 +1,13 @@
 <%- include("head") %>
 
-<body style="font-family: 'Inter', 'Noto Sans Thai', sans-serif;">
+<body style="font-family: 'Inter', 'Noto Sans Thai', sans-serif;" class="bg-[#F7F5F5]">
     <div>
         <%- include("navbar") %>
     </div>
 
+    <!-- Header -->
     <div class="flex mt-[108px] items-center ml-[117px]">
-        <a href="/customer/shop" class="mr-[64px]">
+        <a href="/customer/shop" class="mr-[64px] hover:scale-105 transition duration-200">
             <img src="/img/customer/back_button.png" class="w-[13px]">
         </a>
         <p class="text-[32px] text-[#30231D] font-semibold">
@@ -14,160 +15,329 @@
         </p>
     </div>
 
-    <div class="mt-[50px] flex justify-center items-center">
+    <div class="mt-[50px] flex justify-center items-start gap-[105px] pb-[80px]">
 
-        <!-- รูปสินค้า -->
-        <div class="mr-[105px]">
-            <div class="bg-white w-[493px] h-[530px] rounded-[12px] flex justify-center items-center shadow-[0_6px_20px_rgba(0,0,0,0.15)] mt-[18px]">
-                <img id="product-image"
-                     src="<%= firstImage ? '/uploads/' + firstImage : '/img/no-image.png' %>"
-                     onerror="this.src='/img/no-image.png'"
-                     class="w-[450px] object-contain">
+        <!-- รูปภาพ (เปลี่ยนตามสีที่เลือก) -->
+        <div class="sticky top-[100px]">
+            <div class="bg-white w-[493px] h-[530px] rounded-[12px] flex justify-center items-center shadow-[0_6px_20px_rgba(0,0,0,0.15)]">
+                <% if (firstImage) { %>
+                    <img id="productImage"
+                        src="/uploads/<%= firstImage %>"
+                        class="w-[450px] h-[450px] object-contain"
+                        onerror="this.src='/img/customer/no-image.png'">
+                <% } else { %>
+                    <div class="w-[450px] h-[450px] flex items-center justify-center bg-gray-100 rounded">
+                        <span class="text-gray-300">ไม่มีรูปภาพ</span>
+                    </div>
+                <% } %>
             </div>
         </div>
 
-        <!-- ข้อมูลสินค้า + form เพิ่มตะกร้า -->
-        <div>
+        <!-- รายละเอียด -->
+        <div class="w-[480px]">
 
-            <!-- form ครอบทุกอย่าง ปุ่มเพิ่มตะกร้า submit form นี้ -->
-            <form method="POST" action="/customer/cart/add">
+            <!-- เลือกขนาด -->
+            <div class="mb-[30px]">
+                <p class="mb-[10px] font-medium text-[#30231D]">เลือกขนาด</p>
 
-                <!-- ไซซ์ -->
-                <div class="mb-[30px]">
-                    <p class="mb-[10px]">เลือกขนาด</p>
-                    <div class="flex gap-2">
-                        <% const sizes = ['S','M','L','XL']; %>
-                        <% sizes.forEach(s => { %>
-                            <% const variant = variants.find(v => v.size === s); %>
-                            <% const hasStock = variant && variant.stock > 0; %>
-                            <button type="button"
-                                    onclick="<% if (hasStock) { %>selectSize(this, '<%= s %>', <%= variant.id %>)<% } %>"
-                                    class="size-btn w-[45px] h-[45px] border-2 flex items-center justify-center
-                                           <%= hasStock ? 'bg-gray-100 cursor-pointer' : 'bg-gray-100 text-gray-300 cursor-not-allowed' %>"
-                                    style="border-color: transparent;"
-                                    <% if (!hasStock) { %> disabled <% } %>>
-                                <%= s %>
-                            </button>
-                        <% }) %>
-                    </div>
-                    <!-- ส่ง variantId ที่เลือกไปกับ form -->
-                    <input type="hidden" id="selectedVariantId" name="variantId" value="">
+                <%
+                    const sizes = ['S', 'M', 'L', 'XL'];
+                    // หา stock รวมของแต่ละ size (ทุกสี)
+                %>
+
+                <div class="flex gap-2">
+                    <% sizes.forEach(s => {
+                        const hasAnyStock = variants.some(v => v.size === s && v.stock > 0);
+                        const sizeClass = hasAnyStock
+                            ? 'bg-white text-[#30231D] cursor-pointer hover:border-[#A28161]'
+                            : 'bg-gray-100 text-gray-300 cursor-not-allowed line-through';
+                    %>
+                        <button
+                            type="button"
+                            data-size="<%= s %>"
+                            onclick="selectSize(this, '<%= s %>')"
+                            class="size-btn w-[45px] h-[45px] border-2 rounded flex items-center justify-center text-[14px] font-medium transition duration-150 <%= sizeClass %>"
+                            style="border-color: transparent;"
+                            <% if (!hasAnyStock) { %>disabled<% } %>>
+                            <%= s %>
+                        </button>
+                    <% }) %>
                 </div>
 
-                <!-- สี -->
-                <div class="mb-[30px]">
-                    <p class="mb-[10px]">เลือกสี</p>
-                    <div class="flex gap-3">
-                        <% colors.forEach(color => { %>
-                            <button type="button"
-                                    onclick="selectColor(this, '<%= color.code %>')"
-                                    class="color-btn w-[40px] h-[40px] rounded-full"
-                                    style="background-color: <%= color.hex %>;
-                                           outline: 2px solid #D9D9D9;
-                                           outline-offset: 2px;">
-                            </button>
-                        <% }) %>
-                    </div>
-                    <input type="hidden" id="selectedColor" name="color" value="">
+                <input type="hidden" id="selectedSize" value="">
+            </div>
+
+            <!-- เลือกสี -->
+            <div class="mb-[30px]">
+                <p class="mb-[10px] font-medium text-[#30231D]">เลือกสี</p>
+
+                <div class="flex gap-3 flex-wrap">
+                    <% colors.forEach(color => {
+                        const colorVariant = variants.find(v => v.color === color.code && v.image);
+                        const colorImage   = colorVariant ? colorVariant.image : '';
+                    %>
+                        <button
+                            type="button"
+                            data-color="<%= color.code %>"
+                            onclick="selectColor(this, '<%= color.code %>', '<%= colorImage %>')"
+                            class="color-btn w-[40px] h-[40px] rounded-full transition duration-150 hover:scale-110"
+                            style="background-color: <%= color.hex %>; outline: 2px solid #D9D9D9; outline-offset: 2px;"
+                            title="<%= color.code %>">
+                        </button>
+                    <% }) %>
                 </div>
 
-                <!-- ราคา -->
-                <div class="mb-[30px]">
-                    <h2 class="text-[32px] font-bold text-[#30231D]">฿<%= product.price.toLocaleString() %></h2>
-                </div>
+                <input type="hidden" id="selectedColor" value="">
+            </div>
 
-                <!-- จำนวน -->
-                <div class="flex items-center gap-2 bg-[#FEFCFC] w-[175px] h-[48px] rounded-[40px] border border-gray-200 mb-[8px]">
-                    <button type="button" onclick="decrease()" class="cursor-pointer ml-[20px] text-[20px]">−</button>
-                    <input id="qtyInput" name="qty" type="text" value="1" class="w-[94px] text-center text-[16px]">
-                    <button type="button" onclick="increase()" class="cursor-pointer text-[20px]">+</button>
-                </div>
+            <!-- ราคา -->
+            <div class="mb-[20px]">
+                <h2 class="text-[32px] font-bold text-[#30231D]">
+                    ฿<%= product.price.toLocaleString() %>
+                </h2>
+            </div>
 
-                <!-- สินค้าคงเหลือ -->
-                <div class="mb-[32px]">
-                    <p id="stock-text" class="text-gray-500 text-[14px]">กรุณาเลือกขนาด</p>
-                </div>
+            <!-- จำนวน -->
+            <div class="flex items-center gap-2 bg-white w-[140px] h-[44px] rounded-[40px] border border-gray-200 mb-[16px] shadow-sm">
+                <button type="button" onclick="decrease()" class="cursor-pointer ml-[16px] text-[20px] text-[#30231D] select-none">−</button>
+                <input id="num" type="text" value="1" readonly
+                    class="w-[50px] text-center text-[16px] bg-transparent outline-none">
+                <button type="button" onclick="increase()" class="cursor-pointer text-[20px] text-[#30231D] select-none">+</button>
+            </div>
 
-                <!-- คำอธิบาย -->
-                <div class="mb-[20px]">
-                    <p><%= product.description %></p>
-                </div>
+            <!-- สินค้าคงเหลือ -->
+            <div class="mb-[20px]">
+                <p id="stockDisplay" class="text-[14px] text-gray-400">
+                    กรุณาเลือกขนาดและสี
+                </p>
+            </div>
 
-                <!-- ปุ่ม -->
-                <div class="flex gap-4">
-                    <button type="submit" id="add-to-cart-btn" disabled
-                            class="opacity-50 cursor-not-allowed transition duration-200">
-                        <img src="/img/customer/เพิ่มลงตะกร้า.png" class="w-[256px]">
+            <!-- คำอธิบาย -->
+            <div class="mb-[32px] bg-white rounded-[12px] p-[16px] shadow-sm">
+                <p class="text-[14px] text-[#555] leading-relaxed whitespace-pre-line">
+                    <%= product.description %>
+                </p>
+            </div>
+
+            <!-- ปุ่ม -->
+            <div class="flex gap-3">
+                <form method="POST" action="/customer/cart/add" id="cartForm">
+                    <input type="hidden" name="variantId" id="hiddenVariantId">
+                    <input type="hidden" name="qty" id="hiddenQty" value="1">
+                    <input type="hidden" name="redirect" id="hiddenRedirect" value="">
+                    <button type="submit" id="btnAddCart" disabled
+                            class="opacity-40 cursor-not-allowed hover:scale-105 transition duration-200">
+                        <img src="/img/customer/เพิ่มลงตะกร้า.png" class="w-[220px]">
                     </button>
+                </form>
 
-                    <a href="/customer/cart">
-                        <img src="/img/customer/ซื้อสินค้า.png" class="w-[256px]">
-                    </a>
-                </div>
-
-            </form>
+                <button type="button" id="btnBuy" disabled
+                    onclick="buyNow()"
+                    class="opacity-40 cursor-not-allowed hover:scale-105 transition duration-200">
+                    <img src="/img/customer/ซื้อสินค้า.png" class="w-[220px]">
+                </button>
+            </div>
         </div>
+        <script id="variantsData" type="application/json">
+            <%- JSON.stringify(variants) %>
+        </script>
     </div>
 
+
     <script>
-        // ข้อมูล variants จาก server
-        const variants = <%- JSON.stringify(variants) %>;
+        const variants = JSON.parse(document.getElementById('variantsData').textContent);
 
         let selectedSize  = null;
         let selectedColor = null;
 
-        function selectSize(el, size, variantId) {
+        // อัปเดตปุ่มไซส์ตามสีที่เลือก
+        function refreshSizeBtns(filterColor) {
+            document.querySelectorAll('.size-btn').forEach(btn => {
+                const s = btn.dataset.size;
+                const hasStock = filterColor ? variants.some(v => v.size === s && v.color === filterColor && v.stock > 0) : variants.some(v => v.size === s && v.stock > 0);
+
+                btn.classList.toggle('bg-white', hasStock);
+                btn.classList.toggle('text-[#30231D]', hasStock);
+                btn.classList.toggle('cursor-pointer',hasStock);
+                btn.classList.toggle('hover:border-[#A28161]', hasStock);
+                // ถ้าไม่มีสต็อก
+                btn.disabled = !hasStock;
+                btn.classList.toggle('bg-gray-100', !hasStock);
+                btn.classList.toggle('text-gray-300', !hasStock);
+                btn.classList.toggle('cursor-not-allowed', !hasStock);
+
+                // ถ้าไซส์ที่เลือกอยู่ถูก disable → reset
+                if (!hasStock && selectedSize === s) {
+                    selectedSize = null;
+                    btn.style.borderColor = 'transparent';
+                    document.getElementById('selectedSize').value = '';
+                }
+            });
+        }
+
+        // อัปเดตปุ่มสีตามไซส์ที่เลือก
+        function refreshColorBtns(filterSize) {
+            document.querySelectorAll('.color-btn').forEach(btn => {
+                const code = btn.dataset.color;
+                const hasStock = filterSize
+                    ? variants.some(v => v.color === code && v.size === filterSize && v.stock > 0)
+                    : variants.some(v => v.color === code && v.stock > 0);
+
+                btn.disabled = !hasStock;
+                btn.style.opacity = hasStock ? '1' : '0.3';
+                btn.style.cursor  = hasStock ? 'pointer' : 'not-allowed';
+
+                // ถ้าสีที่เลือกอยู่ถูก disable → reset
+                if (!hasStock && selectedColor === code) {
+                    selectedColor = null;
+                    btn.style.outline = '2px solid #D9D9D9';
+                    document.getElementById('selectedColor').value = '';
+                }
+            });
+        }
+
+        // เลือกไซส์
+        function selectSize(el, size) {
+            // กดซ้ำ = เลิกเลือก
+            if (selectedSize === size) {
+                selectedSize = null;
+                el.style.borderColor = 'transparent';
+                document.getElementById('selectedSize').value = '';
+                refreshColorBtns(null); // คืนไซส์ทุกปุ่มกลับปกติ
+                updateStock();
+                checkReady();
+                return;
+                }
+
             selectedSize = size;
-            // reset ปุ่ม size
             document.querySelectorAll('.size-btn').forEach(btn => {
                 btn.style.borderColor = 'transparent';
             });
-            el.style.borderColor = '#30231D';
+            el.style.borderColor = '#341E20';
+            document.getElementById('selectedSize').value = size;
 
-            // เก็บ variantId
-            document.getElementById('selectedVariantId').value = variantId;
-
-            // แสดง stock
-            const variant = variants.find(v => v.size === size);
-            const stockEl = document.getElementById('stock-text');
-            if (variant) {
-                stockEl.textContent = `สินค้าคงเหลือ: ${variant.stock} ชิ้น`;
-                stockEl.className   = variant.stock > 0
-                    ? 'text-gray-500 text-[14px]'
-                    : 'text-red-500 text-[14px]';
-            }
-
+            refreshColorBtns(size);
+            updateStock();
             checkReady();
         }
 
-        function selectColor(el, code) {
+        // เลือกสี
+        function selectColor(el, code, image) {
+            if (el.disabled) return;
+
+            // กดซ้ำ = เลิกเลือก
+            if (selectedColor === code) {
+                selectedColor = null;
+                el.style.outline = '2px solid #D9D9D9';
+                document.getElementById('selectedColor').value = '';
+                refreshSizeBtns(null); // คืนไซส์ทุกปุ่มกลับปกติ
+                updateStock();
+                checkReady();
+                return;
+            }
+
             selectedColor = code;
             document.querySelectorAll('.color-btn').forEach(btn => {
-                btn.style.outlineColor = '#D9D9D9';
+                btn.style.outline = '2px solid #D9D9D9';
             });
-            el.style.outlineColor = '#30231D';
+            el.style.outline = '2px solid #573529';
             document.getElementById('selectedColor').value = code;
+
+            // กรองปุ่มไซส์ตามสีที่เลือก
+            refreshSizeBtns(code);
+
+            // เปลี่ยนรูปตามสีที่เลือก
+            if (image) {
+                document.getElementById('productImage').src = '/uploads/' + image;
+            }
+
+            updateStock();
             checkReady();
         }
 
-        // เปิดปุ่มเมื่อเลือกครบ
-        function checkReady() {
-            const btn = document.getElementById('add-to-cart-btn');
-            if (selectedSize && selectedColor) {
-                btn.disabled        = false;
-                btn.className       = 'hover:scale-105 transition duration-200 cursor-pointer';
+        // แสดง stock
+        function updateStock() {
+            const size = document.getElementById('selectedSize').value;
+            const color = document.getElementById('selectedColor').value;
+            const el = document.getElementById('stockDisplay');
+
+            if (!size || !color) {
+                el.textContent = 'กรุณาเลือกขนาดและสี';
+                el.className = 'text-[14px] text-gray-400';
+                return;
             }
+
+            const v = variants.find(v => v.size === size && v.color === color);
+            if (v.stock === 0) {
+                el.textContent = 'สินค้าหมด';
+                el.className = 'text-[14px] text-red-400';
+            } else {
+                el.textContent = `สินค้าคงเหลือ: ${v.stock} ชิ้น`;
+                el.className = 'text-[14px] text-green-600';
+            }
+        }
+
+        function checkReady() {
+            const v = selectedSize && selectedColor ? variants.find(v => v.size === selectedSize && v.color === selectedColor) : null;
+            const ready = v && v.stock > 0;
+
+            const btnAdd = document.getElementById('btnAddCart');
+            btnAdd.disabled = !ready;
+            btnAdd.classList.toggle('opacity-40', !ready);
+            btnAdd.classList.toggle('cursor-not-allowed', !ready);
+
+            const btnBuy = document.getElementById('btnBuy');
+            btnBuy.disabled = !ready;
+            btnBuy.classList.toggle('opacity-40', !ready);
+            btnBuy.classList.toggle('cursor-not-allowed', !ready);
+        }
+
+        function buyNow() {
+            if (!selectedSize) { alert('กรุณาเลือกขนาดที่ต้องการ'); return; }
+            if (!selectedColor) { alert('กรุณาเลือกสีที่ต้องการ'); return; }
+
+            const v = variants.find(v => v.size === selectedSize && v.color === selectedColor);
+            if (!v) return;
+
+            document.getElementById('hiddenVariantId').value = v.id;
+            document.getElementById('hiddenQty').value = document.getElementById('num').value;
+            document.getElementById('hiddenRedirect').value = 'payment'; // บอก server ว่าให้ redirect ไป payment
+            document.getElementById('cartForm').submit();
         }
 
         function increase() {
-            const input = document.getElementById('qtyInput');
-            input.value = parseInt(input.value) + 1;
+            const input = document.getElementById('num');
+            const size = document.getElementById('selectedSize').value;
+            const color = document.getElementById('selectedColor').value;
+            const v = variants.find(v => v.size === size && v.color === color);
+            const maxStock = v ? v.stock : 99;
+
+            let num = parseInt(input.value);
+            if (num < maxStock) input.value = num + 1;
         }
 
         function decrease() {
-            const input = document.getElementById('qtyInput');
-            if (parseInt(input.value) > 1) input.value = parseInt(input.value) - 1;
+            const input = document.getElementById('num');
+            let num = parseInt(input.value);
+            if (num > 1) input.value = num - 1;
         }
+
+        // Submit Form
+        document.getElementById('cartForm').addEventListener('submit', e => {
+            // Check size
+            if (!document.getElementById('selectedSize').value) {
+                e.preventDefault(); alert('กรุณาเลือกขนาดที่ต้องการ'); return;
+            }
+
+            // Check color
+            if (!document.getElementById('selectedColor').value) {
+                e.preventDefault(); alert('กรุณาเลือกสีที่ต้องการ'); return;
+            }
+
+            document.getElementById('hiddenVariantId').value = variants.find(v => v.size === selectedSize && v.color === selectedColor)?.id || '';
+            document.getElementById('hiddenQty').value = document.getElementById('num').value;
+        });
+
     </script>
 
 </body>

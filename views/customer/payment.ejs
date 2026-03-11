@@ -1,0 +1,76 @@
+<%- include("head") %>
+
+<body style="font-family: 'Inter', 'Noto Sans Thai', sans-serif;" class="bg-[#F7F5F5]">
+    <div>
+        <%- include("navbar") %>
+    </div>
+
+    <div class="flex gap-15 items-center mt-[101px] mb-[75px] ml-[105px]">
+        <a href="/customer/cart" class="cursor-pointer hover:scale-105 transition duration-200">
+            <img src="/img/customer/back_button.png" class="w-[13px]">
+        </a>
+        <p class="text-[#30231D] font-bold text-[20px] ml-4">ชำระเงิน</p>
+    </div>
+
+    <form method="POST" action="/customer/order/place">
+
+        <div class="flex justify-center gap-7 items-start">
+
+            <!-- QR Code -->
+            <div class="bg-white w-[530px] rounded-[20px] border border-gray-200 shadow-sm p-[30px]">
+                <p class="font-semibold text-[#30231D] mb-[20px]">พร้อมเพย์</p>
+                <div class="flex justify-center">
+                    <img src="/img/customer/qr_payment.png" class="w-[300px]">
+                </div>
+            </div>
+
+            <!-- สรุปและฟอร์ม -->
+            <div class="flex flex-col gap-5">
+
+                <!-- ที่อยู่ -->
+                <div class="bg-white w-[413px] rounded-[20px] border border-gray-200 shadow-sm p-[30px]">
+                    <p class="font-semibold text-[#30231D] mb-[16px]">ที่อยู่จัดส่ง</p>
+                    <textarea name="address" required rows="3" placeholder="กรอกที่อยู่จัดส่ง..."
+                        class="w-full border border-gray-200 rounded-[10px] p-[12px] text-[14px] outline-none focus:border-[#A28161] resize-none"></textarea>
+                </div>
+
+                <!-- สรุปคำสั่งซื้อ -->
+                <div class="bg-white w-[413px] rounded-[20px] border border-gray-200 shadow-sm p-[30px]">
+                    <p class="text-[18px] font-bold mb-[20px]">สรุปคำสั่งซื้อ</p>
+
+                    <% cart.forEach(item => { %>
+                        <div class="flex justify-between text-[14px] text-gray-500 mb-[8px]">
+                            <span><%= item.name %> (<%= item.size %>/<%= item.color %>) × <%= item.qty %></span>
+                            <span>฿<%= (item.price * item.qty).toLocaleString() %></span>
+                        </div>
+                    <% }) %>
+
+                    <hr class="border-gray-200 my-[16px]">
+
+                    <div class="flex justify-between mb-[10px]">
+                        <p>ยอดรวมทั้งหมด</p>
+                        <p>฿<%= subtotal.toLocaleString() %></p>
+                    </div>
+                    <div class="flex justify-between mb-[16px]">
+                        <p>ค่าจัดส่ง</p>
+                        <p>฿<%= shipping.toLocaleString() %></p>
+                    </div>
+                    <hr class="border-gray-200 mb-[16px]">
+                    <div class="flex justify-between mb-[24px]">
+                        <p class="text-[18px] font-semibold">ยอดรวมสุทธิ</p>
+                        <p class="text-[18px] font-semibold">฿<%= total.toLocaleString() %></p>
+                    </div>
+
+                    <button type="submit"
+                        class="w-full bg-[#A28161] hover:bg-[#8B6B4A] text-white font-semibold text-[15px] py-[12px] rounded-[40px] transition duration-200">
+                        ยืนยันการชำระเงิน
+                    </button>
+                </div>
+
+            </div>
+        </div>
+
+    </form>
+
+</body>
+</html>

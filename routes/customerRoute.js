@@ -1,24 +1,22 @@
 const express = require('express');
 const router = express.Router();
-const customerController = require('../controllers/customerController');
+const shopController = require('../controllers/shopController');
+const cartController = require('../controllers/cartController');
+const orderController = require('../controllers/orderControllerC');
 const { isLoggedIn, authorize } = require('../middleware/authMiddleware');
 
 const check_Auth = [isLoggedIn, authorize(['customer'])];
 
-router.get('/', ...check_Auth, customerController.showShop);
-router.get('/shop', ...check_Auth, customerController.showShop);
-router.get('/detail/:id', ...check_Auth, customerController.showDetail);
+router.get('/', ...check_Auth, shopController.showShop);
+router.get('/shop', ...check_Auth, shopController.showShop);
+router.get('/detail/:id', ...check_Auth, shopController.showDetail);
 
-router.get('/cart', ...check_Auth, customerController.showCart);
-router.post('/cart/add', ...check_Auth, customerController.addToCart);
-router.post('/cart/update', ...check_Auth, customerController.updateCart);
-router.post('/cart/remove', ...check_Auth, customerController.removeFromCart);
+router.get('/cart', ...check_Auth, cartController.showCart);
+router.post('/cart/add', ...check_Auth, cartController.addToCart);
+router.post('/cart/update', ...check_Auth, cartController.updateCart);
+router.post('/cart/remove', ...check_Auth, cartController.removeFromCart);
 
-router.post('/order/place', ...check_Auth, customerController.placeOrder);
-router.get( '/order/:id', ...check_Auth, customerController.showOrder);
-router.get( '/orders', ...check_Auth, customerController.showOrders);
-
-router.get('/profile', ...check_Auth, customerController.showProfile);
-router.post('/update-profile', ...check_Auth, customerController.updateProfile);
+router.get('/payment', ...check_Auth, orderController.showPayment);
+router.post('/order/place', ...check_Auth, orderController.placeOrder);
 
 module.exports = router;

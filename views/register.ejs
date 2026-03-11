@@ -74,6 +74,43 @@
             </form>
         </div>
     </div>
+        <% if (typeof error !== 'undefined' && error) { %>
+    <div id="errorPopup" class="fixed top-6 left-1/2 -translate-x-1/2 z-50
+        bg-red-50 border border-red-200 text-red-600 text-[14px] font-medium
+        px-6 py-3 rounded-2xl shadow-lg flex items-center gap-3">
+        
+        <svg class="w-4 h-4 shrink-0" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+            <path d="M12 9v4m0 4h.01M10.29 3.86L1.82 18a2 2 0 001.71 3h16.94a2 2 0 001.71-3L13.71 3.86a2 2 0 00-3.42 0z"/>
+        </svg>
+        
+        <%= error %>
+        <button onclick="document.getElementById('errorPopup').remove()" class="ml-2 text-red-400 hover:text-red-600">
+            ✕
+        </button>
+
+    </div>
+    <% } %>
+
+    <% if (typeof success !== 'undefined' && success) { %>
+    <div id="successPopup" class="fixed top-6 left-1/2 -translate-x-1/2 z-50
+        bg-green-50 border border-green-200 text-green-600 text-[14px] font-medium
+        px-6 py-3 rounded-2xl shadow-lg flex items-center gap-3">
+
+        <svg class="w-4 h-4 shrink-0" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+            <path d="M5 13l4 4L19 7"/>
+        </svg>
+
+        <%= success %>
+    </div>
+    <% } %>
+
+    <script>
+        // หายไปหลัง 4 วิ
+        setTimeout(() => {
+            document.getElementById('errorPopup')?.remove();
+            document.getElementById('successPopup')?.remove();
+        }, 4000);
+    </script>
 </body>
 
 </html>

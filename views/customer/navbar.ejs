@@ -6,20 +6,19 @@
 <header>
     <div class="bg-[#F8F8F8] h-[78px] flex items-center border-b border-gray-300 sticky top-0 z-50">
         <div class="ml-[60px]">
-            <a href="/shop">
-                <img src="/img/home/logo1.png" class="w-[100px] h-[67px]">
-            </a>
+            <img src="/img/home/logo1.png" class="w-[100px] h-[67px]">
         </div>
-
-        <div class=" ml-[1000px]">
+        <div class="ml-auto mr-5 flex items-center gap-6">
+            <% if (user && user.role === 'customer') { %>
             <a href="/customer/cart">
                 <img src="/img/home/cart.png" class="w-[47px] h-[47px]">
             </a>
-        </div>
+            <% } %>
 
-        <div class="ml-[40px]">
-            <a href="/customer/profile">
-                <img src="/img/profile/<%= user.name %>.png" class="w-[40px] h-[40px] rounded-full object-cover border">
+            <a href="/profile">
+                <img src="/img/profile/<%= user.avatar || 'default.png' %>"
+                    onerror="this.src='/img/profile/default.png'"
+                    class="w-[40px] h-[40px] rounded-full object-cover border">
             </a>
         </div>
     </div>

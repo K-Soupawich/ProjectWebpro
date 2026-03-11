@@ -30,11 +30,11 @@
     <title>เพิ่มสินค้า – KOFY</title>
 </head>
 
-<body class="flex bg-[#F5F3EF] min-w-[1440px]">
+<body class="flex bg-[#F5F3EF]">
 
     <%- include('../partials/sidebar') %>
 
-        <div class="min-h-screen ml-[200px] px-10 py-8">
+        <div class="min-h-screen w-full px-4 md:px-10 py-8">
 
             <h1 class="text-[22px] font-bold text-[#30231D] mb-6">
                 เพิ่มสินค้าใหม่
@@ -52,7 +52,7 @@
                         รายละเอียดสินค้า
                     </p>
 
-                    <div class="grid grid-cols-2 gap-5 mb-5">
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-5 mb-5">
                         <div class="flex flex-col gap-1.5">
                             <label class="text-[11px] font-semibold text-[#999] tracking-wide uppercase">
                                 ชื่อสินค้า
@@ -71,7 +71,7 @@
                         </div>
                     </div>
 
-                    <div class="grid grid-cols-3 gap-5">
+                    <div class="grid grid-cols-1 md:grid-cols-3 gap-5">
                         <!-- หมวดหมู่ จาก DB -->
                         <div class="flex flex-col gap-1.5">
 
@@ -197,7 +197,7 @@
         <!-- Color Picker -->
         <div id="colorPickerOverlay"
             class="hidden fixed inset-0 bg-black/30 z-50 flex items-center justify-center backdrop-blur-sm">
-            <div class="bg-white rounded-2xl p-6 w-[360px] shadow-2xl">
+            <div class="bg-white rounded-2xl p-6 w-[320px] md:w-[360px] shadow-2xl mx-4">
 
                 <h3 class="text-[15px] font-bold text-[#30231D] mb-4">
                     เลือกสี

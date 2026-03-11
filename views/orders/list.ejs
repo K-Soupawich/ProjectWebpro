@@ -1,0 +1,349 @@
+<!DOCTYPE html>
+<html lang="th">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
+    <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+Thai:wght@400;500;600;700&family=IBM+Plex+Mono:wght@500&display=swap" rel="stylesheet">
+    <style>
+        body { font-family: 'IBM Plex Sans Thai', sans-serif; }
+        .mono { font-family: 'IBM Plex Mono', monospace; }
+        .row-hover { transition: background .15s; }
+        .row-hover:hover { background: #F5F3EF; cursor: pointer; }
+    </style>
+    <title>คำสั่งซื้อ – KOFY</title>
+</head>
+
+<body class="flex bg-[#F5F3EF] h-screen overflow-hidden">
+
+    <%- include('../partials/sidebar') %>
+
+    <div class="flex-1 flex flex-col h-screen overflow-y-auto">
+
+        <!-- Topbar -->
+        <div class="sticky top-0 z-20 bg-[#F5F3EF]/95 backdrop-blur border-b border-[#E8E0D5]
+            px-10 h-[62px] flex items-center justify-between gap-4">
+            <h1 class="text-[18px] font-bold text-[#30231D] tracking-tight">คำสั่งซื้อ</h1>
+
+            <!-- Filter tabs -->
+            <div class="flex items-center gap-1 bg-white border border-[#E8E0D5] rounded-xl p-1">
+                <% const tabs = [
+                    { val: '', label: 'ทั้งหมด' },
+                    { val: 'pending',   label: 'รอดำเนินการ' },
+                    { val: 'confirmed', label: 'ยืนยันแล้ว' },
+                    { val: 'shipped',   label: 'กำลังจัดส่ง' },
+                    { val: 'delivered', label: 'จัดส่งสำเร็จ' },
+                    { val: 'cancelled', label: 'ยกเลิก' },
+                ]; %>
+                <% tabs.forEach(tab => { %>
+                    <a href="/orders<%= tab.val ? '?status=' + tab.val : '' %>"
+                        class="text-[12px] font-semibold px-3 py-1.5 rounded-lg transition
+                        <%= selectedStatus === tab.val ? 'bg-[#6E5742] text-white' : 'text-[#999] hover:text-[#30231D]' %>">
+                        <%= tab.label %>
+                        <% if (tab.val === '' && counts.total) { %>
+                            <span class="ml-1 <%= selectedStatus === '' ? 'text-white/70' : 'text-[#bbb]' %>"><%= counts.total %></span>
+                        <% } %>
+                    </a>
+                <% }) %>
+            </div>
+        </div>
+
+        <!-- Content -->
+        <div class="px-10 py-8 flex-1">
+
+            <!-- Summary cards -->
+            <div class="flex gap-4 mb-6">
+                <% const cards = [
+                    { label: 'รอดำเนินการ', key: 'pending', color: 'text-yellow-600', bg: 'bg-yellow-50' },
+                    { label: 'ยืนยันแล้ว', key: 'confirmed', color: 'text-blue-600', bg: 'bg-blue-50' },
+                    { label: 'กำลังจัดส่ง', key: 'shipped', color: 'text-indigo-600', bg: 'bg-indigo-50' },
+                    { label: 'จัดส่งสำเร็จ', key: 'delivered', color: 'text-green-600',  bg: 'bg-green-50' },
+                ]; %>
+                <% cards.forEach(c => { %>
+                <div class="bg-white rounded-xl border border-[#E8E0D5] px-5 py-3 flex items-center gap-3 shadow-sm">
+                    <div class="w-8 h-8 rounded-full <%= c.bg %> flex items-center justify-center text-lg font-bold <%= c.color %>">
+                        <%= counts[c.key] || 0 %>
+                    </div>
+                    <p class="text-[12px] text-[#999] font-semibold"><%= c.label %></p>
+                </div>
+                <% }) %>
+            </div>
+
+            <!-- Table -->
+            <div class="bg-white rounded-2xl border border-[#E8E0D5] shadow-sm overflow-hidden">
+
+                <!-- Header -->
+                <div class="grid grid-cols-[80px_1fr_140px_120px_110px_100px] gap-0
+                    px-5 py-2.5 bg-[#FDFCF9] border-b border-[#E8E0D5]
+                    text-[10px] font-semibold text-[#999] uppercase tracking-widest">
+                    <div>ออเดอร์</div>
+                    <div>ลูกค้า</div>
+                    <div>ที่อยู่จัดส่ง</div>
+                    <div class="text-right">ยอดรวม</div>
+                    <div class="text-center">สถานะ</div>
+                    <div class="text-center">วันที่</div>
+                </div>
+
+                <% if (orders.length === 0) { %>
+                <div class="py-20 text-center">
+                    <svg class="w-10 h-10 text-[#D8CEBD] mx-auto mb-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"/>
+                    </svg>
+                    <p class="text-[13px] text-[#C5BAB0]">ไม่มีคำสั่งซื้อ</p>
+                </div>
+                <% } %>
+
+                <% const statusStyle = {
+                    pending: { label: 'รอดำเนินการ', cls: 'bg-yellow-50 text-yellow-600' },
+                    confirmed: { label: 'ยืนยันแล้ว', cls: 'bg-blue-50 text-blue-600' },
+                    shipped: { label: 'กำลังจัดส่ง', cls: 'bg-indigo-50 text-indigo-600' },
+                    delivered: { label: 'จัดส่งสำเร็จ', cls: 'bg-green-50 text-green-600' },
+                    cancelled: { label: 'ยกเลิก', cls: 'bg-red-50 text-red-500' },
+                }; %>
+
+                <% orders.forEach((order, idx) => {
+                    const st = statusStyle[order.status] || { label: order.status, cls: 'bg-gray-100 text-gray-500' };
+                    const d = new Date(order.created_at);
+                    const dateStr = d.toLocaleDateString('th-TH', { day:'2-digit', month:'2-digit', year:'2-digit' });
+                    const timeStr = d.toLocaleTimeString('th-TH', { hour:'2-digit', minute:'2-digit' });
+                %>
+                <div onclick="openDetail(<%= order.id %>)"
+                    class="row-hover grid grid-cols-[80px_1fr_140px_120px_110px_100px] gap-0 items-center
+                    px-5 py-3.5 border-b border-[#F0EBE3] last:border-b-0
+                    <%= idx % 2 === 0 ? '' : 'bg-[#FDFCF9]' %>">
+
+                    <div class="mono text-[12px] font-semibold text-[#A28161]">#<%= order.id %></div>
+
+                    <div class="flex items-center gap-2 min-w-0">
+                        <img src="/img/profile/<%= order.avatar || 'default.jpg' %>"
+                            onerror="this.src='/img/profile/default.jpg'"
+                            class="w-7 h-7 rounded-full object-cover border border-[#E8E0D5] shrink-0">
+                        <div class="min-w-0">
+                            <p class="text-[13px] font-semibold text-[#30231D] truncate"><%= order.username %></p>
+                            <p class="text-[11px] text-[#bbb] truncate"><%= order.item_count %> รายการ</p>
+                        </div>
+                    </div>
+
+                    <div class="text-[11px] text-[#999] truncate pr-2"><%= order.address || '—' %></div>
+
+                    <div class="text-right mono text-[13px] font-semibold text-[#30231D]">
+                        ฿<%= order.total_amount.toLocaleString() %>
+                    </div>
+
+                    <div class="flex justify-center">
+                        <span class="text-[11px] font-semibold px-2.5 py-1 rounded-full <%= st.cls %>">
+                            <%= st.label %>
+                        </span>
+                    </div>
+
+                    <div class="text-center">
+                        <p class="text-[11px] text-[#555] mono"><%= dateStr %></p>
+                        <p class="text-[10px] text-[#bbb] mono"><%= timeStr %></p>
+                    </div>
+                </div>
+                <% }) %>
+            </div>
+        </div>
+    </div>
+
+    <!-- ===== DETAIL MODAL ===== -->
+    <div id="detailOverlay" class="hidden fixed inset-0 bg-black/30 z-50 flex items-center justify-center backdrop-blur-sm px-4">
+        <div class="bg-white rounded-2xl shadow-2xl w-full max-w-[600px] max-h-[85vh] flex flex-col">
+
+            <!-- Modal header -->
+            <div class="flex items-center justify-between px-6 py-4 border-b border-[#E8E0D5]">
+                <div>
+                    <h3 class="text-[16px] font-bold text-[#30231D]">ออเดอร์ <span id="modalOrderId" class="mono text-[#A28161]"></span></h3>
+                    <p id="modalCustomer" class="text-[12px] text-[#999] mt-0.5"></p>
+                </div>
+                <button onclick="closeDetail()" class="text-gray-300 hover:text-gray-500 text-xl">✕</button>
+            </div>
+
+            <!-- Modal body -->
+            <div class="overflow-y-auto flex-1 px-6 py-5 space-y-4">
+
+                <!-- Address -->
+                <div class="bg-[#FDFCF9] rounded-xl border border-[#E8E0D5] px-4 py-3">
+                    <p class="text-[10px] font-semibold text-[#A28161] uppercase tracking-widest mb-1">ที่อยู่จัดส่ง</p>
+                    <p id="modalAddress" class="text-[13px] text-[#555]"></p>
+                </div>
+
+                <!-- Items table -->
+                <div>
+                    <p class="text-[10px] font-semibold text-[#999] uppercase tracking-widest mb-2">รายการสินค้า</p>
+                    <div class="bg-white rounded-xl border border-[#E8E0D5] overflow-hidden">
+                        <div id="modalItems" class="divide-y divide-[#F0EBE3]">
+                            <!-- filled by JS -->
+                        </div>
+                        <div class="px-4 py-3 bg-[#FDFCF9] border-t border-[#E8E0D5] flex justify-between text-[12px]">
+                            <span class="text-[#999]">ค่าจัดส่ง</span>
+                            <span id="modalShipping" class="mono font-semibold text-[#555]"></span>
+                        </div>
+                        <div class="px-4 py-3 flex justify-between text-[13px] font-bold">
+                            <span class="text-[#30231D]">ยอดรวม</span>
+                            <span id="modalTotal" class="mono text-[#30231D]"></span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Status update -->
+                <div>
+                    <p class="text-[10px] font-semibold text-[#999] uppercase tracking-widest mb-2">เปลี่ยนสถานะ</p>
+                    <div id="statusBtns" class="flex flex-wrap gap-2">
+                        <!-- filled by JS -->
+                    </div>
+                </div>
+
+                <!-- Note -->
+                <div id="noteBlock" class="hidden">
+                    <p class="text-[10px] font-semibold text-[#999] uppercase tracking-widest mb-1">หมายเหตุ</p>
+                    <p id="modalNote" class="text-[13px] text-[#555] bg-[#FDFCF9] rounded-xl border border-[#E8E0D5] px-4 py-3"></p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Toast -->
+    <div id="toast" class="fixed bottom-6 right-6 z-50 opacity-0 pointer-events-none translate-y-2" style="transition: opacity .25s, transform .25s">
+        <div id="toastInner" class="flex items-center gap-3 px-5 py-3 rounded-xl shadow-xl text-[13px] font-semibold text-white">
+            <span id="toastIcon"></span>
+            <span id="toastMsg"></span>
+        </div>
+    </div>
+
+    <script id="ordersData" type="application/json"><%- JSON.stringify(orders) %></script>
+
+    <script>
+        const ORDERS = JSON.parse(document.getElementById('ordersData').textContent);
+        let currentOrderId = null;
+
+        const STATUS_LABELS = {
+            pending:   'รอดำเนินการ',
+            confirmed: 'ยืนยันแล้ว',
+            shipped:   'กำลังจัดส่ง',
+            delivered: 'จัดส่งสำเร็จ',
+            cancelled: 'ยกเลิก',
+        };
+        const STATUS_CLS = {
+            pending:   'bg-yellow-50 text-yellow-600 border-yellow-200',
+            confirmed: 'bg-blue-50 text-blue-600 border-blue-200',
+            shipped:   'bg-indigo-50 text-indigo-600 border-indigo-200',
+            delivered: 'bg-green-50 text-green-600 border-green-200',
+            cancelled: 'bg-red-50 text-red-500 border-red-200',
+        };
+        // สถานะที่ไปต่อได้
+        const NEXT_STATUS = {
+            pending:   ['confirmed', 'cancelled'],
+            confirmed: ['shipped', 'cancelled'],
+            shipped:   ['delivered'],
+            delivered: [],
+            cancelled: [],
+        };
+
+        async function openDetail(orderId) {
+            currentOrderId = orderId;
+
+            // ดึง items จาก server
+            const res = await fetch(`/orders/${orderId}/items`);
+            const data = await res.json();
+
+            const order = ORDERS.find(o => o.id === orderId);
+
+            document.getElementById('modalOrderId').textContent = '#' + orderId;
+            document.getElementById('modalCustomer').textContent = order.username + ' · ' + new Date(order.created_at).toLocaleDateString('th-TH');
+            document.getElementById('modalAddress').textContent = order.address || '—';
+            document.getElementById('modalShipping').textContent = '฿' + (order.shipping_fee || 50).toLocaleString();
+            document.getElementById('modalTotal').textContent = '฿' + order.total_amount.toLocaleString();
+
+            // note
+            if (order.note) {
+                document.getElementById('noteBlock').classList.remove('hidden');
+                document.getElementById('modalNote').textContent = order.note;
+            } else {
+                document.getElementById('noteBlock').classList.add('hidden');
+            }
+
+            // items
+            const itemsEl = document.getElementById('modalItems');
+            itemsEl.innerHTML = data.items.map(item => `
+                <div class="flex items-center gap-3 px-4 py-3">
+                    <img src="/uploads/${item.image || ''}" onerror="this.src='/img/profile/default.png'"
+                        class="w-10 h-10 rounded-lg object-cover border border-[#E8E0D5] shrink-0">
+                    <div class="flex-1 min-w-0">
+                        <p class="text-[13px] font-semibold text-[#30231D] truncate">${item.product_name}</p>
+                        <p class="text-[11px] text-[#bbb]">${[item.color, item.size].filter(Boolean).join(' · ')}</p>
+                    </div>
+                    <div class="text-right shrink-0">
+                        <p class="text-[12px] text-[#999]">x${item.qty}</p>
+                        <p class="mono text-[12px] font-semibold text-[#30231D]">฿${(item.price * item.qty).toLocaleString()}</p>
+                    </div>
+                </div>
+            `).join('');
+
+            // status buttons
+            const btns = document.getElementById('statusBtns');
+            const nexts = NEXT_STATUS[order.status] || [];
+            if (nexts.length === 0) {
+                btns.innerHTML = `<span class="text-[12px] text-[#bbb]">ไม่สามารถเปลี่ยนสถานะได้</span>`;
+            } else {
+                btns.innerHTML = nexts.map(s => `
+                    <button onclick="updateStatus(${orderId}, '${s}')"
+                        class="flex items-center gap-2 text-[12px] font-semibold px-4 py-2 rounded-xl border transition hover:opacity-80 ${STATUS_CLS[s]}">
+                        ${STATUS_LABELS[s]}
+                    </button>
+                `).join('');
+            }
+
+            document.getElementById('detailOverlay').classList.remove('hidden');
+        }
+
+        function closeDetail() {
+            document.getElementById('detailOverlay').classList.add('hidden');
+        }
+
+        document.getElementById('detailOverlay').addEventListener('click', e => {
+            if (e.target === document.getElementById('detailOverlay')) closeDetail();
+        });
+
+        async function updateStatus(orderId, newStatus) {
+            try {
+                const res = await fetch(`/orders/${orderId}/status`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ status: newStatus })
+                });
+                const data = await res.json();
+                if (!res.ok) throw new Error(data.message || 'เกิดข้อผิดพลาด');
+
+                // อัพเดต local
+                const order = ORDERS.find(o => o.id === orderId);
+                if (order) order.status = newStatus;
+
+                showToast('success', `อัพเดตสถานะเป็น "${STATUS_LABELS[newStatus]}" แล้ว`);
+                closeDetail();
+
+                // รีโหลด row ใน table
+                setTimeout(() => location.reload(), 800);
+            } catch (err) {
+                showToast('error', err.message);
+            }
+        }
+
+        function showToast(type, msg) {
+            const toast = document.getElementById('toast');
+            const inner = document.getElementById('toastInner');
+            inner.className = `flex items-center gap-3 px-5 py-3 rounded-xl shadow-xl text-[13px] font-semibold text-white
+                ${type === 'success' ? 'bg-[#22c55e]' : 'bg-red-500'}`;
+            document.getElementById('toastMsg').textContent = msg;
+            toast.classList.remove('opacity-0', 'translate-y-2', 'pointer-events-none');
+            toast.classList.add('opacity-100', 'translate-y-0');
+            setTimeout(() => {
+                toast.classList.add('opacity-0', 'translate-y-2');
+                setTimeout(() => toast.classList.add('pointer-events-none'), 300);
+            }, 3000);
+        }
+    </script>
+
+</body>
+</html>

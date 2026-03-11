@@ -1,6 +1,7 @@
 const fs = require('fs');
 const db = require('../config/db');
 const path = require('path');
+const COLOR_PRIORITY = ['WT', 'BK', 'GR', 'RD', 'BL', 'BR', 'SK', 'YL', 'PK', 'GN', 'PP'];
 
 exports.showList = (req, res) => {
     db.all(`
