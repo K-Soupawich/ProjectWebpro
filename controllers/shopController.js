@@ -17,6 +17,7 @@ const COLOR_PRIORITY = ['WT', 'BK', 'GR', 'RD', 'BL', 'BR', 'SK', 'YL', 'PK', 'G
 
 exports.showShop = (req, res) => {
     const categoryCode = req.query.category || null;
+    const searchQuery = req.query.q || '';
 
     let sql = `
         SELECT p.id, p.name, p.price,
@@ -36,11 +37,15 @@ exports.showShop = (req, res) => {
         sql += ' AND c.code = ?';
         params.push(categoryCode);
     }
+    if (searchQuery) {
+        sql += ' AND p.name LIKE ?';
+        params.push(`%${searchQuery}%`);
+    }
     sql += ' ORDER BY p.created_at DESC';
 
     db.all(sql, params, (err, products) => {
         if (err) return res.status(500).send('Database Error');
-        res.render('customer/shop', { products, selectedCategory: categoryCode });
+        res.render('customer/shop', { products, selectedCategory: categoryCode, searchQuery });
     });
 };
 
