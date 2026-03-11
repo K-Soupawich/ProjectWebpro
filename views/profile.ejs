@@ -210,6 +210,43 @@
         if (e.target === this) closeEdit();
     });
 
+    function showError(msg) {
+        const existing = document.getElementById('validationError');
+        if (existing) existing.remove();
+        const div = document.createElement('div');
+        div.id = 'validationError';
+        div.className = 'fixed top-6 left-1/2 -translate-x-1/2 z-50 bg-red-50 border border-red-200 text-red-600 text-[14px] font-medium px-6 py-3 rounded-2xl shadow-lg flex items-center gap-3';
+        div.innerHTML = `
+            <svg class="w-4 h-4 shrink-0" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                <path d="M12 9v4m0 4h.01M10.29 3.86L1.82 18a2 2 0 001.71 3h16.94a2 2 0 001.71-3L13.71 3.86a2 2 0 00-3.42 0z"/>
+            </svg>
+            <span>${msg}</span>
+            <button onclick="document.getElementById('validationError').remove()" class="ml-2 text-red-400 hover:text-red-600">✕</button>
+        `;
+        document.body.appendChild(div);
+        setTimeout(() => div.remove(), 4000);
+    }
+
+    // Validate ก่อน submit
+    document.querySelector('#editModal form').addEventListener('submit', function(e) {
+        const phone = this.phone.value.trim();
+        const email = this.email.value.trim();
+
+        const phoneRegex = /^[0-9]{10}$/;
+        const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+
+        if (phone && !phoneRegex.test(phone)) {
+            e.preventDefault();
+            showError('เบอร์โทรต้องเป็นตัวเลข 10 หลัก');
+            return;
+        }
+        if (!emailRegex.test(email)) {
+            e.preventDefault();
+            showError('รูปแบบอีเมลไม่ถูกต้อง');
+            return;
+        }
+    });
+
     function previewAvatar(input) {
         if (input.files && input.files[0]) {
             const reader = new FileReader();

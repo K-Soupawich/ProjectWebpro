@@ -321,6 +321,11 @@
             let num = parseInt(input.value);
             if (num > 1) input.value = num - 1;
         }
+        
+        window.addEventListener("DOMContentLoaded", () => {
+            const firstColorBtn = document.querySelector(".color-btn:not([disabled])");
+            if (firstColorBtn) firstColorBtn.click();
+        });
 
         // Submit Form
         document.getElementById('cartForm').addEventListener('submit', e => {

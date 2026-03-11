@@ -6,20 +6,7 @@ const path = require("path")
 const productsController = require('../controllers/productsController');
 const { isLoggedIn, authorize } = require('../middleware/authMiddleware');
 
-const storage = multer.diskStorage({
-    destination: function (req, file, cb) {
-        cb(null, "public/uploads/");
-    },
-
-    filename: function (req, file, cb) {
-        const colorCode = file.fieldname.replace('colorImage_', '');
-        const ext = path.extname(file.originalname); // .png นามสกุลไฟล์
-        const name = `tmp_${colorCode}_${Date.now()}${ext}`;
-        cb(null, name);
-    }
-});
-
-const upload = multer({ storage: storage });
+const upload = multer({ storage: multer.memoryStorage() });
 
 const COLORS = ['BK','WT','PK','RD','BL','SK','YL','BR','GN','PP','GR'];
 const colorFields = COLORS.map(c => ({ name: `colorImage_${c}`, maxCount: 1 }));

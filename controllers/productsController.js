@@ -79,13 +79,18 @@ exports.createProduct = (req, res) => {
                 const fileField = req.files && req.files[`colorImage_${colorCode}`];
                 let imageFilename = null;
 
-                if (fileField) {
-                    const tmpName = fileField[0].filename; // tmp_BK_1234567890.jpg
-                    const ext = path.extname(tmpName);
-                    const newName = `${skuBase}${colorCode}${ext}` // SH001BK.jpg
-                    const oldPath = `public/uploads/${tmpName}`;
-                    const newPath = `public/uploads/${newName}`;
-                    fs.renameSync(oldPath, newPath);
+                if (fileField && fileField[0]) {
+                    const f = fileField[0];
+                    const ext = f.originalname ? path.extname(f.originalname)
+                               : f.mimetype   ? '.' + f.mimetype.split('/')[1]
+                               : '.jpg';
+                    const newName = `${skuBase}${colorCode}${ext}`; // SH001BK.jpg
+                    const dest = `public/uploads/${newName}`;
+                    if (f.buffer) {
+                        fs.writeFileSync(dest, f.buffer);
+                    } else if (f.path) {
+                        fs.renameSync(f.path, dest);
+                    }
                     imageFilename = newName;
                 }
 
@@ -197,15 +202,26 @@ exports.updateProduct = (req, res) => {
                     `INSERT INTO product_variants (product_id, size, color, stock, sku, image) VALUES (?, ?, ?, ?, ?, ?)`
                 );
 
+                console.log('updateProduct files:', req.files ? Object.keys(req.files) : 'none');
+                console.log('updateProduct body keys:', Object.keys(req.body));
                 colorList.forEach(colorCode => {
                     let imageFilename = req.body[`existingImage_${colorCode}`] || null;
 
                     const fileField = req.files && req.files[`colorImage_${colorCode}`];
-                    if (fileField) {
-                        const tmpName = fileField[0].filename;
-                        const ext = path.extname(tmpName);
+                    console.log(`${colorCode} fileField:`, fileField ? `buffer=${fileField[0]?.buffer?.length}, orig=${fileField[0]?.originalname}` : 'none');
+
+                    if (fileField && fileField[0]) {
+                        const f = fileField[0];
+                        const ext = f.originalname ? path.extname(f.originalname)
+                                   : f.mimetype   ? '.' + f.mimetype.split('/')[1]
+                                   : '.jpg';
                         const newName = `${skuBase}${colorCode}${ext}`;
-                        fs.renameSync(`public/uploads/${tmpName}`, `public/uploads/${newName}`);
+                        const dest = `public/uploads/${newName}`;
+                        if (f.buffer) {
+                            fs.writeFileSync(dest, f.buffer);
+                        } else if (f.path) {
+                            fs.renameSync(f.path, dest);
+                        }
                         imageFilename = newName;
                     }
 
